@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.example.examplemod.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "BufferBuilderMixin",
+    "BufferSourceMixin",
+    "MeshDataMixin",
+    "ModelPartMixin",
+    "RenderStateShardMixin",
+    "RenderTypeMixin",
+    "VertexBufferMixin",
+    "VertexConsumerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
