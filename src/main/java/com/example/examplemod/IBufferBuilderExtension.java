@@ -6,9 +6,10 @@ import net.minecraft.client.renderer.RenderType;
 import java.nio.ByteBuffer;
 
 public interface IBufferBuilderExtension {
-    void sme$setRenderType(RenderType renderType);
+    void sme$supply(IEntityBufferSet bufferSet, RenderType renderType);
     void sme$beginTransform(PoseStack.Pose pose);
-    void sme$setTransformIndex(int count);
-    void sme$addMesh(ByteBuffer buffer, int size);
+    void sme$addMesh(ByteBuffer vertexBuffer, int size);
     int sme$getVertices();
+    boolean sme$supportAcceleratedRendering();
+    RenderType sme$getRenderType();
 }

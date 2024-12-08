@@ -27,17 +27,20 @@ public class ExampleMod {
                         float v0;
                         int uv1;
                         int uv2;
-                        int normal;
+                        uint normal;
                     };
                     
-                    layout(local_size_x=4, local_size_y=1) in;
+                    layout(local_size_x=1, local_size_y=1) in;
                     layout(binding=0, std430) buffer Data {
                         Vertex vertices[];
                     } data;
                     layout(binding=1, std430) readonly buffer Transforms {
                         mat4 matrices[];
                     } transforms;
-                    layout(binding=2, std430) readonly buffer Indices {
+                    layout(binding=2, std430) readonly buffer Normals {
+                        mat3 matrices[];
+                    } normals;
+                    layout(binding=3, std430) readonly buffer Indices {
                         int indices[];
                     } indices;
                     
@@ -49,10 +52,22 @@ public class ExampleMod {
                         }
                         Vertex vertex = data.vertices[index];
                         vec3 pos = vec3(vertex.x, vertex.y, vertex.z);
+                        int normalZ = int((vertex.normal >> 16) & 0xFFu);
+                        int normalY = int((vertex.normal >> 8) & 0xFFu);
+                        int normalX = int((vertex.normal >> 0) & 0xFFu);
+                        if (normalX > 127) normalX -= 256;
+                        if (normalY > 127) normalY -= 256;
+                        if (normalZ > 127) normalZ -= 256;
+                        vec3 normal = vec3(normalX / 127.0, normalY / 127.0, normalZ / 127.0);
                         vec4 transformed = transforms.matrices[transformIndex] * vec4(pos, 1.0);
+                        vec3 transformedNormal = normalize(normals.matrices[transformIndex] * normal);
                         data.vertices[index].x = transformed.x;
                         data.vertices[index].y = transformed.y;
                         data.vertices[index].z = transformed.z;
+                        uint transformedNormalX = uint(int(clamp(transformedNormal.x, -1.0, 1.0) * 127.0) & 0xFF);
+                        uint transformedNormalY = uint(int(clamp(transformedNormal.y, -1.0, 1.0) * 127.0) & 0xFF);
+                        uint transformedNormalZ = uint(int(clamp(transformedNormal.z, -1.0, 1.0) * 127.0) & 0xFF);
+                        data.vertices[index].normal = (transformedNormalX << 16) | (transformedNormalY << 8) | (transformedNormalZ << 0);
                     }
                     """);
             glCompileShader(shader);
@@ -69,15 +84,6 @@ public class ExampleMod {
             if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
                 System.out.println("Program link error: " + glGetProgramInfoLog(program));
             }
-
-            /*glUseProgram(program);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, inputBuffer);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, outputBuffer);
-
-            glDispatchCompute(20, 1, 1);
-            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-            FloatBuffer resultBuffer = memoryStack.mallocFloat(4 * 4 * 20);*/
         });
     }
 }

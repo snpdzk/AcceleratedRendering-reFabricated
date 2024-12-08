@@ -5,7 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "BufferBuilderMixin",
-    "BufferSourceMixin",
+    "LevelRendererMixin",
     "MeshDataMixin",
     "ModelPartMixin",
     "RenderStateShardMixin",

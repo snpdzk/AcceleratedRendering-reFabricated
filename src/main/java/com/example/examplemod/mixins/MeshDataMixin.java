@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Unique;
 public class MeshDataMixin implements IMeshDataExtension {
     @Unique private ByteBufferBuilder.Result sme$transformIndexBuffer;
     @Unique private ByteBufferBuilder.Result sme$transformBuffer;
+    @Unique private ByteBufferBuilder.Result sme$normalBuffer;
     @Unique private RenderType sme$renderType;
 
     @Override
@@ -23,6 +24,11 @@ public class MeshDataMixin implements IMeshDataExtension {
     @Override
     public void sme$setTransformBuffer(ByteBufferBuilder.Result result) {
         sme$transformBuffer = result;
+    }
+
+    @Override
+    public void sme$setNormalBuffer(ByteBufferBuilder.Result result) {
+        sme$normalBuffer = result;
     }
 
     @Override
@@ -38,6 +44,11 @@ public class MeshDataMixin implements IMeshDataExtension {
     @Override
     public ByteBufferBuilder.Result sme$getTransformBuffer() {
         return sme$transformBuffer;
+    }
+
+    @Override
+    public ByteBufferBuilder.Result sme$getNormalBuffer() {
+        return sme$normalBuffer;
     }
 
     @Override

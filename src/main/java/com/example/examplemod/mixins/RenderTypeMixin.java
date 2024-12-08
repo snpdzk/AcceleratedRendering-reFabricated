@@ -12,10 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class RenderTypeMixin extends RenderStateShardMixin {
     @Inject(method = "draw", at = @At("HEAD"))
     public void draw(MeshData pMeshData, CallbackInfo ci) {
-        if (!(pMeshData instanceof IMeshDataExtension extension)) {
-            return;
-        }
-
-        extension.sme$SetRenderType((RenderType) (Object) this);
+        ((IMeshDataExtension) pMeshData).sme$SetRenderType((RenderType) (Object) this);
     }
 }
