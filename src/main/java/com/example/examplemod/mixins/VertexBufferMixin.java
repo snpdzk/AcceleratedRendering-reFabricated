@@ -31,7 +31,7 @@ public class VertexBufferMixin {
     @Unique private static final int sme$TRANSFORM_BUFFER_GL_POINTER;
     @Unique private static final int sme$NORMAL_BUFFER_GL_POINTER;
     @Unique private static final int sme$TRANSFORM_INDEX_BUFFER_GL_POINTER;
-    @Unique private int sme$vertexBufferSize = 0;
+    //@Unique private int sme$vertexBufferSize = 0;
 
     static {
         sme$TRANSFORM_BUFFER_GL_POINTER = glCreateBuffers();
@@ -92,7 +92,11 @@ public class VertexBufferMixin {
             glNamedBufferSubData(sme$TRANSFORM_BUFFER_GL_POINTER, 0, transformBuffer.byteBuffer());
             glNamedBufferSubData(sme$NORMAL_BUFFER_GL_POINTER, 0, normalBuffer.byteBuffer());
 
+            int program = glGetInteger(GL_CURRENT_PROGRAM);
             glUseProgram(ExampleMod.program);
+
+            glUniform1i(0, 1);
+
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, vertexBufferId);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, sme$TRANSFORM_BUFFER_GL_POINTER);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, sme$NORMAL_BUFFER_GL_POINTER);
@@ -100,6 +104,7 @@ public class VertexBufferMixin {
 
             glDispatchCompute(pMeshData.vertexBuffer().capacity() / pMeshData.drawState().format().getVertexSize(), 1, 1);
             glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+            glUseProgram(program);
         }
     }
 }

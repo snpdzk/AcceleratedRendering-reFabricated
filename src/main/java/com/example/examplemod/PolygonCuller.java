@@ -1,6 +1,7 @@
 package com.example.examplemod;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import net.irisshaders.batchedentityrendering.impl.WrappableRenderType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
@@ -45,6 +46,10 @@ public class PolygonCuller {
     }
 
     public static Optional<NativeImage> downloadTexture(RenderType renderType) {
+        if (renderType instanceof WrappableRenderType wrappable) {
+            renderType = wrappable.unwrap();
+        }
+
         if (!(renderType instanceof RenderType.CompositeRenderType composite)) {
             return Optional.empty();
         }
@@ -56,8 +61,10 @@ public class PolygonCuller {
         }
 
         Minecraft.getInstance().getTextureManager().getTexture(textureResourceLocation.get()).bind();
+
         int[] width = new int[1];
         int[] height = new int[1];
+
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, width);
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, height);
 

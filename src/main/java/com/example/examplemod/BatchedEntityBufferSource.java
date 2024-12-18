@@ -1,6 +1,5 @@
 package com.example.examplemod;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -14,7 +13,7 @@ import java.util.SequencedMap;
 
 public class BatchedEntityBufferSource implements MultiBufferSource {
     private final SequencedMap<RenderType, BatchedEntityBufferSet> buffers = new Object2ObjectLinkedOpenHashMap<>();
-    private final Map<RenderType, BufferBuilder> startedBuilders;
+    private final Map<RenderType, SimpleBufferBuilder> startedBuilders;
 
     public BatchedEntityBufferSource() {
         this.startedBuilders = new Object2ObjectLinkedOpenHashMap<>();
@@ -22,7 +21,7 @@ public class BatchedEntityBufferSource implements MultiBufferSource {
 
     @Override
     public @NotNull VertexConsumer getBuffer(@NotNull RenderType pRenderType) {
-        BufferBuilder startedBufferBuilder = startedBuilders.get(pRenderType);
+        SimpleBufferBuilder startedBufferBuilder = startedBuilders.get(pRenderType);
 
         if (startedBufferBuilder != null) {
             return startedBufferBuilder;
@@ -35,13 +34,9 @@ public class BatchedEntityBufferSource implements MultiBufferSource {
             buffers.put(pRenderType, bufferSet);
         }
 
-        BufferBuilder bufferBuilder = new BufferBuilder(
-                bufferSet.bufferBuilder,
-                pRenderType.mode,
-                pRenderType.format
-        );
+        SimpleBufferBuilder bufferBuilder = new SimpleBufferBuilder(bufferSet.bufferBuilder);
 
-        ((IBufferBuilderExtension) bufferBuilder).sme$supply(bufferSet, pRenderType);
+        bufferBuilder.sme$supply(bufferSet, pRenderType);
         startedBuilders.put(pRenderType, bufferBuilder);
 
         return bufferBuilder;

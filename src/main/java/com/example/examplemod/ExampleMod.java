@@ -31,6 +31,9 @@ public class ExampleMod {
                     };
                     
                     layout(local_size_x=1, local_size_y=1) in;
+                    
+                    layout(location=0) uniform int offsetY;
+                    
                     layout(binding=0, std430) buffer Data {
                         Vertex vertices[];
                     } data;
@@ -60,9 +63,9 @@ public class ExampleMod {
                         if (normalZ > 127) normalZ -= 256;
                         vec3 normal = vec3(normalX / 127.0, normalY / 127.0, normalZ / 127.0);
                         vec4 transformed = transforms.matrices[transformIndex] * vec4(pos, 1.0);
-                        vec3 transformedNormal = normalize(normals.matrices[transformIndex] * normal);
+                        vec3 transformedNormal = normals.matrices[transformIndex] * normal;
                         data.vertices[index].x = transformed.x;
-                        data.vertices[index].y = transformed.y;
+                        data.vertices[index].y = transformed.y + offsetY;
                         data.vertices[index].z = transformed.z;
                         uint transformedNormalX = uint(int(clamp(transformedNormal.x, -1.0, 1.0) * 127.0) & 0xFF);
                         uint transformedNormalY = uint(int(clamp(transformedNormal.y, -1.0, 1.0) * 127.0) & 0xFF);

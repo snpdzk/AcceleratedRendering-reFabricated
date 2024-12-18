@@ -2,6 +2,7 @@ package com.example.examplemod.mixins;
 
 import com.example.examplemod.IBufferBuilderExtension;
 import com.example.examplemod.PolygonCuller;
+import com.example.examplemod.SimpleBufferBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.model.geom.ModelPart;
@@ -44,8 +45,7 @@ public class ModelPartMixin {
             return;
         }
 
-        BufferBuilder bufferBuilder = new BufferBuilder(new ByteBufferBuilder(64), VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
-        IBufferBuilderExtension extension2 = (IBufferBuilderExtension) bufferBuilder;
+        SimpleBufferBuilder bufferBuilder = new SimpleBufferBuilder(new ByteBufferBuilder(64));
         Optional<NativeImage> image = PolygonCuller.downloadTexture(extension.sme$getRenderType());
 
         for (ModelPart.Cube cube : cubes) {
@@ -74,13 +74,13 @@ public class ModelPartMixin {
             }
         }
 
-        sme$vertices.put(renderType, extension2.sme$getVertices());
+        sme$vertices.put(renderType, bufferBuilder.sme$getVertices());
         MeshData meshData = bufferBuilder.build();
 
         if (meshData != null) {
             ByteBuffer byteBuffer = meshData.vertexBuffer();
             sme$cachedBuffers.put(renderType, byteBuffer);
-            extension.sme$addMesh(byteBuffer, extension2.sme$getVertices());
+            extension.sme$addMesh(byteBuffer, bufferBuilder.sme$getVertices());
         }
 
         image.ifPresent(NativeImage::close);
