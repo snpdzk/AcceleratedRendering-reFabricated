@@ -1,7 +1,7 @@
-package com.example.examplemod.mixins;
+package com.github.argon4w.acceleratedrendering.mixins;
 
-import com.example.examplemod.IBufferBuilderExtension;
-import com.example.examplemod.IEntityBufferSet;
+import com.github.argon4w.acceleratedrendering.buffers.IVertexConsumerExtension;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
@@ -10,10 +10,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.nio.ByteBuffer;
 
 @Mixin(VertexConsumer.class)
-public interface VertexConsumerMixin extends IBufferBuilderExtension {
-    @Override
-    default void sme$supply(IEntityBufferSet bufferSet, RenderType renderType) {
+public interface VertexConsumerMixin extends IVertexConsumerExtension {
 
+    @Override
+    default MeshData sme$build() {
+        return null;
     }
 
     @Override
@@ -22,18 +23,13 @@ public interface VertexConsumerMixin extends IBufferBuilderExtension {
     }
 
     @Override
-    default void sme$addMesh(ByteBuffer vertexBuffer, int size) {
+    default void sme$addMesh(ByteBuffer vertexBuffer, int size, int color, int light, int overlay) {
 
     }
 
     @Override
     default boolean sme$supportAcceleratedRendering() {
         return false;
-    }
-
-    @Override
-    default int sme$getVertices() {
-        return 0;
     }
 
     @Override

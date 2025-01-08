@@ -1,6 +1,6 @@
-package com.example.examplemod.mixins;
+package com.github.argon4w.acceleratedrendering.mixins;
 
-import com.example.examplemod.BatchedEntityBufferSource;
+import com.github.argon4w.acceleratedrendering.buffers.BatchedEntityBufferSource;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -20,17 +20,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelRenderer.class)
 public abstract class LevelRendererMixin {
-    @Unique
-    private static final BatchedEntityBufferSource sme$BATCHED_ENTITY_BUFFER_SOURCE = new BatchedEntityBufferSource();
+
+    @Inject(method = "renderLevel", at = @At("HEAD"))
+    public void waitFenceSync(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
+        BatchedEntityBufferSource.INSTANCE.waitFenceSync();
+        BatchedEntityBufferSource.INSTANCE.getVertexBuffer().map();
+    }
 
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderEntity(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;)V"))
     public void wrapRenderEntity(LevelRenderer instance, Entity pEntity, double pCamX, double pCamY, double pCamZ, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBufferSource, Operation<Void> original) {
-        original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, sme$BATCHED_ENTITY_BUFFER_SOURCE);
+        original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, BatchedEntityBufferSource.INSTANCE);
     }
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0))
     public void endAllEntityBatches(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
-        sme$BATCHED_ENTITY_BUFFER_SOURCE.endAllBatches();
-        sme$BATCHED_ENTITY_BUFFER_SOURCE.clearBuffers();
+        BatchedEntityBufferSource.INSTANCE.drawBuffers();
+        BatchedEntityBufferSource.INSTANCE.clearBuffers();
     }
 }
