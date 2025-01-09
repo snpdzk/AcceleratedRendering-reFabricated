@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.builders;
 
-import com.github.argon4w.acceleratedrendering.buffers.IVertexConsumerExtension;
-
 public class EmptyMesh implements IMesh {
 
     @Override

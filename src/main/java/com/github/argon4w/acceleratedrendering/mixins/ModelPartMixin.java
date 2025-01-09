@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.mixins;
 
-import com.github.argon4w.acceleratedrendering.buffers.IVertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.builders.IVertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.builders.IMesh;
 import com.github.argon4w.acceleratedrendering.builders.MeshBuilder;
 import com.github.argon4w.acceleratedrendering.utils.CullerUtils;
@@ -30,20 +30,20 @@ public class ModelPartMixin {
 
     @Shadow @Final private List<ModelPart.Cube> cubes;
 
-    @Unique private final Map<RenderType, IMesh> sme$meshes = new Reference2ObjectOpenHashMap<>();
+    @Unique private final Map<RenderType, IMesh> acceleratedrendering$meshes = new Reference2ObjectOpenHashMap<>();
 
     @Inject(method = "compile", at = @At("HEAD"), cancellable = true)
     public void compile(PoseStack.Pose pPose, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, int pColor, CallbackInfo ci) {
         IVertexConsumerExtension extension = (IVertexConsumerExtension) pBuffer;
 
-        if (!extension.sme$supportAcceleratedRendering()) {
+        if (!extension.acceleratedrendering$supportAcceleratedRendering()) {
             return;
         }
 
-        extension.sme$beginTransform(pPose);
+        extension.acceleratedrendering$beginTransform(pPose);
 
-        RenderType renderType = extension.sme$getRenderType();
-        IMesh mesh = sme$meshes.get(renderType);
+        RenderType renderType = extension.acceleratedrendering$getRenderType();
+        IMesh mesh = acceleratedrendering$meshes.get(renderType);
 
         if (mesh != null) {
             mesh.render(extension, pColor, pPackedLight, pPackedOverlay);
@@ -51,8 +51,7 @@ public class ModelPartMixin {
             return;
         }
 
-        ByteBufferBuilder vertexBuffer = new ByteBufferBuilder(64);
-        MeshBuilder meshBuilder = MeshBuilder.create(vertexBuffer);
+        MeshBuilder meshBuilder = MeshBuilder.create(new ByteBufferBuilder(64));
         Optional<NativeImage> image = TextureUtils.downloadTexture(renderType);
 
         for (ModelPart.Cube cube : cubes) {
@@ -82,7 +81,7 @@ public class ModelPartMixin {
         }
 
         mesh = meshBuilder.build();
-        sme$meshes.put(renderType, mesh);
+        acceleratedrendering$meshes.put(renderType, mesh);
         mesh.render(extension, pColor, pPackedLight, pPackedOverlay);
 
         image.ifPresent(NativeImage::close);

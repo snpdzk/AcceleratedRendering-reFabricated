@@ -4,13 +4,17 @@ import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL46.*;
 
-public class ImmutableGLBuffer {
+public class ImmutableGLBuffer implements IGLBuffer {
 
     private final int bufferHandle;
 
     public ImmutableGLBuffer(long size, int bits) {
         this.bufferHandle = glCreateBuffers();
         glNamedBufferStorage(bufferHandle, size, bits);
+    }
+
+    public void bind(int target) {
+        glBindBuffer(target, bufferHandle);
     }
 
     public void setData(int offset, ByteBuffer data) {
@@ -29,6 +33,14 @@ public class ImmutableGLBuffer {
         glCopyNamedBufferSubData(bufferHandle, buffer.bufferHandle, 0, 0, size);
     }
 
+    public void copyFrom(ImmutableGLBuffer buffer, long readOffset,long writeOffset, long size ) {
+        glCopyNamedBufferSubData(buffer.bufferHandle, bufferHandle, readOffset, writeOffset, size);
+    }
+
+    public void copyFrom(ImmutableGLBuffer buffer, long size) {
+        glCopyNamedBufferSubData(buffer.bufferHandle, bufferHandle, 0, 0, size);
+    }
+
     public ByteBuffer map(int bits) {
         return glMapNamedBuffer(bufferHandle, bits);
     }
@@ -45,6 +57,7 @@ public class ImmutableGLBuffer {
         glDeleteBuffers(bufferHandle);
     }
 
+    @Override
     public int getBufferHandle() {
         return bufferHandle;
     }

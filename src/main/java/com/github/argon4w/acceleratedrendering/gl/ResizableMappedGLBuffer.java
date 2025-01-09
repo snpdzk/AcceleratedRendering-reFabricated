@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL46.*;
 
-public class ResizableMappedGLBuffer {
+public class ResizableMappedGLBuffer implements IGLBuffer {
 
     private static final int BITS = GL_DYNAMIC_STORAGE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
 
@@ -83,6 +83,7 @@ public class ResizableMappedGLBuffer {
         return bufferPosition;
     }
 
+    @Override
     public int getBufferHandle() {
         return glBuffer.getBufferHandle();
     }

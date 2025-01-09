@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.builders;
 
-import com.github.argon4w.acceleratedrendering.buffers.IVertexConsumerExtension;
-
 import java.nio.ByteBuffer;
 
 public class OffHeapMesh implements IMesh {
@@ -16,6 +14,6 @@ public class OffHeapMesh implements IMesh {
 
     @Override
     public void render(IVertexConsumerExtension extension, int color, int light, int overlay) {
-        extension.sme$addMesh(vertexBuffer, size, color, light, overlay);
+        extension.acceleratedrendering$addMesh(vertexBuffer, size, color, light, overlay);
     }
 }

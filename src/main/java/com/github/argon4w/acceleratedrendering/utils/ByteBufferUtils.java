@@ -27,7 +27,7 @@ public class ByteBufferUtils {
         MemoryUtil.memPutFloat(address, value);
     }
 
-    public static void putNormalizedFloatToByte(long address, float value) {
+    public static void putNormal(long address, float value) {
         MemoryUtil.memPutByte(address, (byte) ((int) (Mth.clamp(value, -1.0F, 1.0F) * 127.0F) & 0xFF));
     }
 
@@ -39,7 +39,7 @@ public class ByteBufferUtils {
         matrix.get(MemoryUtil.memByteBuffer(address, 4 * 4 * 4));
     }
 
-    public static void copyToAddress(ByteBuffer buffer, long address, long length) {
+    public static void putByteBuffer(ByteBuffer buffer, long address, long length) {
         MemoryUtil.memCopy(MemoryUtil.memAddress0(buffer), address, length);
     }
 }

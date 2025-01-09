@@ -1,7 +1,6 @@
 package com.github.argon4w.acceleratedrendering.builders;
 
-import com.github.argon4w.acceleratedrendering.buffers.IVertexConsumerExtension;
-import com.github.argon4w.acceleratedrendering.buffers.IEntityBuffers;
+import com.github.argon4w.acceleratedrendering.buffers.AcceleratedBuffers;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.FastColor;
@@ -11,14 +10,14 @@ import java.nio.ByteOrder;
 
 import static com.github.argon4w.acceleratedrendering.utils.ByteBufferUtils.*;
 
-public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexConsumerExtension {
+public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumerExtension {
 
     private static final boolean LE = (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN);
     private static final VertexFormat FORMAT = DefaultVertexFormat.NEW_ENTITY;
     private static final int SIZE = FORMAT.getVertexSize();
     private static final VertexFormat.Mode MODE = VertexFormat.Mode.QUADS;
 
-    private final IEntityBuffers bufferSet;
+    private final AcceleratedBuffers buffers;
     private final RenderType renderType;
     
     private int vertices;
@@ -26,8 +25,8 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
     private long varying;
     private int pose;
 
-    public SimpleBufferBuilder(IEntityBuffers bufferSet, RenderType renderType) {
-        this.bufferSet = bufferSet;
+    public AcceleratedBufferBuilder(AcceleratedBuffers buffers, RenderType renderType) {
+        this.buffers = buffers;
         this.renderType = renderType;
 
         this.vertices = 0;
@@ -40,35 +39,17 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
     public abstract void putPackedUv(long pointer, int packedUv);
 
     @Override
-    public MeshData sme$build() {
-        if (vertices == 0) {
-            return null;
-        }
-        
-        MeshData meshData = new MeshData(null, new MeshData.DrawState(
-                FORMAT,
-                vertices,
-                MODE.indexCount(vertices),
-                MODE,
-                VertexFormat.IndexType.INT
-        ));
-        meshData.indexBuffer = bufferSet.buildIndexBuffer(vertices);
-
-        return meshData;
-    }
-
-    @Override
     public VertexConsumer addVertex(float pX, float pY, float pZ) {
-        bufferSet.reserveIndex();
+        buffers.reserveIndex();
         vertices ++;
 
-        vertex = bufferSet.reserveVertex();
+        vertex = buffers.reserveVertex();
 
         putFloat(vertex + 0L, pX);
         putFloat(vertex + 4L, pY);
         putFloat(vertex + 8L, pZ);
 
-        varying = bufferSet.reserveVarying();
+        varying = buffers.reserveVarying();
         putInt(varying + 0 * 4L, -1);
 
         return this;
@@ -141,9 +122,9 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
             throw new IllegalStateException("Vertex not building!");
         }
 
-        putNormalizedFloatToByte(vertex + 32L + 0L, pNormalX);
-        putNormalizedFloatToByte(vertex + 32L + 1L, pNormalY);
-        putNormalizedFloatToByte(vertex + 32L + 2L, pNormalZ);
+        putNormal(vertex + 32L + 0L, pNormalX);
+        putNormal(vertex + 32L + 1L, pNormalY);
+        putNormal(vertex + 32L + 2L, pNormalZ);
 
         return this;
     }
@@ -162,10 +143,10 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
             float pNormalY,
             float pNormalZ
     ) {
-        bufferSet.reserveIndex();
+        buffers.reserveIndex();
         this.vertices++;
 
-        long vertex = bufferSet.reserveVertex();
+        long vertex = buffers.reserveVertex();
 
         putFloat(vertex + 0L, pX);
         putFloat(vertex + 4L, pY);
@@ -179,11 +160,11 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
         putPackedUv(vertex + 24L, pPackedOverlay);
         putPackedUv(vertex + 28L, pPackedLight);
 
-        putNormalizedFloatToByte(vertex + 32L, pNormalX);
-        putNormalizedFloatToByte(vertex + 33L, pNormalY);
-        putNormalizedFloatToByte(vertex + 34L, pNormalZ);
+        putNormal(vertex + 32L, pNormalX);
+        putNormal(vertex + 33L, pNormalY);
+        putNormal(vertex + 34L, pNormalZ);
 
-        long varying = bufferSet.reserveVarying();
+        long varying = buffers.reserveVarying();
         putInt(varying + 0 * 4L, -1);
         putInt(varying + 1 * 4L, -1);
         putInt(varying + 2 * 4L, -1);
@@ -191,10 +172,10 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
     }
 
     @Override
-    public void sme$beginTransform(PoseStack.Pose pose) {
-        this.pose = bufferSet.getPose();
+    public void acceleratedrendering$beginTransform(PoseStack.Pose pose) {
+        this.pose = buffers.getPose();
 
-        long transform = bufferSet.reservePose();
+        long transform = buffers.reservePose();
         long normal = transform + 4 * 4 * 4;
 
         putMatrix4f(transform, pose.pose());
@@ -202,13 +183,13 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
     }
 
     @Override
-    public void sme$addMesh(ByteBuffer vertexBuffer, int count, int color, int light, int overlay) {
+    public void acceleratedrendering$addMesh(ByteBuffer vertexBuffer, int count, int color, int light, int overlay) {
         vertices += count;
         
-        long vertex = bufferSet.reserveVertices(count);
-        long varying = bufferSet.reserveVaryings(count);
+        long vertex = buffers.reserveVertices(count);
+        long varying = buffers.reserveVaryings(count);
 
-        copyToAddress(vertexBuffer, vertex, (long) count * SIZE);
+        putByteBuffer(vertexBuffer, vertex, (long) count * SIZE);
 
         for (int i = 0; i < count; i++) {
             putInt(varying + i * 4L * 4L + 0 * 4L, pose);
@@ -216,28 +197,34 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
             putPackedUv(varying + i * 4L * 4L + 2 * 4L, light);
             putPackedUv(varying + i * 4L * 4L + 3 * 4L, overlay);
 
-            bufferSet.reserveIndex();
+            buffers.reserveIndex();
         }
     }
 
     @Override
-    public boolean sme$supportAcceleratedRendering() {
+    public boolean acceleratedrendering$supportAcceleratedRendering() {
         return true;
     }
 
     @Override
-    public RenderType sme$getRenderType() {
+    public RenderType acceleratedrendering$getRenderType() {
         return renderType;
     }
 
-    public static SimpleBufferBuilder create(IEntityBuffers bufferSet, RenderType renderType) {
-        return LE ? new LE(bufferSet, renderType) : new BE(bufferSet, renderType);
+    public int getVertices() {
+        return vertices;
     }
 
-    public static class BE extends SimpleBufferBuilder {
+    public static AcceleratedBufferBuilder create(AcceleratedBuffers buffers, RenderType renderType) {
+        return LE
+                ? new LE(buffers, renderType)
+                : new BE(buffers, renderType);
+    }
 
-        private BE(IEntityBuffers bufferSet, RenderType renderType) {
-            super(bufferSet, renderType);
+    public static class BE extends AcceleratedBufferBuilder {
+
+        private BE(AcceleratedBuffers buffers, RenderType renderType) {
+            super(buffers, renderType);
         }
 
         @Override
@@ -252,10 +239,10 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
         }
     }
 
-    public static class LE extends SimpleBufferBuilder {
+    public static class LE extends AcceleratedBufferBuilder {
 
-        private LE(IEntityBuffers bufferSet, RenderType renderType) {
-            super(bufferSet, renderType);
+        private LE(AcceleratedBuffers buffers, RenderType renderType) {
+            super(buffers, renderType);
         }
 
         @Override

@@ -1,7 +1,6 @@
 package com.github.argon4w.acceleratedrendering.events;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
-import com.github.argon4w.acceleratedrendering.utils.GLUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -16,8 +15,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 import java.io.BufferedReader;
+import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.lwjgl.opengl.GL46.*;
 
 @EventBusSubscriber(modid = AcceleratedRenderingModEntry.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class AcceleratedRenderingClientModEvents {
@@ -49,24 +51,24 @@ public class AcceleratedRenderingClientModEvents {
             protected void apply(String pShaderSource, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
                 try {
                     RenderSystem.recordRenderCall(() -> {
-                        int shader = GLUtils.newShader();
-                        int program = GLUtils.newProgram();
+                        int shader = glCreateShader(GL_COMPUTE_SHADER);
+                        int program = glCreateProgram();
 
-                        GLUtils.setShaderSource(shader, pShaderSource);
-                        GLUtils.compileShader(shader);
+                        glShaderSource(shader, pShaderSource);
+                        glCompileShader(shader);
 
-                        if (!GLUtils.isShaderCompiled(shader)) {
-                            throw new IllegalStateException(GLUtils.getShaderInfoLog(shader));
+                        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
+                            throw new IllegalStateException(glGetShaderInfoLog(shader));
                         }
 
-                        GLUtils.attachShader(program, shader);
-                        GLUtils.linkProgram(program);
+                        glAttachShader(program, shader);
+                        glLinkProgram(program);
 
-                        if (!GLUtils.isProgramLinked(program)) {
-                            throw new IllegalStateException(GLUtils.getProgramInfoLog(program));
+                        if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
+                            throw new IllegalStateException(glGetProgramInfoLog(program));
                         }
 
-                        GLUtils.deleteShader(shader);
+                        glDeleteShader(shader);
                         shaderProgram = program;
                     });
                 }catch (Exception e) {
