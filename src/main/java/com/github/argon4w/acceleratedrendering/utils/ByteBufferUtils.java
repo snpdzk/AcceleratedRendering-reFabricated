@@ -27,7 +27,7 @@ public class ByteBufferUtils {
         MemoryUtil.memPutFloat(address, value);
     }
 
-    public static void putNormalized128(long address, float value) {
+    public static void putNormalizedFloatToByte(long address, float value) {
         MemoryUtil.memPutByte(address, (byte) ((int) (Mth.clamp(value, -1.0F, 1.0F) * 127.0F) & 0xFF));
     }
 

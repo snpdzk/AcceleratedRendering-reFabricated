@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.utils;
 
-import java.nio.ByteBuffer;
-
 import static org.lwjgl.opengl.GL46.*;
 
 public class GLUtils {
@@ -63,33 +61,5 @@ public class GLUtils {
 
     public static void dispatchCompute(int count) {
         glDispatchCompute(count, 1, 1);
-    }
-
-    public static int newBuffer() {
-        return glCreateBuffers();
-    }
-
-    public static void setBufferStorage(int buffer, long size) {
-        glNamedBufferStorage(buffer, size, GL_DYNAMIC_STORAGE_BIT);
-    }
-
-    public static void setBufferData(int buffer, ByteBuffer value) {
-        glNamedBufferSubData(buffer, 0, value);
-    }
-
-    public static void bindShaderStorage(int buffer, int base) {
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, base, buffer);
-    }
-
-    public static long fenceSync() {
-        return glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-    }
-
-    public static void clientWaitSync(long sync) {
-        glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, Long.MAX_VALUE);
-    }
-
-    public static void deleteSync(long sync) {
-        glDeleteSync(sync);
     }
 }

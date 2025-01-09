@@ -11,7 +11,7 @@ public class GLSingleFenceSync {
     }
 
     public void fenceSync() {
-        sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);;
+        sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     }
 
     public void clientWaitSync() {

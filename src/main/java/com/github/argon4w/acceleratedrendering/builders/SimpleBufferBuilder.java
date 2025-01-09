@@ -141,9 +141,9 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
             throw new IllegalStateException("Vertex not building!");
         }
 
-        putNormalized128(vertex + 32L + 0L, pNormalX);
-        putNormalized128(vertex + 32L + 1L, pNormalY);
-        putNormalized128(vertex + 32L + 2L, pNormalZ);
+        putNormalizedFloatToByte(vertex + 32L + 0L, pNormalX);
+        putNormalizedFloatToByte(vertex + 32L + 1L, pNormalY);
+        putNormalizedFloatToByte(vertex + 32L + 2L, pNormalZ);
 
         return this;
     }
@@ -179,9 +179,9 @@ public abstract class SimpleBufferBuilder implements VertexConsumer, IVertexCons
         putPackedUv(vertex + 24L, pPackedOverlay);
         putPackedUv(vertex + 28L, pPackedLight);
 
-        putNormalized128(vertex + 32L, pNormalX);
-        putNormalized128(vertex + 33L, pNormalY);
-        putNormalized128(vertex + 34L, pNormalZ);
+        putNormalizedFloatToByte(vertex + 32L, pNormalX);
+        putNormalizedFloatToByte(vertex + 33L, pNormalY);
+        putNormalizedFloatToByte(vertex + 34L, pNormalZ);
 
         long varying = bufferSet.reserveVarying();
         putInt(varying + 0 * 4L, -1);
