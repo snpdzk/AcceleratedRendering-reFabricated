@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.github.argon4w.acceleratedrendering.compat.iris.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.github.argon4w.acceleratedrendering.compat.iris.mixins.IrisCompatMixinPlugin",
+  "client": [
+    "TextureUtilsMixin",
+    "IrisVertexFormatMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

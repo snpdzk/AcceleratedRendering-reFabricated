@@ -1,0 +1,14 @@
+{
+  "acceleratedrendering.configuration.title": "Accelerated Rendering Configurations",
+  "acceleratedrendering.configuration.section.acceleratedrendering.client.toml.title": "Accelerated Rendering Client Configurations",
+  "acceleratedrendering.configuration.section.acceleratedrendering.client.toml": "Config values that controls the behaviour of features provided by Accelerated Rendering",
+  "configuration.acceleratedrendering.entities": "Accelerated Entity Rendering",
+  "configuration.acceleratedrendering.entities.tooltip": "Accelerated Entity Rendering Settings.\nConfig values that affects the behaviour of accelerated entity rendering.",
+  "configuration.acceleratedrendering.entities.feature_status": "Enable Accelerated Entity Rendering",
+  "configuration.acceleratedrendering.entities.feature_status.tooltip": "Config value that enables/disables accelerated entity rendering globally.\nIf disabled, accelerated entity rendering will remain unavailable even if other mods forcibly enable it.\nIf enabled, accelerated entity rendering will be available and controllable by mods and default_rendering_pipeline config value.",
+  "configuration.acceleratedrendering.entities.default_pipeline": "Default Rendering Pipeline",
+  "configuration.acceleratedrendering.entities.default_pipeline.tooltip": "Config value that controls default rendering pipeline of accelerated entity rendering.\nIf it's VANILLA, entities will be not rendered into the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own entities.\nIf it's ACCELERATED, all entities will be rendered in the accelerated pipeline unless mods explicitly disable it temporarily when rendering their own entities",
+  "configuration.acceleratedrendering.entities.mesh_type": "Cached Mesh Type",
+  "configuration.acceleratedrendering.entities.mesh_type.tooltip": "Config value that determines where the cached entity mesh will be stored in.\nIf it's CLIENT, cached mesh will be stored on the client side (CPU), which will use less VRAM but take more time to upload to the server side (GPU) during rendering.\nIf it's SERVER, cached mesh will be stored on the server side (GPU), which may speed up rendering but will use more VRAM to store the mesh.",
+  "configuration.acceleratedrendering.entities.button": "Configure"
+}
