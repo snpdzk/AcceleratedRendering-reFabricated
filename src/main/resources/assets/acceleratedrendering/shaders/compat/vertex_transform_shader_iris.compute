@@ -11,12 +11,11 @@ struct Vertex {
     int uv1;
     int uv2;
     uint normal;
-    int16_t iris_entityId0;
-    int16_t iris_entityId1;
-    int16_t iris_entityId2;
-    float iris_mid_texcoord_0;
-    float iris_mid_texcoord_1;
-    uint iris_tangent;
+    uint iris_data_0;
+    uint iris_data_1;
+    uint iris_data_2;
+    uint iris_data_3;
+    uint iris_data_4;
 };
 
 struct VaryingData {
@@ -65,12 +64,13 @@ void main() {
         return;
     }
 
-    Vertex vertex = vertices[index];
-    vec3 pos = vec3(vertex.x, vertex.y, vertex.z);
+    Vertex refVertex = mesh != -1 ? meshVertices[mesh] : vertices[index];
 
-    int normalZ = int((vertex.normal >> 16) & 0xFFu);
-    int normalY = int((vertex.normal >> 8) & 0xFFu);
-    int normalX = int((vertex.normal >> 0) & 0xFFu);
+    vec3 pos = vec3(refVertex.x, refVertex.y, refVertex.z);
+
+    int normalZ = int((refVertex.normal >> 16) & 0xFFu);
+    int normalY = int((refVertex.normal >> 8) & 0xFFu);
+    int normalX = int((refVertex.normal >> 0) & 0xFFu);
 
     if (normalX > 127) normalX -= 256;
     if (normalY > 127) normalY -= 256;
@@ -89,7 +89,18 @@ void main() {
     vertices[index].z = transformedPos.z;
 
     vertices[index].color = varyingData.color;
+
+    vertices[index].u0 = refVertex.u0;
+    vertices[index].v0 = refVertex.v0;
+
     vertices[index].uv1 = varyingData.overlay;
     vertices[index].uv2 = varyingData.light;
+
     vertices[index].normal = (transformedNormalZ << 16) | (transformedNormalY << 8) | (transformedNormalX << 0);
+
+    vertices[index].iris_data_0 = refVertex.iris_data_0;
+    vertices[index].iris_data_1 = refVertex.iris_data_1;
+    vertices[index].iris_data_2 = refVertex.iris_data_2;
+    vertices[index].iris_data_3 = refVertex.iris_data_3;
+    vertices[index].iris_data_4 = refVertex.iris_data_4;
 }

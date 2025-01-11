@@ -77,10 +77,14 @@ void main() {
     vertices[index].x = transformedPos.x;
     vertices[index].y = transformedPos.y;
     vertices[index].z = transformedPos.z;
+
     vertices[index].color = varyingData.color;
+
     vertices[index].u0 = refVertex.u0;
     vertices[index].v0 = refVertex.v0;
+
     vertices[index].uv1 = varyingData.overlay;
     vertices[index].uv2 = varyingData.light;
+
     vertices[index].normal = (transformedNormalZ << 16) | (transformedNormalY << 8) | (transformedNormalX << 0);
 }

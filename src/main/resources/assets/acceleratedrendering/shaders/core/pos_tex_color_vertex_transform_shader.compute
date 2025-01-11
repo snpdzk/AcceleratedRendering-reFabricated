@@ -47,16 +47,13 @@ void main() {
     int pose = varyingData.pose;
     int mesh = varyingData.mesh;
 
-    if (mesh != -1) {
-        vertices[index] = meshVertices[mesh];
-    }
-
     if (pose < 0) {
         return;
     }
 
-    Vertex vertex = vertices[index];
-    vec3 pos = vec3(vertex.x, vertex.y, vertex.z);
+    Vertex refVertex = mesh != -1 ? meshVertices[mesh] : vertices[index];
+
+    vec3 pos = vec3(refVertex.x, refVertex.y, refVertex.z);
 
     // int normalZ = int((vertex.normal >> 16) & 0xFFu);
     // int normalY = int((vertex.normal >> 8) & 0xFFu);
@@ -77,6 +74,9 @@ void main() {
     vertices[index].x = transformedPos.x;
     vertices[index].y = transformedPos.y;
     vertices[index].z = transformedPos.z;
+
+    vertices[index].u0 = refVertex.u0;
+    vertices[index].v0 = refVertex.v0;
 
     vertices[index].color = varyingData.color;
     //vertices[index].uv1 = varyingData.overlay;
