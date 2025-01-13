@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
-import com.github.argon4w.acceleratedrendering.core.gl.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.gl.MappedBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;

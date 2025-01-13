@@ -1,9 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.programs;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.Shader;
 import com.mojang.blaze3d.systems.RenderSystem;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -28,14 +28,19 @@ import static org.lwjgl.opengl.GL46.*;
 public class ComputeShaderPrograms {
 
     public static final ResourceLocation CORE_ENTITY_COMPUTE_SHADER_KEY = AcceleratedRenderingModEntry.location("core_entity_compute_shader");
+    public static final ResourceLocation CORE_ENTITY_POLYGON_CULL_KEY = AcceleratedRenderingModEntry.location("core_entity_polygon_cull_compute_shader");
     public static final ResourceLocation CORE_POS_TEX_COLOR_COMPUTE_SHADER_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_color_compute_shader");
+    public static final ResourceLocation CORE_POS_TEX_COLOR_POLYGON_CULL_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_polygon_cull_compute_shader");
 
     private static final Map<ResourceLocation, ResourceLocation> COMPUTE_SHADER_LOCATIONS = initComputeShaders(new Object2ObjectOpenHashMap<>());
-    private static final Object2IntMap<ResourceLocation> COMPUTE_SHADER_HANDLES = new Object2IntOpenHashMap<>();
+    private static final Map<ResourceLocation, Program> COMPUTE_SHADER_HANDLES = new Object2ObjectOpenHashMap<>();
 
     public static Map<ResourceLocation, ResourceLocation> initComputeShaders(Map<ResourceLocation, ResourceLocation> map) {
         map.put(CORE_ENTITY_COMPUTE_SHADER_KEY, AcceleratedRenderingModEntry.location("shaders/core/entity_vertex_transform_shader.compute"));
+        map.put(CORE_ENTITY_POLYGON_CULL_KEY, AcceleratedRenderingModEntry.location("shaders/core/entity_polygon_cull_shader.compute"));
         map.put(CORE_POS_TEX_COLOR_COMPUTE_SHADER_KEY, AcceleratedRenderingModEntry.location("shaders/core/pos_tex_color_vertex_transform_shader.compute"));
+        map.put(CORE_POS_TEX_COLOR_POLYGON_CULL_KEY, AcceleratedRenderingModEntry.location("shaders/core/pos_tex_color_polygon_cull_shader.compute"));
+
         return map;
     }
 
@@ -73,25 +78,22 @@ public class ComputeShaderPrograms {
                     for (ResourceLocation key : shaderSources.keySet()) {
                         try {
                             String shaderSource = shaderSources.get(key);
+                            Program program = new Program();
+                            Shader shader = new Shader(GL_COMPUTE_SHADER);
 
-                            int shader = glCreateShader(GL_COMPUTE_SHADER);
-                            int program = glCreateProgram();
+                            shader.setShaderSource(shaderSource);
 
-                            glShaderSource(shader, shaderSource);
-                            glCompileShader(shader);
-
-                            if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
-                                throw new IllegalStateException(glGetShaderInfoLog(shader));
+                            if (!shader.compileShader()) {
+                                throw new IllegalStateException("Shader \"" + key + "\" failed to compile because of the following errors: " + shader.getInfoLog());
                             }
 
-                            glAttachShader(program, shader);
-                            glLinkProgram(program);
+                            program.attachShader(shader);
 
-                            if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
-                                throw new IllegalStateException(glGetProgramInfoLog(program));
+                            if (!program.linkProgram()) {
+                                throw new IllegalStateException("Program \"" + key + "\" failed to link because of the following errors: " + program.getInfoLog());
                             }
 
-                            glDeleteShader(shader);
+                            shader.delete();
                             COMPUTE_SHADER_HANDLES.put(key, program);
                         } catch (Exception e) {
                             throw new ReportedException(CrashReport.forThrowable(e, "Exception while compiling/linking compute shader"));
@@ -102,21 +104,13 @@ public class ComputeShaderPrograms {
         });
     }
 
-    public static int getProgram(ResourceLocation resourceLocation) {
-        int programHandle = COMPUTE_SHADER_HANDLES.getOrDefault(resourceLocation, -1);
+    public static Program getProgram(ResourceLocation resourceLocation) {
+        Program program = COMPUTE_SHADER_HANDLES.get(resourceLocation);
 
-        if (programHandle < 0) {
+        if (program == null) {
             throw new IllegalStateException("Get shader program \""+ resourceLocation + "\" too early! Program is not loaded yet!");
         }
 
-        return programHandle;
-    }
-
-    public static void useProgram(ResourceLocation resourceLocation) {
-        glUseProgram(getProgram(resourceLocation));
-    }
-
-    public static void useCoreEntityProgram() {
-        useProgram(CORE_ENTITY_COMPUTE_SHADER_KEY);
+        return program;
     }
 }

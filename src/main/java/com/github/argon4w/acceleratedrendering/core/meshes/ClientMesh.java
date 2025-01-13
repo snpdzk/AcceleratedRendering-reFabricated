@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
-import com.github.argon4w.acceleratedrendering.core.gl.IClientBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.IClientBuffer;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import net.minecraft.client.renderer.RenderType;
 

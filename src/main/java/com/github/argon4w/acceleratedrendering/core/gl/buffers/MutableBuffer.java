@@ -1,0 +1,52 @@
+package com.github.argon4w.acceleratedrendering.core.gl.buffers;
+
+public class MutableBuffer implements IServerBuffer {
+
+    private final int bits;
+
+    protected long bufferSize;
+    protected ImmutableBuffer glBuffer;
+
+    public MutableBuffer(long initialSize, int bits) {
+        this.bits = bits;
+        this.bufferSize = initialSize;
+        this.glBuffer = new ImmutableBuffer(initialSize, bits);
+    }
+
+    public void resize(long atLeast) {
+        long newBufferSize = bufferSize;
+
+        while (newBufferSize < atLeast) {
+            newBufferSize *= 2;
+        }
+
+        resizeTo(newBufferSize);
+    }
+
+    public void resizeTo(long newBufferSize) {
+        if (newBufferSize <= bufferSize) {
+            return;
+        }
+
+        ImmutableBuffer newBuffer = new ImmutableBuffer(newBufferSize, bits);
+
+        glBuffer.copyTo(newBuffer, bufferSize);
+        glBuffer.delete();
+
+        glBuffer = newBuffer;
+        bufferSize = newBufferSize;
+    }
+
+    public void delete() {
+        glBuffer.delete();
+    }
+
+    public long getBufferSize() {
+        return bufferSize;
+    }
+
+    @Override
+    public int getBufferHandle() {
+        return glBuffer.getBufferHandle();
+    }
+}

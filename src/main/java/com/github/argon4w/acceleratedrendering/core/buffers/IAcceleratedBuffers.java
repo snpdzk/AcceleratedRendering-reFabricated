@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers;
 
-import com.github.argon4w.acceleratedrendering.core.gl.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 
 public interface IAcceleratedBuffers {
 

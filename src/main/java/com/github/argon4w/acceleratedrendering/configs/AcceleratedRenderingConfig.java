@@ -20,10 +20,8 @@ public class AcceleratedRenderingConfig {
 
     private AcceleratedRenderingConfig(ModConfigSpec.Builder builder) {
         builder
-                .comment(
-                        "Accelerated Entity Rendering Settings.",
-                        "Config values that affects the behaviour of accelerated entity rendering."
-                )
+                .comment("Accelerated Entity Rendering Settings")
+                .comment("Config values that affects the behaviour of accelerated entity rendering.")
                 .translation("configuration.acceleratedrendering.entities")
                 .push("accelerated_entity_rendering");
 
@@ -37,7 +35,7 @@ public class AcceleratedRenderingConfig {
         acceleratedEntityRenderingDefaultPipeline = builder
                 .comment("Config value that controls default rendering pipeline of accelerated entity rendering.")
                 .comment("If it's VANILLA, entities will be not rendered into the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own entities.")
-                .comment("If it's ACCELERATED, all entities will be rendered in the accelerated pipeline unless mods explicitly disable it temporarily when rendering their own entities")
+                .comment("If it's ACCELERATED, all entities will be rendered in the accelerated pipeline unless mods explicitly disable it temporarily when rendering their own entities.")
                 .translation("configuration.acceleratedrendering.entities.default_pipeline")
                 .defineEnum("default_pipeline", DefaultPipeline.ACCELERATED);
 

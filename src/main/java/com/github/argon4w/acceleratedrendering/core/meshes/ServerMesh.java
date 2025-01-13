@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
-import com.github.argon4w.acceleratedrendering.core.gl.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.renderer.RenderType;

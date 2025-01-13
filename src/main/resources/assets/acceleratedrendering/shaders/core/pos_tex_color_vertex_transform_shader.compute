@@ -24,19 +24,23 @@ struct Pose {
 
 layout(local_size_x=1, local_size_y=1) in;
 
-layout(binding=0, std430) buffer Data {
-    Vertex vertices[];
+layout(binding=0, std430) buffer VerticesIn {
+    Vertex verticesIn[];
 };
 
-layout(binding=1, std430) readonly buffer Poses {
+layout(binding=1, std430) buffer VerticesOut {
+    Vertex verticesOut[];
+};
+
+layout(binding=2, std430) readonly buffer Poses {
     Pose poses[];
 };
 
-layout(binding=2, std430) readonly buffer Varyings {
+layout(binding=3, std430) readonly buffer Varyings {
     VaryingData varyings[];
 };
 
-layout(binding=3, std430) readonly buffer Mesh {
+layout(binding=4, std430) readonly buffer Mesh {
     Vertex meshVertices[];
 };
 
@@ -47,39 +51,39 @@ void main() {
     int pose = varyingData.pose;
     int mesh = varyingData.mesh;
 
-    if (pose < 0) {
-        return;
-    }
+    Vertex refVertex = mesh != -1 ? meshVertices[mesh] : verticesIn[index];
 
-    Vertex refVertex = mesh != -1 ? meshVertices[mesh] : vertices[index];
+    vec4 pos = vec4(refVertex.x, refVertex.y, refVertex.z, 1.0);
 
-    vec3 pos = vec3(refVertex.x, refVertex.y, refVertex.z);
-
-    // int normalZ = int((vertex.normal >> 16) & 0xFFu);
-    // int normalY = int((vertex.normal >> 8) & 0xFFu);
-    // int normalX = int((vertex.normal >> 0) & 0xFFu);
+    // int normalZ = int((refVertex.normal >> 16) & 0xFFu);
+    // int normalY = int((refVertex.normal >> 8) & 0xFFu);
+    // int normalX = int((refVertex.normal >> 0) & 0xFFu);
 
     // if (normalX > 127) normalX -= 256;
     // if (normalY > 127) normalY -= 256;
     // if (normalZ > 127) normalZ -= 256;
 
-    //vec3 normal = vec3(normalX / 127.0, normalY / 127.0, normalZ / 127.0);
-    vec4 transformedPos = poses[pose].transform * vec4(pos, 1.0);
-    //vec3 transformedNormal = poses[pose].normal * normal;
+    // vec3 normal = vec3(normalX / 127.0, normalY / 127.0, normalZ / 127.0);
 
-    // uint transformedNormalX = uint(int(clamp(transformedNormal.x, -1.0, 1.0) * 127.0) & 0xFF);
-    // uint transformedNormalY = uint(int(clamp(transformedNormal.y, -1.0, 1.0) * 127.0) & 0xFF);
-    // uint transformedNormalZ = uint(int(clamp(transformedNormal.z, -1.0, 1.0) * 127.0) & 0xFF);
+    if (pose != -1) {
+        pos = poses[pose].transform * pos;
+        // normal = normalize(poses[pose].normal * normal);
+    }
 
-    vertices[index].x = transformedPos.x;
-    vertices[index].y = transformedPos.y;
-    vertices[index].z = transformedPos.z;
+    // uint packedNormalX = uint(int(clamp(normal.x, -1.0, 1.0) * 127.0) & 0xFF);
+    // uint packedNormalY = uint(int(clamp(normal.y, -1.0, 1.0) * 127.0) & 0xFF);
+    // uint packedNormalZ = uint(int(clamp(normal.z, -1.0, 1.0) * 127.0) & 0xFF);
 
-    vertices[index].u0 = refVertex.u0;
-    vertices[index].v0 = refVertex.v0;
+    verticesOut[index].x = pos.x;
+    verticesOut[index].y = pos.y;
+    verticesOut[index].z = pos.z;
 
-    vertices[index].color = varyingData.color;
-    //vertices[index].uv1 = varyingData.overlay;
-    //vertices[index].uv2 = varyingData.light;
-    //vertices[index].normal = (transformedNormalX << 16) | (transformedNormalY << 8) | (transformedNormalZ << 0);
+    verticesOut[index].u0 = refVertex.u0;
+    verticesOut[index].v0 = refVertex.v0;
+
+    verticesOut[index].color = varyingData.color;
+    // verticesOut[index].uv1 = varyingData.overlay;
+    // verticesOut[index].uv2 = varyingData.light;
+
+    // verticesOut[index].normal = (packedNormalZ << 16) | (packedNormalY << 8) | (packedNormalX << 0);
 }

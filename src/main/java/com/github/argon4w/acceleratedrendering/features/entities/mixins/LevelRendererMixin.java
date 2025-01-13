@@ -29,16 +29,6 @@ public abstract class LevelRendererMixin {
 
     @Shadow @Final private Minecraft minecraft;
 
-    @Inject(method = "renderLevel", at = @At("HEAD"))
-    public void waitFenceSync(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
-        if (!AcceleratedEntityRenderingFeature.isFeatureEnabled()) {
-            return;
-        }
-
-        AcceleratedBufferSource.CORE.mapBuffers();
-        AcceleratedOutlineBufferSource.OUTLINE.mapBuffers();
-    }
-
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderEntity(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;)V"))
     public void wrapRenderEntity(LevelRenderer instance, Entity pEntity, double pCamX, double pCamY, double pCamZ, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBufferSource, Operation<Void> original, @Local(name = "flag2") LocalBooleanRef flag2) {
         if (!AcceleratedEntityRenderingFeature.isFeatureEnabled()) {
@@ -48,11 +38,13 @@ public abstract class LevelRendererMixin {
 
         MultiBufferSource bufferSource = AcceleratedBufferSource.CORE;
 
-        if (this.shouldShowEntityOutlines() && this.minecraft.shouldEntityAppearGlowing(pEntity)) {
-            flag2.set(true);
-            bufferSource = AcceleratedOutlineBufferSource.OUTLINE.setTeamColor(pEntity.getTeamColor());
-        } else {
-            flag2.set(flag2.get() || (this.shouldShowEntityOutlines() && pEntity.hasCustomOutlineRendering(minecraft.player)));
+        if (shouldShowEntityOutlines()) {
+            if (minecraft.shouldEntityAppearGlowing(pEntity)) {
+                bufferSource = AcceleratedOutlineBufferSource.OUTLINE.setTeamColor(pEntity.getTeamColor());
+                flag2.set(true);
+            } else if (pEntity.hasCustomOutlineRendering(minecraft.player)) {
+                flag2.set(true);
+            }
         }
 
         original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, bufferSource);

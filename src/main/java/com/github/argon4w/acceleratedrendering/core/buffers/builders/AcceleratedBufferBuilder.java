@@ -256,9 +256,9 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         long varying = buffers.reserveVarying();
         MemoryUtil.memPutInt(varying + 0 * 4L, -1);
         MemoryUtil.memPutInt(varying + 1 * 4L, -1);
-        MemoryUtil.memPutInt(varying + 2 * 4L, -1);
-        MemoryUtil.memPutInt(varying + 3 * 4L, -1);
-        MemoryUtil.memPutInt(varying + 4 * 4L, -1);
+        MemoryUtil.memPutInt(varying + 2 * 4L, pColor);
+        MemoryUtil.memPutInt(varying + 3 * 4L, pPackedLight);
+        MemoryUtil.memPutInt(varying + 4 * 4L, pPackedOverlay);
     }
 
     @Override
@@ -287,9 +287,17 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         vertexCount += size;
 
         long vertex = buffers.reserveVertices(size);
+        long varying = buffers.reserveVaryings(size);
 
         ByteBufferUtils.putByteBuffer(vertexBuffer, vertex, (long) size * getSize());
-        addClientVaryings(size, color, light, overlay);
+
+        for (int i = 0; i < size; i++) {
+            MemoryUtil.memPutInt(varying + i * 5L * 4L + 0 * 4L, -1);
+            MemoryUtil.memPutInt(varying + i * 5L * 4L + 1 * 4L, pose);
+            putRgba(varying + i * 5L * 4L + 2 * 4L, color);
+            putPackedUv(varying + i * 5L * 4L + 3 * 4L, light);
+            putPackedUv(varying + i * 5L * 4L + 4 * 4L, overlay);
+        }
     }
 
     @Override
@@ -302,7 +310,16 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         buffers.reserveVertices(size);
         vertexCount += size;
 
-        addServerVaryings(size, offset / getSize(), color, light, overlay);
+        int mesh = offset / getSize();
+        long varying = buffers.reserveVaryings(size);
+
+        for (int i = 0; i < size; i++) {
+            MemoryUtil.memPutInt(varying + i * 5L * 4L + 0 * 4L, mesh + i);
+            MemoryUtil.memPutInt(varying + i * 5L * 4L + 1 * 4L, pose);
+            putRgba(varying + i * 5L * 4L + 2 * 4L, color);
+            putPackedUv(varying + i * 5L * 4L + 3 * 4L, light);
+            putPackedUv(varying + i * 5L * 4L + 4 * 4L, overlay);
+        }
     }
 
     @Override
@@ -317,30 +334,6 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
     public int getVertexCount() {
         return vertexCount;
-    }
-
-    private void addServerVaryings(int size, int mesh, int color, int light, int overlay) {
-        long varying = buffers.reserveVaryings(size);
-
-        for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 5L * 4L + 0 * 4L, mesh + i);
-            MemoryUtil.memPutInt(varying + i * 5L * 4L + 1 * 4L, pose);
-            putRgba(varying + i * 5L * 4L + 2 * 4L, color);
-            putPackedUv(varying + i * 5L * 4L + 3 * 4L, light);
-            putPackedUv(varying + i * 5L * 4L + 4 * 4L, overlay);
-        }
-    }
-
-    private void addClientVaryings(int size, int color, int light, int overlay) {
-        long varying = buffers.reserveVaryings(size);
-
-        for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 5L * 4L + 0 * 4L, -1);
-            MemoryUtil.memPutInt(varying + i * 5L * 4L + 1 * 4L, pose);
-            putRgba(varying + i * 5L * 4L + 2 * 4L, color);
-            putPackedUv(varying + i * 5L * 4L + 3 * 4L, light);
-            putPackedUv(varying + i * 5L * 4L + 4 * 4L, overlay);
-        }
     }
 
     public static AcceleratedBufferBuilder create(IAcceleratedBuffers buffers, RenderType renderType) {

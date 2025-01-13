@@ -1,0 +1,80 @@
+#version 460 core
+
+struct Vertex {
+    float x;
+    float y;
+    float z;
+    float u0;
+    float v0;
+    int color;
+};
+
+struct Polygon {
+    int vertex1;
+    int vertex2;
+    int vertex3;
+};
+
+layout(local_size_x=1, local_size_y=1) in;
+
+layout(binding=1, std430) buffer Vertices {
+    Vertex vertices[];
+};
+
+layout(binding=5, std430) buffer PolygonsIn {
+    Polygon polygonsIn[];
+};
+
+layout(binding=6, std430) buffer PolygonsOut {
+    Polygon polygonsOut[];
+};
+
+layout(binding=0, offset=0) uniform atomic_uint indexCounter;
+
+uniform mat4 ViewMatrix;
+
+bool isNormalVisable(vec3 pos, vec3 normal);
+
+void main() {
+    int indexIn = int(gl_GlobalInvocationID.x);
+    Polygon polygon = polygonsIn[indexIn];
+
+    if (indexIn == 0) {
+        atomicCounterExchange(indexCounter, 0u);
+    }
+
+    memoryBarrier();
+
+    Vertex vertex1 = vertices[polygon.vertex1];
+    Vertex vertex2 = vertices[polygon.vertex2];
+    Vertex vertex3 = vertices[polygon.vertex3];
+
+    vec3 pos1 = vec3(vertex1.x, vertex1.y, vertex1.z);
+    vec3 pos2 = vec3(vertex2.x, vertex2.y, vertex2.z);
+    vec3 pos3 = vec3(vertex3.x, vertex3.y, vertex3.z);
+
+    vec3 normal = cross(pos2 - pos1, pos3 - pos1);
+
+    if (isNormalVisable(pos1, normal) || isNormalVisable(pos2, normal) || isNormalVisable(pos3, normal)) {
+        int indexOut = int(atomicCounterAdd(indexCounter, 3));
+        indexOut /= 3;
+
+        polygonsOut[indexOut].vertex1 = polygon.vertex1;
+        polygonsOut[indexOut].vertex2 = polygon.vertex2;
+        polygonsOut[indexOut].vertex3 = polygon.vertex3;
+    }
+}
+
+bool isNormalVisable(vec3 pos, vec3 normal) {
+    vec4 posStart = vec4(pos, 1.0);
+    vec4 posEnd = posStart + vec4(normal, 0.0);
+
+    posStart = ViewMatrix * posStart;
+    posEnd = ViewMatrix * posEnd;
+
+    normal = normalize((posEnd - posStart).xyz);
+    vec3 ref = normalize(-posStart.xyz);
+    float result = dot(ref, normal);
+
+    return result >= 0;
+}

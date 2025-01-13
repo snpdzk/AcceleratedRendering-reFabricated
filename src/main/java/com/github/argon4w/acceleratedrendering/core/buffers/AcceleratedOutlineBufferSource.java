@@ -19,7 +19,10 @@ public class AcceleratedOutlineBufferSource extends AcceleratedBufferSource {
     public AcceleratedOutlineBufferSource(IAcceleratedBufferSource bufferSource) {
         super(
                 DefaultVertexFormat.POSITION_TEX_COLOR,
-                ComputeShaderPrograms.CORE_POS_TEX_COLOR_COMPUTE_SHADER_KEY);
+                ComputeShaderPrograms.CORE_POS_TEX_COLOR_COMPUTE_SHADER_KEY,
+                ComputeShaderPrograms.CORE_POS_TEX_COLOR_POLYGON_CULL_KEY
+        );
+
         this.bufferSource = bufferSource;
     }
 
@@ -29,7 +32,7 @@ public class AcceleratedOutlineBufferSource extends AcceleratedBufferSource {
             return new AcceleratedOutlineGenerator(super.getBuffer(pRenderType), pRenderType, teamColor);
         }
 
-        VertexConsumer buffer = this.bufferSource.getBuffer(pRenderType);
+        VertexConsumer buffer = bufferSource.getBuffer(pRenderType);
         Optional<RenderType> outlineRenderType = pRenderType.outline();
 
         if (outlineRenderType.isEmpty()) {
@@ -37,13 +40,15 @@ public class AcceleratedOutlineBufferSource extends AcceleratedBufferSource {
         }
 
         return new AcceleratedDoubleVertexConsumer(
-                pRenderType, buffer,
-                outlineRenderType.get(), new AcceleratedOutlineGenerator(super.getBuffer(outlineRenderType.get()), pRenderType, teamColor)
+                pRenderType,
+                buffer,
+                outlineRenderType.get(),
+                new AcceleratedOutlineGenerator(super.getBuffer(outlineRenderType.get()), pRenderType, teamColor)
         );
     }
 
     public AcceleratedOutlineBufferSource setTeamColor(int color) {
-        this.teamColor = color;
+        teamColor = color;
         return this;
     }
 }

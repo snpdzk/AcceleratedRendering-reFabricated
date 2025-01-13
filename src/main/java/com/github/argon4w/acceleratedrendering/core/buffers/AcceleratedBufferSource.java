@@ -1,7 +1,11 @@
 package com.github.argon4w.acceleratedrendering.core.buffers;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
-import com.github.argon4w.acceleratedrendering.core.gl.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.CommandBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.MutableBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.Uniform;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderPrograms;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -20,10 +24,17 @@ import static org.lwjgl.opengl.GL46.*;
 
 public class AcceleratedBufferSource extends MultiBufferSource.BufferSource implements IAcceleratedBufferSource {
 
-    public static final AcceleratedBufferSource CORE = new AcceleratedBufferSource(DefaultVertexFormat.NEW_ENTITY, ComputeShaderPrograms.CORE_ENTITY_COMPUTE_SHADER_KEY);
+    public static final AcceleratedBufferSource CORE = new AcceleratedBufferSource(
+            DefaultVertexFormat.NEW_ENTITY,
+            ComputeShaderPrograms.CORE_ENTITY_COMPUTE_SHADER_KEY,
+            ComputeShaderPrograms.CORE_ENTITY_POLYGON_CULL_KEY
+    );
 
     private final VertexFormat vertexFormat;
-    private final ResourceLocation programKey;
+
+    private final Program transformProgram;
+    private final Program cullProgram;
+    private final Uniform uniform;
 
     private final Map<RenderType, IAcceleratedBuffers> acceleratedBuffers;
     private final Map<RenderType, ByteBufferBuilder> vanillaBuffers;
@@ -31,20 +42,30 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
     private final Map<RenderType, AcceleratedBufferBuilder> acceleratedBuilders;
     private final Map<RenderType, BufferBuilder> vanillaBuilders;
 
+    private final CommandBuffer commandBuffer;
     private final MappedBuffer poseBuffer;
     private final MappedBuffer varyingBuffer;
-    private final MappedBuffer vertexBuffer;
+    private final MappedBuffer vertexBufferIn;
+    private final MutableBuffer vertexBufferOut;
+    private final MutableBuffer indexBufferOut;
 
     private final int vaoHandle;
 
     private int pose;
     private int index;
 
-    public AcceleratedBufferSource(VertexFormat vertexFormat, ResourceLocation programKey) {
+    public AcceleratedBufferSource(
+            VertexFormat vertexFormat,
+            ResourceLocation transformProgramKey,
+            ResourceLocation cullProgramKey
+    ) {
         super(null, null);
 
         this.vertexFormat = vertexFormat;
-        this.programKey = programKey;
+
+        this.transformProgram = ComputeShaderPrograms.getProgram(transformProgramKey);
+        this.cullProgram = ComputeShaderPrograms.getProgram(cullProgramKey);
+        this.uniform = this.cullProgram.getUniform("ViewMatrix");
 
         this.acceleratedBuffers = new Object2ObjectLinkedOpenHashMap<>();
         this.vanillaBuffers = new Object2ObjectLinkedOpenHashMap<>();
@@ -52,9 +73,12 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
         this.acceleratedBuilders = new Object2ObjectLinkedOpenHashMap<>();
         this.vanillaBuilders = new Object2ObjectLinkedOpenHashMap<>();
 
+        this.commandBuffer = new CommandBuffer();
         this.poseBuffer = new MappedBuffer((4L * 4L * 4L + 4L * 4L * 3L) * 1024L);
         this.varyingBuffer = new MappedBuffer(5L * 4L * 1024L);
-        this.vertexBuffer = new MappedBuffer(this.vertexFormat.getVertexSize() * 1024L);
+        this.vertexBufferIn = new MappedBuffer(this.vertexFormat.getVertexSize() * 1024L);
+        this.vertexBufferOut = new MutableBuffer(this.vertexFormat.getVertexSize() * 1024L, GL_DYNAMIC_STORAGE_BIT);
+        this.indexBufferOut = new MutableBuffer(4L * 1024L, GL_DYNAMIC_STORAGE_BIT);
 
         this.vaoHandle = glCreateVertexArrays();
 
@@ -101,7 +125,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
     @Override
     public MappedBuffer getVertexBuffer() {
-        return vertexBuffer;
+        return vertexBufferIn;
     }
 
     @Override
@@ -168,43 +192,54 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
     }
 
     public void drawAcceleratedBuffers() {
-        int program = glGetInteger(GL_CURRENT_PROGRAM);
-        ComputeShaderPrograms.useProgram(programKey);
+        vertexBufferOut.resizeTo(vertexBufferIn.getBufferSize());
+        transformProgram.useProgram();
 
         MappedBuffer meshStorageBuffer = ServerMesh.Builder.INSTANCE.getStorageBuffer(vertexFormat);
 
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, vertexBuffer.getBufferHandle());
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, poseBuffer.getBufferHandle());
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, varyingBuffer.getBufferHandle());
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, vertexBufferIn.getBufferHandle());
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, vertexBufferOut.getBufferHandle());
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, poseBuffer.getBufferHandle());
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, varyingBuffer.getBufferHandle());
 
         if (meshStorageBuffer != null) {
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, meshStorageBuffer.getBufferHandle());
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, meshStorageBuffer.getBufferHandle());
         }
 
-        glDispatchCompute((int) vertexBuffer.getPosition() / vertexFormat.getVertexSize(), 1, 1);
+        glDispatchCompute((int) vertexBufferIn.getPosition() / vertexFormat.getVertexSize(), 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        glUseProgram(program);
+        transformProgram.resetProgram();
 
-        vertexBuffer.unmap();
         BufferUploader.reset();
         glBindVertexArray(vaoHandle);
+        uniform.upload(RenderSystem.getModelViewMatrix());
 
         for (RenderType renderType : acceleratedBuilders.keySet()) {
             VertexFormat.Mode mode = renderType.mode;
             IAcceleratedBuffers buffers = acceleratedBuffers.get(renderType);
             AcceleratedBufferBuilder builder = acceleratedBuilders.get(renderType);
             MappedBuffer indexBuffer = buffers.getIndexBuffer();
-            int vertexCount = builder.getVertexCount();
 
-            indexBuffer.unmap();
-            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.getBufferHandle());
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.getBufferHandle());
+            indexBufferOut.resizeTo(indexBuffer.getBufferSize());
+            cullProgram.useProgram();
+
+            glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, commandBuffer.getBufferHandle());
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, indexBuffer.getBufferHandle());
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, indexBufferOut.getBufferHandle());
+
+            glDispatchCompute(mode.indexCount(builder.getVertexCount()) / 3, 1, 1);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
+
+            cullProgram.resetProgram();
+
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBufferOut.getBufferHandle());
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferOut.getBufferHandle());
+            glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer.getBufferHandle());
 
             renderType.setupRenderState();
             vertexFormat.setupBufferState();
 
-            int indexCount = mode.indexCount(vertexCount);
             ShaderInstance shader = RenderSystem.getShader();
 
             shader.setDefaultUniforms(
@@ -214,11 +249,12 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
                     Minecraft.getInstance().getWindow());
             shader.apply();
 
-            glDrawElements(
+            glDrawElementsIndirect(
                     mode.asGLMode,
-                    indexCount,
                     VertexFormat.IndexType.INT.asGLType,
-                    0);
+                    0
+            );
+            glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 
             shader.clear();
             renderType.clearRenderState();
@@ -251,17 +287,9 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
         poseBuffer.reset();
         varyingBuffer.reset();
-        vertexBuffer.reset();
+        vertexBufferIn.reset();
 
         pose = -1;
         index = 0;
-    }
-
-    public void mapBuffers() {
-        vertexBuffer.map();
-
-        for (IAcceleratedBuffers buffers : acceleratedBuffers.values()) {
-            buffers.getIndexBuffer().map();
-        }
     }
 }
