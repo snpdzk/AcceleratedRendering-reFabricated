@@ -8,7 +8,7 @@ public class FeatureConfig {
     public static final FeatureConfig CONFIG;
     public static final ModConfigSpec SPEC;
 
-    public final ModConfigSpec.IntValue cpuRenderAheadLimit;
+    public final ModConfigSpec.IntValue maximumPooledBuffers;
 
     public final ModConfigSpec.ConfigValue<FeatureStatus> acceleratedEntityRenderingFeatureStatus;
     public final ModConfigSpec.ConfigValue<DefaultPipeline> acceleratedEntityRenderingDefaultPipeline;
@@ -25,11 +25,11 @@ public class FeatureConfig {
     }
 
     private FeatureConfig(ModConfigSpec.Builder builder) {
-        cpuRenderAheadLimit = builder
-                .comment("Frames that CPU is allowed to be ahead of GPU")
-                .comment("It's not recommended to change this value because it may cause visual glitches during rendering.")
-                .translation("acceleratedrendering.configuration.render_ahead_limit")
-                .defineInRange("render_ahead_limit", 0, 0, Integer.MAX_VALUE);
+        maximumPooledBuffers = builder
+                .comment("Count of buffers that holds data for in-flight frame rendering.")
+                .comment("Changing this value may affects your FPS. Smaller value means less in-flight frames, while larger values means more in-flight frames. More in-flight frames means more FPS but more VRAM.")
+                .translation("acceleratedrendering.configuration.maximum_pooled_buffers")
+                .defineInRange("maximum_pooled_buffers", 5, 0, Integer.MAX_VALUE);
 
         builder
                 .comment("Accelerated Entity Rendering Settings")

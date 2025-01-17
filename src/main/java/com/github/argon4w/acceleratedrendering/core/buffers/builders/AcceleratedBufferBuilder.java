@@ -1,9 +1,8 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.IAcceleratedBuffers;
+import com.github.argon4w.acceleratedrendering.core.buffers.AcceleratedBufferSetPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.ElementBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
-import com.github.argon4w.acceleratedrendering.features.culling.NormalCullingFeature;
 import com.github.argon4w.acceleratedrendering.core.utils.ByteBufferUtils;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.RenderType;
@@ -18,29 +17,32 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
     private static final boolean LE = (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN);
 
-    private final IAcceleratedBuffers buffers;
+    private final ElementBuffer elementBuffer;
     private final IBufferEnvironment bufferEnvironment;
+    private final AcceleratedBufferSetPool.BufferSet bufferSet;
     private final RenderType renderType;
     private final VertexFormat.Mode mode;
 
-    private int polygonVertexCount;
+    private int elementCount;
     private int vertexCount;
     private long vertex;
     private long varying;
     private int sharing;
 
     public AcceleratedBufferBuilder(
-            IAcceleratedBuffers buffers,
+            ElementBuffer elementBuffer,
             IBufferEnvironment bufferEnvironment,
+            AcceleratedBufferSetPool.BufferSet bufferSet,
             RenderType renderType
 
     ) {
-        this.buffers = buffers;
+        this.elementBuffer = elementBuffer;
         this.bufferEnvironment = bufferEnvironment;
+        this.bufferSet = bufferSet;
         this.renderType = renderType;
         this.mode = renderType.mode;
 
-        this.polygonVertexCount = 0;
+        this.elementCount = 0;
         this.vertexCount = 0;
         this.vertex = -1;
         this.varying = -1;
@@ -80,21 +82,21 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
     @Override
     public VertexConsumer addVertex(float pX, float pY, float pZ) {
-        vertexCount++;
+        vertexCount ++;
 
-        if (++ polygonVertexCount >= mode.primitiveLength) {
-            buffers.reserveIndices(mode.primitiveLength);
-            polygonVertexCount = 0;
+        if (++ elementCount >= mode.primitiveLength) {
+            elementBuffer.reserveElements(mode.primitiveLength);
+            elementCount = 0;
         }
 
-        vertex = buffers.reserveVertex();
+        vertex = bufferSet.reserveVertex();
         long offset = getPosOffset();
 
         MemoryUtil.memPutFloat(vertex + offset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + offset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + offset + 8L, pZ);
 
-        varying = buffers.reserveVarying();
+        varying = bufferSet.reserveVarying();
         MemoryUtil.memPutInt(varying + 0 * 4L, -1);
         MemoryUtil.memPutInt(varying + 1 * 4L, -1);
 
@@ -221,12 +223,12 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     ) {
         vertexCount++;
 
-        if (++ polygonVertexCount >= mode.primitiveLength) {
-            buffers.reserveIndices(mode.primitiveLength);
-            polygonVertexCount = 0;
+        if (++ elementCount >= mode.primitiveLength) {
+            elementBuffer.reserveElements(mode.primitiveLength);
+            elementCount = 0;
         }
 
-        long vertex = buffers.reserveVertex();
+        long vertex = bufferSet.reserveVertex();
         long posOffset = getPosOffset();
         long colorOffset = getColorOffset();
         long uv0Offset = getUvOffset();
@@ -261,7 +263,7 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             ByteBufferUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
         }
 
-        long varying = buffers.reserveVarying();
+        long varying = bufferSet.reserveVarying();
         MemoryUtil.memPutInt(varying + 0 * 4L, -1);
         MemoryUtil.memPutInt(varying + 1 * 4L, -1);
         MemoryUtil.memPutInt(varying + 2 * 4L, pColor);
@@ -271,9 +273,9 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
     @Override
     public void beginTransform(PoseStack.Pose pose) {
-        this.sharing = buffers.getSharing();
+        this.sharing = bufferSet.getSharing();
 
-        long transform = buffers.reserveSharings();
+        long transform = bufferSet.reserveSharing();
         long normal = transform + 4L * 4L * 4L;
         long flags = normal + 4L * 3L * 4L;
 
@@ -293,11 +295,11 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             throw new IllegalArgumentException("Incorrect RenderType: " + renderType.toString());
         }
 
-        buffers.reserveIndices(size);
+        elementBuffer.reserveElements(size);
         vertexCount += size;
 
-        long vertex = buffers.reserveVertices(size);
-        long varying = buffers.reserveVaryings(size);
+        long vertex = bufferSet.reservePolygons(size);
+        long varying = bufferSet.reserveVaryings(size);
 
         ByteBufferUtils.putByteBuffer(vertexBuffer, vertex, (long) size * getSize());
 
@@ -317,12 +319,12 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             throw new IllegalArgumentException("Incorrect RenderType: " + renderType.toString());
         }
 
-        buffers.reserveIndices(size);
-        buffers.reserveVertices(size);
+        elementBuffer.reserveElements(size);
+        bufferSet.reservePolygons(size);
         vertexCount += size;
 
         int mesh = offset / getSize();
-        long varying = buffers.reserveVaryings(size);
+        long varying = bufferSet.reserveVaryings(size);
 
         for (int i = 0; i < size; i++) {
             long address = varying + i * 5L * 4L;
@@ -354,25 +356,28 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     }
 
     public static AcceleratedBufferBuilder create(
-            IAcceleratedBuffers buffers,
+            ElementBuffer elementBuffer,
             IBufferEnvironment bufferEnvironment,
+            AcceleratedBufferSetPool.BufferSet bufferSet,
             RenderType renderType
     ) {
         return LE
-                ? new LE(buffers, bufferEnvironment, renderType)
-                : new BE(buffers, bufferEnvironment, renderType);
+                ? new LE(elementBuffer, bufferEnvironment, bufferSet, renderType)
+                : new BE(elementBuffer, bufferEnvironment, bufferSet, renderType);
     }
 
     public static class BE extends AcceleratedBufferBuilder {
 
         private BE(
-                IAcceleratedBuffers buffers,
+                ElementBuffer elementBuffer,
                 IBufferEnvironment bufferEnvironment,
+                AcceleratedBufferSetPool.BufferSet bufferSet,
                 RenderType renderType
         ) {
             super(
-                    buffers,
+                    elementBuffer,
                     bufferEnvironment,
+                    bufferSet,
                     renderType
             );
         }
@@ -395,13 +400,15 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     public static class LE extends AcceleratedBufferBuilder {
 
         private LE(
-                IAcceleratedBuffers buffers,
+                ElementBuffer elementBuffer,
                 IBufferEnvironment bufferEnvironment,
+                AcceleratedBufferSetPool.BufferSet bufferSet,
                 RenderType renderType
         ) {
             super(
-                    buffers,
+                    elementBuffer,
                     bufferEnvironment,
+                    bufferSet,
                     renderType
             );
         }

@@ -20,7 +20,7 @@ public abstract class AcceleratedBufferSourceMixin {
         return IrisBufferEnvironment.CORE;
     }
 
-    @ModifyArg(method = "getAcceleratedBuffer", at = @At(value = "INVOKE", target = "Lcom/github/argon4w/acceleratedrendering/core/buffers/builders/AcceleratedBufferBuilder;create(Lcom/github/argon4w/acceleratedrendering/core/buffers/IAcceleratedBuffers;Lcom/github/argon4w/acceleratedrendering/core/buffers/environments/IBufferEnvironment;Lnet/minecraft/client/renderer/RenderType;)Lcom/github/argon4w/acceleratedrendering/core/buffers/builders/AcceleratedBufferBuilder;"), index = 2)
+    @ModifyArg(method = "getAcceleratedBuffer", at = @At(value = "INVOKE", target = "Lcom/github/argon4w/acceleratedrendering/core/buffers/builders/AcceleratedBufferBuilder;create(Lcom/github/argon4w/acceleratedrendering/core/buffers/ElementBuffer;Lcom/github/argon4w/acceleratedrendering/core/buffers/environments/IBufferEnvironment;Lcom/github/argon4w/acceleratedrendering/core/buffers/AcceleratedBufferSetPool$BufferSet;Lnet/minecraft/client/renderer/RenderType;)Lcom/github/argon4w/acceleratedrendering/core/buffers/builders/AcceleratedBufferBuilder;"), index = 3)
     public RenderType unwrapIrisRenderType(RenderType renderType) {
         return new IrisRenderType(
                 renderType,

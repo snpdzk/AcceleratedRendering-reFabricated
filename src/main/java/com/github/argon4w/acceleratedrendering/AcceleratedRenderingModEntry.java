@@ -24,7 +24,7 @@ public class AcceleratedRenderingModEntry {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
-    public static int getCpuRenderAheadLimit() {
-        return FeatureConfig.CONFIG.cpuRenderAheadLimit.getAsInt();
+    public static int getMaximumPooledBuffers() {
+        return FeatureConfig.CONFIG.maximumPooledBuffers.getAsInt();
     }
 }

@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.programs.culling;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.IAcceleratedBuffers;
+import com.github.argon4w.acceleratedrendering.core.buffers.ElementBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
@@ -18,7 +18,11 @@ public class PassThroughCullingProgram implements ICullingProgram {
     }
 
     @Override
-    public int getCount(VertexFormat.Mode mode, IAcceleratedBuffers buffers, AcceleratedBufferBuilder builder) {
+    public int getCount(
+            VertexFormat.Mode mode,
+            ElementBuffer elementBuffer,
+            AcceleratedBufferBuilder builder
+    ) {
         return mode.indexCount(builder.getVertexCount());
     }
 

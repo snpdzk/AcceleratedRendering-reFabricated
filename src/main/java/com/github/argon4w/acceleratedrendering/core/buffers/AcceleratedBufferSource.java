@@ -2,7 +2,6 @@ package com.github.argon4w.acceleratedrendering.core.buffers;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgram;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -34,8 +33,6 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
     private final Map<RenderType, BufferBuilder> vanillaBuilders;
 
     private AcceleratedBufferSetPool.BufferSet bufferSet;
-    private int sharing;
-    private int index;
 
     public AcceleratedBufferSource(IBufferEnvironment bufferEnvironment) {
         super(null, null);
@@ -48,8 +45,6 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
         this.vanillaBuilders = new Object2ObjectLinkedOpenHashMap<>();
 
         this.bufferSet = acceleratedBufferSetPool.getBufferSet();
-        this.sharing = -1;
-        this.index = 0;
     }
 
     @Override
@@ -79,34 +74,6 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
         return bufferEnvironment;
     }
 
-    @Override
-    public MappedBuffer getSharingBuffer() {
-        return bufferSet.getSharingBuffer();
-    }
-
-    @Override
-    public MappedBuffer getVaryingBuffer() {
-        return bufferSet.getVaryingBuffer();
-    }
-
-    @Override
-    public MappedBuffer getVertexBuffer() {
-        return bufferSet.getVertexBufferIn();
-    }
-
-    @Override
-    public int getSharing() {
-        return ++ this.sharing;
-    }
-
-    @Override
-    public int getIndex(int count) {
-        int index = this.index;
-        this.index += count;
-
-        return index;
-    }
-
     public void drawBuffers() {
         if (!vanillaBuilders.isEmpty()) {
             drawVanillaBuffers();
@@ -124,16 +91,14 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             return builder;
         }
 
-        IAcceleratedBuffers buffers = bufferSet.getAcceleratedBuffers().get(renderType);
+        builder = AcceleratedBufferBuilder.create(
+                bufferSet.getElementBuffer(renderType),
+                bufferEnvironment,
+                bufferSet,
+                renderType
+        );
 
-        if (buffers == null) {
-            buffers = new AcceleratedBuffers(this, renderType.mode);
-            bufferSet.getAcceleratedBuffers().put(renderType, buffers);
-        }
-
-        builder = AcceleratedBufferBuilder.create(buffers, bufferEnvironment, renderType);
         acceleratedBuilders.put(renderType, builder);
-
         return builder;
     }
 
@@ -174,20 +139,19 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
         for (RenderType renderType : acceleratedBuilders.keySet()) {
             VertexFormat.Mode mode = renderType.mode;
-            IAcceleratedBuffers buffers = bufferSet.getAcceleratedBuffers().get(renderType);
+            ElementBuffer elementBuffer = bufferSet.getElementBuffer(renderType);
             AcceleratedBufferBuilder builder = acceleratedBuilders.get(renderType);
-            MappedBuffer indexBuffer = buffers.getIndexBuffer();
             ICullingProgram program = bufferEnvironment.selectCullProgram(renderType);
 
             program.useProgram();
             program.uploadUniforms();
 
-            bufferSet.bindCullingBuffers(indexBuffer.getBufferSize());
-            indexBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
+            bufferSet.bindCullingBuffers(elementBuffer.getBufferSize());
+            elementBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
 
             int count = program.getCount(
                     mode,
-                    buffers,
+                    elementBuffer,
                     builder
             );
 
@@ -253,19 +217,12 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
     }
 
     public void clearBuffers() {
-        for (IAcceleratedBuffers buffers : bufferSet.getAcceleratedBuffers().values()) {
-            buffers.clear();
-        }
-
         for (ByteBufferBuilder builder : vanillaBuffers.values()) {
             builder.clear();
         }
 
-        bufferSet.resetInputBuffers();
+        bufferSet.reset();
         bufferSet.setInFlight();
         bufferSet = acceleratedBufferSetPool.getBufferSet();
-
-        sharing = -1;
-        index = 0;
     }
 }
