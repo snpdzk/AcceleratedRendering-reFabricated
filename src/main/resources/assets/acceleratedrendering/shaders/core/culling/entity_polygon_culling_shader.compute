@@ -12,6 +12,20 @@ struct Vertex {
     uint normal;
 };
 
+struct VaryingData {
+    int mesh;
+    int sharing;
+    int color;
+    int light;
+    int overlay;
+};
+
+struct SharingData {
+    mat4 transform;
+    mat3 normal;
+    uint flags;
+};
+
 struct Polygon {
     int vertex1;
     int vertex2;
@@ -22,6 +36,14 @@ layout(local_size_x=1, local_size_y=1) in;
 
 layout(binding=1, std430) buffer Vertices {
     Vertex vertices[];
+};
+
+layout(binding=2, std430) readonly buffer Sharings {
+    SharingData sharings[];
+};
+
+layout(binding=3, std430) readonly buffer Varyings {
+    VaryingData varyings[];
 };
 
 layout(binding=5, std430) buffer PolygonsIn {
@@ -39,8 +61,16 @@ uniform mat4 ViewMatrix;
 bool isNormalVisable(Vertex vertex);
 
 void main() {
-    int indexIn = int(gl_GlobalInvocationID.x);
+    int indexIn = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
+
     Polygon polygon = polygonsIn[indexIn];
+    VaryingData varyingData = varyings[polygon.vertex1];
+    uint noCull = 0;
+
+    if (varyingData.sharing != -1) {
+        SharingData sharingData = sharings[varyingData.sharing];
+        noCull = sharingData.flags & 0x1u;
+    }
 
     if (indexIn == 0) {
         atomicCounterExchange(indexCounter, 0u);
@@ -48,7 +78,7 @@ void main() {
 
     memoryBarrier();
 
-    if (isNormalVisable(vertices[polygon.vertex1]) || isNormalVisable(vertices[polygon.vertex2]) || isNormalVisable(vertices[polygon.vertex3])) {
+    if (noCull > 0u || isNormalVisable(vertices[polygon.vertex1]) || isNormalVisable(vertices[polygon.vertex2]) || isNormalVisable(vertices[polygon.vertex3])) {
         int indexOut = int(atomicCounterAdd(indexCounter, 3));
         indexOut /= 3;
 

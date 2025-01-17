@@ -14,15 +14,16 @@ struct Vertex {
 
 struct VaryingData {
     int mesh;
-    int pose;
+    int sharing;
     int color;
     int light;
     int overlay;
 };
 
-struct Pose {
+struct SharingData {
     mat4 transform;
     mat3 normal;
+    uint flags;
 };
 
 layout(local_size_x=1, local_size_y=1) in;
@@ -35,8 +36,8 @@ layout(binding=1, std430) buffer VerticesOut {
     Vertex verticesOut[];
 };
 
-layout(binding=2, std430) readonly buffer Poses {
-    Pose poses[];
+layout(binding=2, std430) readonly buffer Sharings {
+    SharingData sharings[];
 };
 
 layout(binding=3, std430) readonly buffer Varyings {
@@ -48,10 +49,10 @@ layout(binding=4, std430) readonly buffer Mesh {
 };
 
 void main() {
-    int index = int(gl_GlobalInvocationID.x);
+    int index = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
     VaryingData varyingData = varyings[index];
 
-    int pose = varyingData.pose;
+    int sharing = varyingData.sharing;
     int mesh = varyingData.mesh;
 
     Vertex refVertex = mesh != -1 ? meshVertices[mesh] : verticesIn[index];
@@ -68,9 +69,9 @@ void main() {
 
     vec3 normal = vec3(normalX / 127.0, normalY / 127.0, normalZ / 127.0);
 
-    if (pose != -1) {
-        pos = poses[pose].transform * pos;
-        normal = normalize(poses[pose].normal * normal);
+    if (sharing != -1) {
+        pos = sharings[sharing].transform * pos;
+        normal = normalize(sharings[sharing].normal * normal);
     }
 
     uint packedNormalX = uint(int(clamp(normal.x, -1.0, 1.0) * 127.0) & 0xFF);

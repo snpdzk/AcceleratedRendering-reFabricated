@@ -8,14 +8,14 @@ public class AcceleratedBuffers implements IAcceleratedBuffers {
 
     private final MappedBuffer indexBuffer;
     private final IAcceleratedBufferSource bufferSource;
-    private final VertexFormat.Mode mode;;
+    private final VertexFormat.Mode mode;
     private final int vertexSize;
 
     public AcceleratedBuffers(IAcceleratedBufferSource bufferSource, VertexFormat.Mode mode) {
         this.indexBuffer = new MappedBuffer(4L * 1024L);
         this.bufferSource = bufferSource;
         this.mode = mode;
-        this.vertexSize = bufferSource.getVertexFormat().getVertexSize();
+        this.vertexSize = bufferSource.getBufferEnvironment().getVertexSize();
     }
 
     @Override
@@ -24,8 +24,8 @@ public class AcceleratedBuffers implements IAcceleratedBuffers {
     }
 
     @Override
-    public long reservePose() {
-        return bufferSource.getPoseBuffer().reserve(4L * 4L * 4L + 4L * 4L * 3L);
+    public long reserveSharings() {
+        return bufferSource.getSharingBuffer().reserve(4L * 4L * 4L + 4L * 4L * 3L + 4L * 4L);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class AcceleratedBuffers implements IAcceleratedBuffers {
     }
 
     @Override
-    public int getPose() {
-        return bufferSource.getPose();
+    public int getSharing() {
+        return bufferSource.getSharing();
     }
 }

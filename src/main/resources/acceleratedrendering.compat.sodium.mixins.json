@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.github.argon4w.acceleratedrendering.compat.sodium.mixins.SodiumCompatMixinPlugin",
   "client": [
-    "GLSingleFenceSyncMixin"
+    "GlobalFenceSyncMixin",
+    "GLFenceMixin"
   ],
   "injectors": {
     "defaultRequire": 1

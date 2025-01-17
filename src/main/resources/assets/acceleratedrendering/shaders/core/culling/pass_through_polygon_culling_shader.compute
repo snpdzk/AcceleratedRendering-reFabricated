@@ -1,0 +1,26 @@
+#version 460 core
+
+layout(local_size_x=1, local_size_y=1) in;
+
+layout(binding=5, std430) buffer IndicesIn {
+    int indicesIn[];
+};
+
+layout(binding=6, std430) buffer IndicesOut {
+    int indicesOut[];
+};
+
+layout(binding=0, offset=0) uniform atomic_uint indexCounter;
+
+void main() {
+    int index = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
+
+    if (index == 0) {
+        atomicCounterExchange(indexCounter, 0u);
+    }
+
+    memoryBarrier();
+    atomicCounterIncrement(indexCounter);
+
+    indicesOut[index] = indicesIn[index];
+}

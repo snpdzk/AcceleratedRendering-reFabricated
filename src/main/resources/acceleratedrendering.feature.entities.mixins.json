@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "LevelRendererMixin",
-    "ModelPartMixin"
+    "ModelPartMixin",
+    "ShadowRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

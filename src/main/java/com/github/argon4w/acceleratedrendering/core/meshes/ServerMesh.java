@@ -1,7 +1,10 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.EmptyServerBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
@@ -21,8 +24,15 @@ public class ServerMesh implements IMesh {
     }
 
     @Override
-    public void render(IVertexConsumerExtension extension, int color, int light, int overlay) {
-        extension.addServerMesh(renderType, offset, size, color, light, overlay);
+    public void write(IVertexConsumerExtension extension, int color, int light, int overlay) {
+        extension.addServerMesh(
+                renderType,
+                offset,
+                size,
+                color,
+                light,
+                overlay
+        );
     }
 
     public static class Builder implements IMesh.Builder {
@@ -36,20 +46,44 @@ public class ServerMesh implements IMesh {
         }
 
         @Override
-        public MeshCollector newMeshCollector(RenderType renderType) {
-            MappedBuffer buffer = storageBuffers.computeIfAbsent(renderType.format, ignored -> new MappedBuffer(1024L));
-            return MeshCollector.create(renderType, buffer, (int) buffer.getPosition());
+        public IMesh build(MeshCollector meshCollector) {
+
+            if (meshCollector.getVertexCount() == 0) {
+                return EmptyMesh.INSTANCE;
+            }
+
+            return new ServerMesh(
+                    meshCollector.getKey(),
+                    meshCollector.getVertexCount(),
+                    meshCollector.getOffset()
+            );
         }
 
         @Override
-        public IMesh build(MeshCollector meshCollector) {
-            return meshCollector.getVertexCount() == 0
-                    ? new EmptyMesh()
-                    : new ServerMesh(meshCollector.getRenderType(), meshCollector.getVertexCount(), meshCollector.getOffset());
+        public MeshCollector newMeshCollector(RenderType key) {
+            VertexFormat vertexFormat = key.format;
+            MappedBuffer buffer = storageBuffers.get(vertexFormat);
+
+            if (buffer == null) {
+                buffer = new MappedBuffer(1024L);
+                storageBuffers.put(vertexFormat, buffer);
+            }
+
+            return MeshCollector.create(
+                    key,
+                    buffer,
+                    (int) buffer.getPosition()
+            );
         }
 
-        public MappedBuffer getStorageBuffer(VertexFormat vertexFormat) {
-            return storageBuffers.get(vertexFormat);
+        public IServerBuffer getStorageBuffer(VertexFormat vertexFormat) {
+            IServerBuffer buffer = storageBuffers.get(vertexFormat);
+
+            if (buffer == null) {
+                buffer = EmptyServerBuffer.INSTANCE;
+            }
+
+            return buffer;
         }
     }
 }

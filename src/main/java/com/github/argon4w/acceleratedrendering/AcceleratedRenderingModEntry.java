@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering;
 
-import com.github.argon4w.acceleratedrendering.configs.AcceleratedRenderingConfig;
+import com.github.argon4w.acceleratedrendering.configs.FeatureConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -16,11 +16,15 @@ public class AcceleratedRenderingModEntry {
     public static final String MODID = "acceleratedrendering";
 
     public AcceleratedRenderingModEntry(IEventBus modEventBus, ModContainer modContainer) {
-        modContainer.registerConfig(ModConfig.Type.CLIENT, AcceleratedRenderingConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, FeatureConfig.SPEC);
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     public static ResourceLocation location(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    }
+
+    public static int getCpuRenderAheadLimit() {
+        return FeatureConfig.CONFIG.cpuRenderAheadLimit.getAsInt();
     }
 }

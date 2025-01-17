@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
@@ -9,13 +10,23 @@ import java.util.Set;
 
 public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexConsumerExtension {
 
+    private final IBufferEnvironment bufferEnvironment;;
+
     private final VertexConsumer vertexConsumer1;
     private final VertexConsumer vertexConsumer2;
 
     private final RenderType renderType1;
     private final RenderType renderType2;
 
-    public AcceleratedDoubleVertexConsumer(RenderType renderType1, VertexConsumer vertexConsumer1, RenderType renderType2, VertexConsumer vertexConsumer2) {
+    public AcceleratedDoubleVertexConsumer(
+            IBufferEnvironment bufferEnvironment,
+            RenderType renderType1,
+            VertexConsumer vertexConsumer1,
+            RenderType renderType2,
+            VertexConsumer vertexConsumer2
+    ) {
+        this.bufferEnvironment = bufferEnvironment;
+
         this.vertexConsumer1 = vertexConsumer1;
         this.vertexConsumer2 = vertexConsumer2;
 
@@ -65,6 +76,11 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
     @Override
     public Set<RenderType> getRenderTypes() {
         return Set.of(renderType1, renderType2);
+    }
+
+    @Override
+    public IBufferEnvironment getBufferEnvironment() {
+        return bufferEnvironment;
     }
 
     @Override

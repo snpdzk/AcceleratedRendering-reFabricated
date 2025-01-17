@@ -4,8 +4,10 @@ import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexCons
 
 public class EmptyMesh implements IMesh {
 
+    public static final EmptyMesh INSTANCE = new EmptyMesh();
+
     @Override
-    public void render(IVertexConsumerExtension extension, int color, int light, int overlay) {
+    public void write(IVertexConsumerExtension extension, int color, int light, int overlay) {
 
     }
 }

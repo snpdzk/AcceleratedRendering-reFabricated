@@ -9,7 +9,7 @@ import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEnti
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Vector3f;
@@ -30,11 +30,15 @@ public class ModelPartMixin {
 
     @Shadow @Final private List<ModelPart.Cube> cubes;
 
-    @Unique private final Map<RenderType, IMesh> meshes = new Reference2ObjectOpenHashMap<>();
+    @Unique private final Map<RenderType, IMesh> meshes = new Object2ObjectOpenHashMap<>();
 
     @Inject(method = "compile", at = @At("HEAD"), cancellable = true)
     public void compile(PoseStack.Pose pPose, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, int pColor, CallbackInfo ci) {
         IVertexConsumerExtension extension = (IVertexConsumerExtension) pBuffer;
+
+        if (!AcceleratedEntityRenderingFeature.isEnabled()) {
+            return;
+        }
 
         if (!AcceleratedEntityRenderingFeature.shouldUseAcceleratedPipeline()) {
             return;
@@ -51,7 +55,7 @@ public class ModelPartMixin {
             IMesh mesh = meshes.get(renderType);
 
             if (mesh != null) {
-                mesh.render(extension, pColor, pPackedLight, pPackedOverlay);
+                mesh.write(extension, pColor, pPackedLight, pPackedOverlay);
                 continue;
             }
 
@@ -87,7 +91,7 @@ public class ModelPartMixin {
 
             mesh = builder.build(meshCollector);
             meshes.put(renderType, mesh);
-            mesh.render(extension, pColor, pPackedLight, pPackedOverlay);
+            mesh.write(extension, pColor, pPackedLight, pPackedOverlay);
 
             image.ifPresent(NativeImage::close);
         }

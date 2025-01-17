@@ -12,15 +12,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class TextureUtils {
 
     public static Optional<NativeImage> downloadTexture(RenderType renderType) {
-        if (renderType == null) {
-            return Optional.empty();
-        }
-
-        if (!(renderType instanceof RenderType.CompositeRenderType composite)) {
-            return Optional.empty();
-        }
-
-        Optional<ResourceLocation> textureResourceLocation = composite.state.textureState.cutoutTexture();
+        Optional<ResourceLocation> textureResourceLocation = RenderTypeUtils.getTextureLocation(renderType);
 
         if (textureResourceLocation.isEmpty()) {
             return Optional.empty();

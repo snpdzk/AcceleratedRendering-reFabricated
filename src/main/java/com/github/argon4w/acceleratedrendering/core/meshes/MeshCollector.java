@@ -14,15 +14,19 @@ public abstract class MeshCollector {
 
     private static final boolean LE = (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN);
 
-    private final RenderType renderType;
+    private final RenderType key;
     private final VertexFormat vertexFormat;
     private final IClientBuffer buffer;
     private final int offset;
     private int vertexCount;
 
-    private MeshCollector(RenderType renderType, IClientBuffer buffer, int offset) {
-        this.renderType = renderType;
-        this.vertexFormat = this.renderType.format;
+    private MeshCollector(
+            RenderType key,
+            IClientBuffer buffer,
+            int offset
+    ) {
+        this.key = key;
+        this.vertexFormat = key.format;
         this.buffer = buffer;
         this.vertexCount = 0;
         this.offset = offset;
@@ -118,22 +122,32 @@ public abstract class MeshCollector {
         return vertexCount;
     }
 
-    public RenderType getRenderType() {
-        return renderType;
+    public RenderType getKey() {
+        return key;
     }
 
     public int getOffset() {
         return offset;
     }
 
-    public static MeshCollector create(RenderType renderType, IClientBuffer buffer, int offset) {
-        return LE ? new LE(renderType, buffer, offset) : new BE(renderType, buffer, offset);
+    public static MeshCollector create(RenderType key, IClientBuffer buffer, int offset) {
+        return LE ?
+                new LE(key, buffer, offset) :
+                new BE(key, buffer, offset);
     }
 
     public static class BE extends MeshCollector {
 
-        private BE(RenderType renderType, IClientBuffer buffer, int offset) {
-            super(renderType, buffer, offset);
+        private BE(
+                RenderType key,
+                IClientBuffer buffer,
+                int offset
+        ) {
+            super(
+                    key,
+                    buffer,
+                    offset
+            );
         }
 
         @Override
@@ -150,8 +164,16 @@ public abstract class MeshCollector {
 
     public static class LE extends MeshCollector {
 
-        private LE(RenderType renderType, IClientBuffer buffer, int offset) {
-            super(renderType, buffer, offset);
+        private LE(
+                RenderType key,
+                IClientBuffer buffer,
+                int offset
+        ) {
+            super(
+                    key,
+                    buffer,
+                    offset
+            );
         }
 
         @Override

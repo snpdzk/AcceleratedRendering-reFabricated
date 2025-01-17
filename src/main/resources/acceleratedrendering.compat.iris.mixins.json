@@ -5,8 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.github.argon4w.acceleratedrendering.compat.iris.mixins.IrisCompatMixinPlugin",
   "client": [
-    "TextureUtilsMixin",
-    "IrisVertexFormatMixin"
+    "RenderTypeUtilsMixin",
+    "IrisVertexFormatMixin",
+    "AcceleratedBufferSourceMixin",
+    "AcceleratedOutlineBufferSourceMixin",
+    "AcceleratedRenderingModEntryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

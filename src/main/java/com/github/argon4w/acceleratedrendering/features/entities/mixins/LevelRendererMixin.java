@@ -2,7 +2,6 @@ package com.github.argon4w.acceleratedrendering.features.entities.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.AcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.AcceleratedOutlineBufferSource;
-import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -31,7 +30,7 @@ public abstract class LevelRendererMixin {
 
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderEntity(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;)V"))
     public void wrapRenderEntity(LevelRenderer instance, Entity pEntity, double pCamX, double pCamY, double pCamZ, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBufferSource, Operation<Void> original, @Local(name = "flag2") LocalBooleanRef flag2) {
-        if (!AcceleratedEntityRenderingFeature.isFeatureEnabled()) {
+        if (!AcceleratedEntityRenderingFeature.isEnabled()) {
             original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, pBufferSource);
             return;
         }
@@ -52,7 +51,7 @@ public abstract class LevelRendererMixin {
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0))
     public void endAllEntityBatches(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
-        if (!AcceleratedEntityRenderingFeature.isFeatureEnabled()) {
+        if (!AcceleratedEntityRenderingFeature.isEnabled()) {
             return;
         }
 
@@ -62,11 +61,16 @@ public abstract class LevelRendererMixin {
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/OutlineBufferSource;endOutlineBatch()V"))
     public void endOutlineBatches(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
-        if (!AcceleratedEntityRenderingFeature.isFeatureEnabled()) {
+        if (!AcceleratedEntityRenderingFeature.isEnabled()) {
             return;
         }
 
         AcceleratedOutlineBufferSource.OUTLINE.drawBuffers();
         AcceleratedOutlineBufferSource.OUTLINE.clearBuffers();
+    }
+
+    @Inject(method = "renderLevel", at = @At("TAIL"))
+    public void checkControllerStack(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
+        AcceleratedEntityRenderingFeature.checkControllerState();
     }
 }

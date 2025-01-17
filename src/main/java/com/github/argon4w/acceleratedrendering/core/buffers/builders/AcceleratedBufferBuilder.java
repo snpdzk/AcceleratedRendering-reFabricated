@@ -1,6 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.IAcceleratedBuffers;
+import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
+import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
+import com.github.argon4w.acceleratedrendering.features.culling.NormalCullingFeature;
 import com.github.argon4w.acceleratedrendering.core.utils.ByteBufferUtils;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.RenderType;
@@ -16,58 +19,63 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     private static final boolean LE = (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN);
 
     private final IAcceleratedBuffers buffers;
+    private final IBufferEnvironment bufferEnvironment;
     private final RenderType renderType;
-    private final VertexFormat vertexFormat;
     private final VertexFormat.Mode mode;
 
     private int polygonVertexCount;
     private int vertexCount;
     private long vertex;
     private long varying;
-    private int pose;
+    private int sharing;
 
-    public AcceleratedBufferBuilder(IAcceleratedBuffers buffers, RenderType renderType) {
+    public AcceleratedBufferBuilder(
+            IAcceleratedBuffers buffers,
+            IBufferEnvironment bufferEnvironment,
+            RenderType renderType
+
+    ) {
         this.buffers = buffers;
+        this.bufferEnvironment = bufferEnvironment;
         this.renderType = renderType;
-        this.vertexFormat = renderType.format;
         this.mode = renderType.mode;
 
         this.polygonVertexCount = 0;
         this.vertexCount = 0;
         this.vertex = -1;
         this.varying = -1;
-        this.pose = -1;
+        this.sharing = -1;
     }
 
     public abstract void putRgba(long pointer, int color);
     public abstract void putPackedUv(long pointer, int packedUv);
 
     private int getSize() {
-        return vertexFormat.getVertexSize();
+        return bufferEnvironment.getVertexSize();
     }
 
     private long getPosOffset() {
-        return vertexFormat.getOffset(VertexFormatElement.POSITION);
+        return bufferEnvironment.getOffset(VertexFormatElement.POSITION);
     }
 
     private long getColorOffset() {
-        return vertexFormat.getOffset(VertexFormatElement.COLOR);
+        return bufferEnvironment.getOffset(VertexFormatElement.COLOR);
     }
 
     private long getUvOffset() {
-        return vertexFormat.getOffset(VertexFormatElement.UV);
+        return bufferEnvironment.getOffset(VertexFormatElement.UV);
     }
 
     private long getUv1Offset() {
-        return vertexFormat.getOffset(VertexFormatElement.UV1);
+        return bufferEnvironment.getOffset(VertexFormatElement.UV1);
     }
 
     public long getUv2Offset() {
-        return vertexFormat.getOffset(VertexFormatElement.UV2);
+        return bufferEnvironment.getOffset(VertexFormatElement.UV2);
     }
 
     public long getNormalOffset() {
-        return vertexFormat.getOffset(VertexFormatElement.NORMAL);
+        return bufferEnvironment.getOffset(VertexFormatElement.NORMAL);
     }
 
     @Override
@@ -263,18 +271,20 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
     @Override
     public void beginTransform(PoseStack.Pose pose) {
-        this.pose = buffers.getPose();
+        this.sharing = buffers.getSharing();
 
-        long transform = buffers.reservePose();
-        long normal = transform + 4 * 4 * 4;
+        long transform = buffers.reserveSharings();
+        long normal = transform + 4L * 4L * 4L;
+        long flags = normal + 4L * 3L * 4L;
 
         ByteBufferUtils.putMatrix4f(transform, pose.pose());
         ByteBufferUtils.putMatrix3x4f(normal, pose.normal());
+        MemoryUtil.memPutFloat(flags, bufferEnvironment.getSharingFlags());
     }
 
     @Override
     public void endTransform() {
-        this.pose = -1;
+        this.sharing = -1;
     }
 
     @Override
@@ -292,11 +302,12 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         ByteBufferUtils.putByteBuffer(vertexBuffer, vertex, (long) size * getSize());
 
         for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 5L * 4L + 0 * 4L, -1);
-            MemoryUtil.memPutInt(varying + i * 5L * 4L + 1 * 4L, pose);
-            putRgba(varying + i * 5L * 4L + 2 * 4L, color);
-            putPackedUv(varying + i * 5L * 4L + 3 * 4L, light);
-            putPackedUv(varying + i * 5L * 4L + 4 * 4L, overlay);
+            long address = varying + i * 5L * 4L;
+            MemoryUtil.memPutInt( address + 0 * 4L, -1);
+            MemoryUtil.memPutInt(address + 1 * 4L, sharing);
+            putRgba(address + 2 * 4L, color);
+            putPackedUv(address + 3 * 4L, light);
+            putPackedUv(address + 4 * 4L, overlay);
         }
     }
 
@@ -314,11 +325,12 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         long varying = buffers.reserveVaryings(size);
 
         for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 5L * 4L + 0 * 4L, mesh + i);
-            MemoryUtil.memPutInt(varying + i * 5L * 4L + 1 * 4L, pose);
-            putRgba(varying + i * 5L * 4L + 2 * 4L, color);
-            putPackedUv(varying + i * 5L * 4L + 3 * 4L, light);
-            putPackedUv(varying + i * 5L * 4L + 4 * 4L, overlay);
+            long address = varying + i * 5L * 4L;
+            MemoryUtil.memPutInt( address + 0 * 4L, mesh + i);
+            MemoryUtil.memPutInt(address + 1 * 4L, sharing);
+            putRgba(address + 2 * 4L, color);
+            putPackedUv(address + 3 * 4L, light);
+            putPackedUv(address + 4 * 4L, overlay);
         }
     }
 
@@ -336,21 +348,41 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         return vertexCount;
     }
 
-    public static AcceleratedBufferBuilder create(IAcceleratedBuffers buffers, RenderType renderType) {
+    @Override
+    public IBufferEnvironment getBufferEnvironment() {
+        return bufferEnvironment;
+    }
+
+    public static AcceleratedBufferBuilder create(
+            IAcceleratedBuffers buffers,
+            IBufferEnvironment bufferEnvironment,
+            RenderType renderType
+    ) {
         return LE
-                ? new LE(buffers, renderType)
-                : new BE(buffers, renderType);
+                ? new LE(buffers, bufferEnvironment, renderType)
+                : new BE(buffers, bufferEnvironment, renderType);
     }
 
     public static class BE extends AcceleratedBufferBuilder {
 
-        private BE(IAcceleratedBuffers buffers, RenderType renderType) {
-            super(buffers, renderType);
+        private BE(
+                IAcceleratedBuffers buffers,
+                IBufferEnvironment bufferEnvironment,
+                RenderType renderType
+        ) {
+            super(
+                    buffers,
+                    bufferEnvironment,
+                    renderType
+            );
         }
 
         @Override
         public void putRgba(long pointer, int color) {
-            MemoryUtil.memPutInt(pointer, Integer.reverseBytes(FastColor.ABGR32.fromArgb32(color)));
+            MemoryUtil.memPutInt(
+                    pointer,
+                    Integer.reverseBytes(FastColor.ABGR32.fromArgb32(color))
+            );
         }
 
         @Override
@@ -362,8 +394,16 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
     public static class LE extends AcceleratedBufferBuilder {
 
-        private LE(IAcceleratedBuffers buffers, RenderType renderType) {
-            super(buffers, renderType);
+        private LE(
+                IAcceleratedBuffers buffers,
+                IBufferEnvironment bufferEnvironment,
+                RenderType renderType
+        ) {
+            super(
+                    buffers,
+                    bufferEnvironment,
+                    renderType
+            );
         }
 
         @Override

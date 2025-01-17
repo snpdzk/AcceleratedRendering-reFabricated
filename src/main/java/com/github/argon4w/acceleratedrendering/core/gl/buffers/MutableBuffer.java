@@ -46,6 +46,16 @@ public class MutableBuffer implements IServerBuffer {
     }
 
     @Override
+    public void bind(int target) {
+        glBuffer.bind(target);
+    }
+
+    @Override
+    public void bindBase(int target, int index) {
+        glBuffer.bindBase(target, index);
+    }
+
+    @Override
     public int getBufferHandle() {
         return glBuffer.getBufferHandle();
     }

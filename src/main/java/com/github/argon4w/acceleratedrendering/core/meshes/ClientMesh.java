@@ -2,7 +2,9 @@ package com.github.argon4w.acceleratedrendering.core.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IClientBuffer;
+import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
 
 import java.nio.ByteBuffer;
@@ -20,8 +22,15 @@ public class ClientMesh implements IMesh {
     }
 
     @Override
-    public void render(IVertexConsumerExtension extension, int color, int light, int overlay) {
-        extension.addClientMesh(renderType, vertexBuffer, size, color, light, overlay);
+    public void write(IVertexConsumerExtension extension, int color, int light, int overlay) {
+        extension.addClientMesh(
+                renderType,
+                vertexBuffer,
+                size,
+                color,
+                light,
+                overlay
+        );
     }
 
     public static class Builder implements IMesh.Builder {
@@ -33,8 +42,12 @@ public class ClientMesh implements IMesh {
         }
 
         @Override
-        public MeshCollector newMeshCollector(RenderType renderType) {
-            return MeshCollector.create(renderType, new SimpleClientBuffer(), 0);
+        public MeshCollector newMeshCollector(RenderType key) {
+            return MeshCollector.create(
+                    key,
+                    new SimpleClientBuffer(),
+                    0
+            );
         }
 
         @Override
@@ -42,16 +55,20 @@ public class ClientMesh implements IMesh {
             int vertexCount = collector.getVertexCount();
 
             if (vertexCount == 0) {
-                return new EmptyMesh();
+                return EmptyMesh.INSTANCE;
             }
 
             ByteBufferBuilder.Result result = ((SimpleClientBuffer) collector.getBuffer()).builder.build();
 
             if (result == null) {
-                return new EmptyMesh();
+                return EmptyMesh.INSTANCE;
             }
 
-            return new ClientMesh(collector.getRenderType(), vertexCount, result.byteBuffer());
+            return new ClientMesh(
+                    collector.getKey(),
+                    vertexCount,
+                    result.byteBuffer()
+            );
         }
 
         public record SimpleClientBuffer(ByteBufferBuilder builder) implements IClientBuffer {

@@ -28,6 +28,16 @@ public class ImmutableBuffer implements IServerBuffer {
     }
 
     @Override
+    public void bind(int target) {
+        glBindBuffer(target, bufferHandle);
+    }
+
+    @Override
+    public void bindBase(int target, int index) {
+        glBindBufferBase(target, index, bufferHandle);
+    }
+
+    @Override
     public int getBufferHandle() {
         return bufferHandle;
     }

@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
@@ -9,11 +10,18 @@ import java.util.Set;
 
 public class AcceleratedOutlineGenerator implements VertexConsumer, IVertexConsumerExtension {
 
+    private final IBufferEnvironment bufferEnvironment;
     private final VertexConsumer vertexConsumer;
     private final RenderType renderType;
     private final int teamColor;
 
-    public AcceleratedOutlineGenerator(VertexConsumer vertexConsumer, RenderType renderType, int teamColor) {
+    public AcceleratedOutlineGenerator(
+            IBufferEnvironment bufferEnvironment,
+            VertexConsumer vertexConsumer,
+            RenderType renderType,
+            int teamColor
+    ) {
+        this.bufferEnvironment = bufferEnvironment;
         this.vertexConsumer = vertexConsumer;
         this.renderType = renderType;
         this.teamColor = teamColor;
@@ -47,6 +55,11 @@ public class AcceleratedOutlineGenerator implements VertexConsumer, IVertexConsu
     @Override
     public Set<RenderType> getRenderTypes() {
         return Set.of(renderType);
+    }
+
+    @Override
+    public IBufferEnvironment getBufferEnvironment() {
+        return bufferEnvironment;
     }
 
     @Override
