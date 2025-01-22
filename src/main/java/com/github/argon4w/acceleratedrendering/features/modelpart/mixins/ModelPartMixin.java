@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.features.entities.mixins;
+package com.github.argon4w.acceleratedrendering.features.modelpart.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;

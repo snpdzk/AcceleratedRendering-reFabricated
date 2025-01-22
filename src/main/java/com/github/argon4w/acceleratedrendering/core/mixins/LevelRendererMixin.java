@@ -1,6 +1,6 @@
-package com.github.argon4w.acceleratedrendering.features.culling.mixins;
+package com.github.argon4w.acceleratedrendering.core.mixins;
 
-import com.github.argon4w.acceleratedrendering.features.culling.NormalCullingFeature;
+import com.github.argon4w.acceleratedrendering.CoreFeature;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
@@ -15,8 +15,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 
-    @Inject(method = "renderLevel", at = @At("TAIL"))
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/OutlineBufferSource;endOutlineBatch()V"))
     public void endOutlineBatches(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
-        NormalCullingFeature.checkControllerState();
+        CoreFeature.POS_TEX_COLOR.drawBuffers();
+        CoreFeature.OUTLINE_BATCHING.drawBuffers();
+        CoreFeature.POS_TEX_COLOR.clearBuffers();
+        CoreFeature.OUTLINE_BATCHING.clearBuffers();
     }
 }

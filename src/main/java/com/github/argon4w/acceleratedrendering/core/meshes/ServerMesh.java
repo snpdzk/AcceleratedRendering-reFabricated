@@ -4,7 +4,6 @@ import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexCons
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.EmptyServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
-import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.renderer.RenderType;

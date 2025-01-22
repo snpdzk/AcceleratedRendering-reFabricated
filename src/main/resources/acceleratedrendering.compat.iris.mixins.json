@@ -8,8 +8,10 @@
     "RenderTypeUtilsMixin",
     "IrisVertexFormatMixin",
     "AcceleratedBufferSourceMixin",
-    "AcceleratedOutlineBufferSourceMixin",
-    "AcceleratedRenderingModEntryMixin"
+    "AcceleratedRenderingModEntryMixin",
+    "IBufferEnvironmentPresetsMixin",
+    "RedirectingBufferSourceMixin",
+    "RedirectingColoredBufferSourceMixin"
   ],
   "injectors": {
     "defaultRequire": 1

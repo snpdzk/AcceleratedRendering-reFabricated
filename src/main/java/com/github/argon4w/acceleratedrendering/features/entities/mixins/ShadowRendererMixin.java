@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.entities.mixins;
 
-import com.github.argon4w.acceleratedrendering.compat.iris.IrisBufferEnvironment;
+import com.github.argon4w.acceleratedrendering.CoreFeature;
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import net.irisshaders.iris.mixin.LevelRendererAccessor;
@@ -28,8 +28,11 @@ public class ShadowRendererMixin {
             return;
         }
 
-        IrisBufferEnvironment.SHADOW.drawBuffers();
-        IrisBufferEnvironment.SHADOW.clearBuffers();
+        IrisCompatFeature.ENTITY_SHADOW.drawBuffers();
+        IrisCompatFeature.SHADOW_BATCHING.drawBuffers();
+        IrisCompatFeature.ENTITY_SHADOW.clearBuffers();
+        IrisCompatFeature.SHADOW_BATCHING.clearBuffers();
+        IrisCompatFeature.SHADOW_VANILLA_RENDER_BUFFERS.bufferSource().endBatch();
     }
 
     @ModifyArg(method = "renderShadows", at = @At(value = "INVOKE", target = "Lnet/irisshaders/iris/shadows/ShadowRenderer;renderEntities(Lnet/irisshaders/iris/mixin/LevelRendererAccessor;Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lcom/mojang/blaze3d/vertex/PoseStack;FLnet/minecraft/client/renderer/culling/Frustum;DDD)I"), index = 2)
@@ -42,6 +45,6 @@ public class ShadowRendererMixin {
             return bufferSource;
         }
 
-        return IrisBufferEnvironment.SHADOW;
+        return IrisCompatFeature.SHADOW;
     }
 }

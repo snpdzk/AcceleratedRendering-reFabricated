@@ -1,8 +1,8 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.renderer.RenderType;
 
 import java.nio.ByteBuffer;
@@ -10,28 +10,25 @@ import java.util.Set;
 
 public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexConsumerExtension {
 
-    private final IBufferEnvironment bufferEnvironment;;
-
     private final VertexConsumer vertexConsumer1;
     private final VertexConsumer vertexConsumer2;
-
-    private final RenderType renderType1;
-    private final RenderType renderType2;
+    private final Set<RenderType> renderTypes1;
+    private final Set<RenderType> renderTypes2;
+    private final Set<RenderType> renderTypes;
 
     public AcceleratedDoubleVertexConsumer(
-            IBufferEnvironment bufferEnvironment,
-            RenderType renderType1,
             VertexConsumer vertexConsumer1,
-            RenderType renderType2,
             VertexConsumer vertexConsumer2
     ) {
-        this.bufferEnvironment = bufferEnvironment;
-
         this.vertexConsumer1 = vertexConsumer1;
         this.vertexConsumer2 = vertexConsumer2;
 
-        this.renderType1 = renderType1;
-        this.renderType2 = renderType2;
+        this.renderTypes1 = ((IVertexConsumerExtension) this.vertexConsumer1).getRenderTypes();
+        this.renderTypes2 = ((IVertexConsumerExtension) this.vertexConsumer2).getRenderTypes();
+
+        this.renderTypes = new ObjectOpenHashSet<>();
+        this.renderTypes.addAll(renderTypes1);
+        this.renderTypes.addAll(renderTypes2);
     }
 
     @Override
@@ -47,22 +44,64 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
     }
 
     @Override
-    public void addClientMesh(RenderType renderType, ByteBuffer vertexBuffer, int size, int color, int light, int overlay) {
-        if (renderType1.equals(renderType)) {
-            ((IVertexConsumerExtension) vertexConsumer1).addClientMesh(renderType, vertexBuffer, size, color, light, overlay);
-        } else if (renderType2.equals(renderType)) {
-            ((IVertexConsumerExtension) vertexConsumer2).addClientMesh(renderType, vertexBuffer, size, color, light, overlay);
+    public void addClientMesh(
+            RenderType renderType,
+            ByteBuffer vertexBuffer,
+            int size,
+            int color,
+            int light,
+            int overlay
+    ) {
+        if (renderTypes1.contains(renderType)) {
+            ((IVertexConsumerExtension) vertexConsumer1).addClientMesh(
+                    renderType,
+                    vertexBuffer,
+                    size,
+                    color,
+                    light,
+                    overlay
+            );
+        } else if (renderTypes2.contains(renderType)) {
+            ((IVertexConsumerExtension) vertexConsumer2).addClientMesh(
+                    renderType,
+                    vertexBuffer,
+                    size,
+                    color,
+                    light,
+                    overlay
+            );
         } else {
             throw new IllegalArgumentException("Incorrect RenderType: " + renderType.toString());
         }
     }
 
     @Override
-    public void addServerMesh(RenderType renderType, int offset, int size, int color, int light, int overlay) {
-        if (renderType1.equals(renderType)) {
-            ((IVertexConsumerExtension) vertexConsumer1).addServerMesh(renderType, offset, size, color, light, overlay);
-        } else if (renderType2.equals(renderType)) {
-            ((IVertexConsumerExtension) vertexConsumer2).addServerMesh(renderType, offset, size, color, light, overlay);
+    public void addServerMesh(
+            RenderType renderType,
+            int offset,
+            int size,
+            int color,
+            int light,
+            int overlay
+    ) {
+        if (renderTypes1.contains(renderType)) {
+            ((IVertexConsumerExtension) vertexConsumer1).addServerMesh(
+                    renderType,
+                    offset,
+                    size,
+                    color,
+                    light,
+                    overlay
+            );
+        } else if (renderTypes2.contains(renderType)) {
+            ((IVertexConsumerExtension) vertexConsumer2).addServerMesh(
+                    renderType,
+                    offset,
+                    size,
+                    color,
+                    light,
+                    overlay
+            );
         } else {
             throw new IllegalArgumentException("Incorrect RenderType: " + renderType.toString());
         }
@@ -70,17 +109,13 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
 
     @Override
     public boolean supportAcceleratedRendering() {
-        return true;
+        return ((IVertexConsumerExtension) vertexConsumer1).supportAcceleratedRendering()
+                && ((IVertexConsumerExtension) vertexConsumer2).supportAcceleratedRendering();
     }
 
     @Override
     public Set<RenderType> getRenderTypes() {
-        return Set.of(renderType1, renderType2);
-    }
-
-    @Override
-    public IBufferEnvironment getBufferEnvironment() {
-        return bufferEnvironment;
+        return renderTypes;
     }
 
     @Override

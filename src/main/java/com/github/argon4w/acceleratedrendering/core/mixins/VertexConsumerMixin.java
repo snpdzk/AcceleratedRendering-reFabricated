@@ -1,7 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
-import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
@@ -22,7 +21,19 @@ public interface VertexConsumerMixin extends IVertexConsumerExtension {
 
     @Unique
     @Override
+    default void endTransform() {
+
+    }
+
+    @Unique
+    @Override
     default void addClientMesh(RenderType renderType, ByteBuffer vertexBuffer, int size, int color, int light, int overlay) {
+
+    }
+
+    @Unique
+    @Override
+    default void addServerMesh(RenderType renderType, int offset, int size, int color, int light, int overlay) {
 
     }
 
@@ -36,10 +47,5 @@ public interface VertexConsumerMixin extends IVertexConsumerExtension {
     @Override
     default Set<RenderType> getRenderTypes() {
         return Set.of();
-    }
-
-    @Override
-    default IBufferEnvironment getBufferEnvironment() {
-        return null;
     }
 }

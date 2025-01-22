@@ -20,6 +20,26 @@ public interface IBufferEnvironment {
     int getSharingFlags();
     int getVertexSize();
 
-    IBufferEnvironment CORE = new VanillaBufferEnvironment(DefaultVertexFormat.NEW_ENTITY);
-    IBufferEnvironment OUTLINE = new VanillaBufferEnvironment(DefaultVertexFormat.POSITION_TEX_COLOR);
+    final class Presets {
+
+        private static final IBufferEnvironment ENTITY = new VanillaBufferEnvironment(DefaultVertexFormat.NEW_ENTITY);
+        private static final IBufferEnvironment POS_TEX_COLOR = new VanillaBufferEnvironment(DefaultVertexFormat.POSITION_TEX_COLOR);
+        private static final IBufferEnvironment POS_TEX = new VanillaBufferEnvironment(DefaultVertexFormat.POSITION_TEX);
+
+        public static IBufferEnvironment getEntityEnvironment() {
+            return ENTITY;
+        }
+
+        public static IBufferEnvironment getPosTexColorEnvironment() {
+            return POS_TEX_COLOR;
+        }
+
+        public static IBufferEnvironment getPosTexEnvironment() {
+            return POS_TEX;
+        }
+
+        private Presets() {
+
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.RenderType;
 
@@ -15,5 +14,4 @@ public interface IVertexConsumerExtension {
     void addServerMesh(RenderType renderType, int offset, int size, int color, int light, int overlay);
     boolean supportAcceleratedRendering();
     Set<RenderType> getRenderTypes();
-    IBufferEnvironment getBufferEnvironment();
 }

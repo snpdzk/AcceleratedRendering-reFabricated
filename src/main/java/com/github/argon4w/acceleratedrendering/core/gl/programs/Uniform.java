@@ -5,7 +5,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 
-import static org.lwjgl.opengl.GL46.*;
+import static org.lwjgl.opengl.GL46.glProgramUniformMatrix4fv;
 
 public class Uniform {
 

@@ -23,8 +23,4 @@ public class AcceleratedRenderingModEntry {
     public static ResourceLocation location(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
-
-    public static int getMaximumPooledBuffers() {
-        return FeatureConfig.CONFIG.maximumPooledBuffers.getAsInt();
-    }
 }

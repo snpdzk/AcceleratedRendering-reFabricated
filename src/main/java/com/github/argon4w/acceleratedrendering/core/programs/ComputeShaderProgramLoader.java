@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.lwjgl.opengl.GL46.*;
+import static org.lwjgl.opengl.GL46.GL_COMPUTE_SHADER;
 
 public class ComputeShaderProgramLoader extends SimplePreparableReloadListener<Map<ResourceLocation, String>> {
 

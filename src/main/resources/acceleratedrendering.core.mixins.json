@@ -4,7 +4,9 @@
   "package": "com.github.argon4w.acceleratedrendering.core.mixins",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "VertexConsumerMixin"
+    "VertexConsumerMixin",
+    "LevelRendererMixin",
+    "BufferBuilderAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

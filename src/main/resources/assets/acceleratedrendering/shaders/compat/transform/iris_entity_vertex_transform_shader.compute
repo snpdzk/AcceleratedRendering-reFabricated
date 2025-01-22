@@ -87,13 +87,18 @@ void main() {
     verticesOut[index].y = pos.y;
     verticesOut[index].z = pos.z;
 
-    verticesOut[index].color = varyingData.color;
-
     verticesOut[index].u0 = refVertex.u0;
     verticesOut[index].v0 = refVertex.v0;
 
-    verticesOut[index].uv1 = varyingData.overlay;
-    verticesOut[index].uv2 = varyingData.light;
+    if (sharing != -1) {
+        verticesOut[index].color = varyingData.color;
+        verticesOut[index].uv1 = varyingData.overlay;
+        verticesOut[index].uv2 = varyingData.light;
+    } else {
+        verticesOut[index].color = refVertex.color;
+        verticesOut[index].uv1 = refVertex.uv1;
+        verticesOut[index].uv2 = refVertex.uv2;
+    }
 
     verticesOut[index].normal = (packedNormalZ << 16) | (packedNormalY << 8) | (packedNormalX << 0);
 

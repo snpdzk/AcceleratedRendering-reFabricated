@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.compat.iris;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.AcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
@@ -17,12 +16,10 @@ import net.minecraft.client.renderer.RenderType;
 
 public class IrisBufferEnvironment implements IBufferEnvironment {
 
-    public static final IBufferEnvironment CORE = new IrisBufferEnvironment(
+    public static final IBufferEnvironment ENTITY = new IrisBufferEnvironment(
             DefaultVertexFormat.NEW_ENTITY,
             IrisVertexFormats.ENTITY
     );
-
-    public static final AcceleratedBufferSource SHADOW = new AcceleratedBufferSource(CORE);
 
     private final VertexFormat vertexFormat;
     private final VertexFormat irisVertexFormat;
@@ -38,12 +35,12 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
         this.cullingProgramSelector = ICullingProgramSelector.get(this.vertexFormat);
     }
 
-    private boolean isPackLoaded() {
+    private boolean isExtended() {
         return WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat();
     }
 
     private VertexFormat getCurrentActiveVertexFormat() {
-        return isPackLoaded()
+        return isExtended()
                 ? irisVertexFormat
                 : vertexFormat;
     }
@@ -70,7 +67,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 
     @Override
     public VertexFormat getVertexFormat(RenderType renderType) {
-        return (isPackLoaded() && renderType.format == vertexFormat)
+        return (isExtended() && renderType.format == vertexFormat)
                 ? irisVertexFormat
                 : renderType.format;
     }
@@ -78,7 +75,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     @Override
     public boolean isAccelerated(VertexFormat vertexFormat) {
         return (this.vertexFormat == vertexFormat)
-                || (isPackLoaded() && irisVertexFormat == vertexFormat);
+                || (isExtended() && irisVertexFormat == vertexFormat);
     }
 
     @Override

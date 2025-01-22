@@ -1,7 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.entities.mixins;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.AcceleratedBufferSource;
-import com.github.argon4w.acceleratedrendering.core.buffers.AcceleratedOutlineBufferSource;
+import com.github.argon4w.acceleratedrendering.CoreFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -11,7 +10,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -35,18 +37,22 @@ public abstract class LevelRendererMixin {
             return;
         }
 
-        MultiBufferSource bufferSource = AcceleratedBufferSource.CORE;
-
-        if (shouldShowEntityOutlines()) {
-            if (minecraft.shouldEntityAppearGlowing(pEntity)) {
-                bufferSource = AcceleratedOutlineBufferSource.OUTLINE.setTeamColor(pEntity.getTeamColor());
-                flag2.set(true);
-            } else if (pEntity.hasCustomOutlineRendering(minecraft.player)) {
-                flag2.set(true);
-            }
+        if (!shouldShowEntityOutlines()) {
+            original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, CoreFeature.CORE);
+            return;
         }
 
-        original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, bufferSource);
+        if (minecraft.shouldEntityAppearGlowing(pEntity)) {
+            original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, CoreFeature.CORE_OUTLINE.setColor(pEntity.getTeamColor()));
+            flag2.set(true);
+            return;
+        }
+
+        if (pEntity.hasCustomOutlineRendering(minecraft.player)) {
+            flag2.set(true);
+        }
+
+        original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, CoreFeature.CORE);
     }
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0))
@@ -55,18 +61,12 @@ public abstract class LevelRendererMixin {
             return;
         }
 
-        AcceleratedBufferSource.CORE.drawBuffers();
-        AcceleratedBufferSource.CORE.clearBuffers();
-    }
-
-    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/OutlineBufferSource;endOutlineBatch()V"))
-    public void endOutlineBatches(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
-        if (!AcceleratedEntityRenderingFeature.isEnabled()) {
-            return;
-        }
-
-        AcceleratedOutlineBufferSource.OUTLINE.drawBuffers();
-        AcceleratedOutlineBufferSource.OUTLINE.clearBuffers();
+        CoreFeature.ENTITY.drawBuffers();
+        CoreFeature.POS_TEX.drawBuffers();
+        CoreFeature.CORE_BATCHING.drawBuffers();
+        CoreFeature.ENTITY.clearBuffers();
+        CoreFeature.POS_TEX.clearBuffers();
+        CoreFeature.CORE_BATCHING.clearBuffers();
     }
 
     @Inject(method = "renderLevel", at = @At("TAIL"))

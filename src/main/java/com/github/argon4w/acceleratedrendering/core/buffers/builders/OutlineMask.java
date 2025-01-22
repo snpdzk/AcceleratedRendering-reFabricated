@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
@@ -8,22 +7,13 @@ import net.minecraft.client.renderer.RenderType;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
-public class AcceleratedOutlineGenerator implements VertexConsumer, IVertexConsumerExtension {
+public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
 
-    private final IBufferEnvironment bufferEnvironment;
     private final VertexConsumer vertexConsumer;
-    private final RenderType renderType;
     private final int teamColor;
 
-    public AcceleratedOutlineGenerator(
-            IBufferEnvironment bufferEnvironment,
-            VertexConsumer vertexConsumer,
-            RenderType renderType,
-            int teamColor
-    ) {
-        this.bufferEnvironment = bufferEnvironment;
+    public OutlineMask(VertexConsumer vertexConsumer, int teamColor) {
         this.vertexConsumer = vertexConsumer;
-        this.renderType = renderType;
         this.teamColor = teamColor;
     }
 
@@ -38,33 +28,59 @@ public class AcceleratedOutlineGenerator implements VertexConsumer, IVertexConsu
     }
 
     @Override
-    public void addClientMesh(RenderType renderType, ByteBuffer vertexBuffer, int size, int color, int light, int overlay) {
-        ((IVertexConsumerExtension) vertexConsumer).addClientMesh(renderType, vertexBuffer, size, teamColor, -1, -1);
+    public void addClientMesh(
+            RenderType renderType,
+            ByteBuffer vertexBuffer,
+            int size,
+            int color,
+            int light,
+            int overlay
+    ) {
+        ((IVertexConsumerExtension) vertexConsumer).addClientMesh(
+                renderType,
+                vertexBuffer,
+                size,
+                teamColor,
+                -1,
+                -1
+        );
     }
 
     @Override
-    public void addServerMesh(RenderType renderType, int offset, int size, int color, int light, int overlay) {
-        ((IVertexConsumerExtension) vertexConsumer).addServerMesh(renderType, offset, size, teamColor, -1, -1);
+    public void addServerMesh(
+            RenderType renderType,
+            int offset,
+            int size,
+            int color,
+            int light,
+            int overlay
+    ) {
+        ((IVertexConsumerExtension) vertexConsumer).addServerMesh(
+                renderType,
+                offset,
+                size,
+                teamColor,
+                -1,
+                -1
+        );
     }
 
     @Override
     public boolean supportAcceleratedRendering() {
-        return true;
+        return ((IVertexConsumerExtension) vertexConsumer).supportAcceleratedRendering();
     }
 
     @Override
     public Set<RenderType> getRenderTypes() {
-        return Set.of(renderType);
-    }
-
-    @Override
-    public IBufferEnvironment getBufferEnvironment() {
-        return bufferEnvironment;
+        return ((IVertexConsumerExtension) vertexConsumer).getRenderTypes();
     }
 
     @Override
     public VertexConsumer addVertex(float pX, float pY, float pZ) {
-        vertexConsumer.addVertex(pX, pY, pZ);
+        vertexConsumer
+                .addVertex(pX, pY, pZ)
+                .setColor(teamColor);
+
         return this;
     }
 
@@ -107,8 +123,9 @@ public class AcceleratedOutlineGenerator implements VertexConsumer, IVertexConsu
             float pNormalX,
             float pNormalY,
             float pNormalZ) {
-        addVertex(pX, pY, pZ)
-                .setColor(pColor)
+        vertexConsumer
+                .addVertex(pX, pY, pZ)
+                .setColor(teamColor)
                 .setUv(pU, pV);
     }
 }

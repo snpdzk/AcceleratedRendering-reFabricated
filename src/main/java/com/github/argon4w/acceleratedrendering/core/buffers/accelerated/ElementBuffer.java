@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.buffers;
+package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.utils.IntIndexUtils;
@@ -6,17 +6,15 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 public class ElementBuffer extends MappedBuffer {
 
-    private final VertexFormat.Mode mode;
     private final AcceleratedBufferSetPool.BufferSet bufferSet;
 
-    public ElementBuffer(
-            VertexFormat.Mode mode,
-            AcceleratedBufferSetPool.BufferSet bufferSet
-    ) {
-        super(1024L);
+    private VertexFormat.Mode mode;
 
-        this.mode = mode;
+    public ElementBuffer(AcceleratedBufferSetPool.BufferSet bufferSet) {
+        super(64L);
+
         this.bufferSet = bufferSet;
+        this.mode = null;
     }
 
     public void reserveElements(int vertexCount) {
@@ -26,5 +24,16 @@ public class ElementBuffer extends MappedBuffer {
                 bufferSet.getElement(vertexCount),
                 vertexCount
         );
+    }
+
+    public ElementBuffer setMode(VertexFormat.Mode mode) {
+        this.mode = mode;
+        return this;
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.mode = null;
     }
 }

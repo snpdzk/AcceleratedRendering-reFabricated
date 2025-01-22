@@ -19,7 +19,7 @@ public class NormalCullingFeature {
     }
 
     public static boolean shouldCull() {
-        return CULLING_CONTROLLER_STACK.isEmpty() || CULLING_CONTROLLER_STACK.peek();
+        return getCullingSetting();
     }
 
     public static void disableCulling() {
@@ -36,6 +36,10 @@ public class NormalCullingFeature {
 
     public static void resetCullingSetting() {
         CULLING_CONTROLLER_STACK.pop();
+    }
+
+    public static boolean getCullingSetting() {
+        return CULLING_CONTROLLER_STACK.isEmpty() ||  CULLING_CONTROLLER_STACK.peek();
     }
 
     public static void checkControllerState() {
