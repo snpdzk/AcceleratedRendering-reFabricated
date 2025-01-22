@@ -1,5 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.iris;
 
+import com.github.argon4w.acceleratedrendering.configs.FeatureConfig;
+import com.github.argon4w.acceleratedrendering.configs.FeatureStatus;
 import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
@@ -22,14 +24,14 @@ public class IrisCompatFeature {
             .build();
 
     public static boolean isEnabled() {
-        return true;
+        return FeatureConfig.CONFIG.irisCompatFeatureStatus.get() == FeatureStatus.ENABLED;
     }
 
     public static boolean isIrisCompatCullingEnabled() {
-        return true;
+        return FeatureConfig.CONFIG.irisCompatNormalCullingCompat.get() == FeatureStatus.ENABLED;
     }
 
     public static boolean isIrisCompatEntitiesEnabled() {
-        return true;
+        return FeatureConfig.CONFIG.irisCompatEntitiesCompat.get() == FeatureStatus.ENABLED;
     }
 }

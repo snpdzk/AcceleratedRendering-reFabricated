@@ -19,6 +19,10 @@ public class FeatureConfig {
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingFeatureStatus;
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingIgnoreCullState;
 
+    public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatFeatureStatus;
+    public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatNormalCullingCompat;
+    public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatEntitiesCompat;
+
     static {
         Pair<FeatureConfig, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(FeatureConfig::new);
 
@@ -99,5 +103,34 @@ public class FeatureConfig {
                 .comment("- ENABLED: Simple normal face culling will cull all entities even if they are not declared as \"cullable\".")
                 .translation("acceleratedrendering.configuration.normal_culling.ignore_cull_state")
                 .defineEnum("ignore_cull_state", FeatureStatus.DISABLED);
+
+        builder.pop();
+
+        builder
+                .comment("Iris Compatibility Settings")
+                .comment("Iris Compatibility Settings allows Accelerated Rendering to work correctly with Iris.")
+                .translation("acceleratedrendering.configuration.iris_compatibility")
+                .push("iris_compatibility");
+
+        irisCompatFeatureStatus = builder
+                .comment("- DISABLED: Accelerated Rendering will be incompatible with Iris and cause visual glitches when working with Iris.")
+                .comment("- ENABLED: Accelerated Rendering will use compute shaders that fits Iris's vertex formats, which make it compatible with Iris.")
+                .translation("acceleratedrendering.configuration.iris_compatibility.feature_status")
+                .defineEnum("feature_status", FeatureStatus.ENABLED);
+
+        irisCompatNormalCullingCompat = builder
+                .comment("- DISABLED: Simple Normal culling will not work with Iris because the culling shader is for vanilla's vertex formats.")
+                .comment("- ENABLED: Normal culling will use another culling shader that fits iris's vertex format, which make it compatible with Iris.")
+                .translation("acceleratedrendering.configuration.iris_compatibility.normal_culling_compatibility")
+                .defineEnum("normal_culling_compatibility", FeatureStatus.ENABLED);
+
+        irisCompatEntitiesCompat = builder
+                .comment()
+                .comment("- DISABLED: renderEntity called from Iris will not render entity into the accelerated pipeline.")
+                .comment("- ENABLED: renderEntity called from Iris will render entity into the accelerated pipeline.")
+                .translation("acceleratedrendering.configuration.iris_compatibility.entities_compatibility")
+                .defineEnum("entities_compatibility", FeatureStatus.ENABLED);
+
+        builder.pop();
     }
 }

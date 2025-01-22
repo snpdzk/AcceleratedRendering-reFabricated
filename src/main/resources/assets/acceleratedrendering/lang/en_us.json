@@ -26,5 +26,14 @@
   "acceleratedrendering.configuration.normal_culling.feature_status.tooltip": "- DISABLED: Disable simple normal face culling.\n- ENABLED: Enable simple normal face culling.",
   "acceleratedrendering.configuration.normal_culling.ignore_cull_state": "Ignore Cull State",
   "acceleratedrendering.configuration.normal_culling.ignore_cull_state.tooltip": "- DISABLED: Simple normal face culling will not cull entities that are not declared as \"cullable\".\n- ENABLED: Simple normal face culling will cull all entities even if they are not declared as \"cullable\", which may cause slightly visual differences.",
-  "acceleratedrendering.configuration.normal_culling.button": "Configure"
+  "acceleratedrendering.configuration.normal_culling.button": "Configure",
+  "acceleratedrendering.configuration.iris_compatibility": "Iris Compatibility Settings",
+  "acceleratedrendering.configuration.iris_compatibility.tooltip": "Iris Compatibility Settings allows Accelerated Rendering to work correctly with Iris.",
+  "acceleratedrendering.configuration.iris_compatibility.feature_status": "Enable Iris Compatibility",
+  "acceleratedrendering.configuration.iris_compatibility.feature_status.tooltip": "- DISABLED: Accelerated Rendering will be incompatible with Iris and cause visual glitches when working with Iris.\n- ENABLED: Accelerated Rendering will use compute shaders that fits Iris's vertex formats, which make it compatible with Iris.",
+  "acceleratedrendering.configuration.iris_compatibility.normal_culling_compatibility": "Enable Simple Normal Culling Compatibility",
+  "acceleratedrendering.configuration.iris_compatibility.normal_culling_compatibility.tooltip": "- DISABLED: Simple Normal culling will not work with Iris because the culling shader is for vanilla's vertex formats.\n- ENABLED: Normal culling will use another culling shader that fits iris's vertex format, which make it compatible with Iris.",
+  "acceleratedrendering.configuration.iris_compatibility.entities_compatibility": "Enable Accelerated Entity Rendering Compatibility",
+  "acceleratedrendering.configuration.iris_compatibility.entities_compatibility.tooltip": "- DISABLED: renderEntity called from Iris will not render entities into the accelerated pipeline.\n- ENABLED: renderEntity called from Iris will render entities into the accelerated pipeline.",
+  "acceleratedrendering.configuration.iris_compatibility.button": "Configure"
 }
