@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.mixins;
+package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import net.irisshaders.batchedentityrendering.impl.WrappableRenderType;

@@ -6,6 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingPro
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.github.argon4w.acceleratedrendering.features.culling.NormalCullingFeature;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.irisshaders.iris.shadows.ShadowRenderingState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
@@ -38,21 +39,25 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
     }
 
     @Override
-    public ICullingProgram select(RenderType renderType, VertexFormat vertexFormat) {
+    public ICullingProgram select(RenderType renderType) {
         if (!IrisCompatFeature.isEnabled()) {
-            return parent.select(renderType, vertexFormat);
+            return parent.select(renderType);
         }
 
         if (!IrisCompatFeature.isIrisCompatCullingEnabled()) {
-            return parent.select(renderType, vertexFormat);
+            return parent.select(renderType);
+        }
+
+        if (!IrisCompatFeature.isShadowCullingEnabled() && ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+            return parent.select(renderType);
         }
 
         if (!NormalCullingFeature.isEnabled()) {
-            return parent.select(renderType, vertexFormat);
+            return parent.select(renderType);
         }
 
-        if (this.vertexFormat != vertexFormat) {
-            return parent.select(renderType, vertexFormat);
+        if (this.vertexFormat != renderType.format) {
+            return parent.select(renderType);
         }
 
         if (NormalCullingFeature.shouldIgnoreCullState()) {
@@ -63,7 +68,7 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
             return program;
         }
 
-        return parent.select(renderType, vertexFormat);
+        return parent.select(renderType);
     }
 
     @Override
@@ -76,11 +81,11 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
             return parent.getSharingFlags();
         }
 
-        if (!NormalCullingFeature.isEnabled()) {
+        if (!IrisCompatFeature.isShadowCullingEnabled() && ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
             return parent.getSharingFlags();
         }
 
-        if (!IrisCompatFeature.isIrisCompatCullingEnabled()) {
+        if (!NormalCullingFeature.isEnabled()) {
             return parent.getSharingFlags();
         }
 

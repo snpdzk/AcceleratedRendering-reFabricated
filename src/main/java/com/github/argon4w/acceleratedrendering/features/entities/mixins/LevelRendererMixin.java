@@ -70,7 +70,7 @@ public abstract class LevelRendererMixin {
     }
 
     @Inject(method = "renderLevel", at = @At("TAIL"))
-    public void checkControllerStack(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
+    public void checkControllerState(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
         AcceleratedEntityRenderingFeature.checkControllerState();
     }
 }

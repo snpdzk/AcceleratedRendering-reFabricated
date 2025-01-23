@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.buffers;
+package com.github.argon4w.acceleratedrendering.core.buffers.outline;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedDoubleVertexConsumer;
 import com.mojang.blaze3d.vertex.VertexConsumer;

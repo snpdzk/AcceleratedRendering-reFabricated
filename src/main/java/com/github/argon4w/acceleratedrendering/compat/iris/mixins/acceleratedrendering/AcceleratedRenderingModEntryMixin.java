@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.mixins;
+package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
 import com.github.argon4w.acceleratedrendering.compat.iris.programs.IrisPrograms;

@@ -62,7 +62,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 
     @Override
     public ICullingProgram selectCullProgram(RenderType renderType) {
-        return cullingProgramSelector.select(renderType, getCurrentActiveVertexFormat());
+        return cullingProgramSelector.select(renderType);
     }
 
     @Override

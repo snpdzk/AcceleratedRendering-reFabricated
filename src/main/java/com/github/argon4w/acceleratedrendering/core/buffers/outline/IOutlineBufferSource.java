@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.buffers;
+package com.github.argon4w.acceleratedrendering.core.buffers.outline;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 

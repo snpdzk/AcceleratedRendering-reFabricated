@@ -3,20 +3,22 @@ package com.github.argon4w.acceleratedrendering.core.utils;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Optional;
-
 public class RenderTypeUtils {
 
-    public static Optional<ResourceLocation> getTextureLocation(RenderType renderType) {
+    public static ResourceLocation getTextureLocation(RenderType renderType) {
         if (renderType == null) {
-            return Optional.empty();
+            return null;
         }
 
         if (!(renderType instanceof RenderType.CompositeRenderType composite)) {
-            return Optional.empty();
+            return null;
         }
 
-        return composite.state.textureState.cutoutTexture();
+        return composite
+                .state
+                .textureState
+                .cutoutTexture()
+                .orElse(null);
     }
 
     public static boolean isCulled(RenderType renderType) {

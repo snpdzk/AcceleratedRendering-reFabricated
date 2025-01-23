@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.mixins;
+package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingOutlineBufferSource;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(RedirectingOutlineBufferSource.class)
-public class RedirectingColoredBufferSourceMixin {
+public class RedirectingOutlineBufferSourceMixin {
 
     @WrapOperation(method = "getBuffer", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/RenderType;name:Ljava/lang/String;"))
     public String unwrapIrisRenderType(RenderType instance, Operation<String> original) {

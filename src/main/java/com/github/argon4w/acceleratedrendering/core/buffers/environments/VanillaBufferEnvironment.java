@@ -41,7 +41,7 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 
     @Override
     public ICullingProgram selectCullProgram(RenderType renderType) {
-        return cullingProgramSelector.select(renderType, vertexFormat);
+        return cullingProgramSelector.select(renderType);
     }
 
     @Override

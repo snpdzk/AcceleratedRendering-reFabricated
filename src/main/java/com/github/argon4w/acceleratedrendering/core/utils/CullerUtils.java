@@ -8,6 +8,10 @@ import org.joml.Vector3f;
 public class CullerUtils {
 
     public static boolean shouldCull(ModelPart.Vertex[] vertices, NativeImage image) {
+        if (image == null) {
+            return false;
+        }
+
         float minU = 1.0f;
         float minV = 1.0f;
 

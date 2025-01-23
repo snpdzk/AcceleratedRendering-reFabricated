@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.mixins;
+package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(value = IrisVertexFormats.class, priority = Integer.MAX_VALUE)
-public class IrisVertexFormatMixin {
+public class IrisVertexFormatsMixin {
 
     @WrapOperation(
             method = "<clinit>",

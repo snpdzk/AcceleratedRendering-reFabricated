@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.mixins;
+package com.github.argon4w.acceleratedrendering.compat.iris.mixins.plugin;
 
 import com.github.argon4w.acceleratedrendering.compat.AbstractCompatMixinPlugin;
 

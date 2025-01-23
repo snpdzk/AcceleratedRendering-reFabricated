@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.mixins;
+package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisRenderType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSource;
@@ -8,14 +8,14 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(AcceleratedBufferSource.class)
 public abstract class AcceleratedBufferSourceMixin {
 
     @Shadow @Final private IBufferEnvironment bufferEnvironment;
 
-    @ModifyArg(method = "getBuffer", at = @At(value = "INVOKE", target = "Lcom/github/argon4w/acceleratedrendering/core/buffers/builders/AcceleratedBufferBuilder;create(Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/ElementBuffer;Lcom/github/argon4w/acceleratedrendering/core/buffers/environments/IBufferEnvironment;Lcom/github/argon4w/acceleratedrendering/core/buffers/accelerated/AcceleratedBufferSetPool$BufferSet;Lnet/minecraft/client/renderer/RenderType;)Lcom/github/argon4w/acceleratedrendering/core/buffers/builders/AcceleratedBufferBuilder;"), index = 3)
+    @ModifyVariable(method = "getBuffer", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     public RenderType unwrapIrisRenderType(RenderType renderType) {
         return new IrisRenderType(
                 renderType,

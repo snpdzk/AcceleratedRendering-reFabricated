@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.core.buffers.redirecting;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -10,16 +11,20 @@ import net.minecraft.client.renderer.RenderType;
 public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
 
     private final ObjectSet<IAcceleratedBufferSource> bufferSources;
+    private final ReferenceSet<VertexFormat.Mode> modes;
     private final ObjectSet<String> fallbackNames;
     private final MultiBufferSource fallbackBufferSource;
 
     public RedirectingBufferSource(
             ObjectSet<IAcceleratedBufferSource> bufferSources,
+            ReferenceSet<VertexFormat.Mode> modes,
             ObjectSet<String> fallbackNames,
             MultiBufferSource fallbackBufferSource
     ) {
         super(null, null);
+
         this.bufferSources = bufferSources;
+        this.modes = modes;
         this.fallbackNames = fallbackNames;
         this.fallbackBufferSource = fallbackBufferSource;
     }
@@ -41,6 +46,10 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
 
     @Override
     public VertexConsumer getBuffer(RenderType pRenderType) {
+        if (!modes.contains(pRenderType.mode)) {
+            return fallbackBufferSource.getBuffer(pRenderType);
+        }
+
         if (fallbackNames.contains(pRenderType.name)) {
             return fallbackBufferSource.getBuffer(pRenderType);
         }
@@ -64,12 +73,14 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
     public static class Builder {
 
         private final ObjectSet<IAcceleratedBufferSource> bufferSources;
+        private final ReferenceSet<VertexFormat.Mode> modes;
         private final ObjectSet<String> fallbackNames;
 
         private MultiBufferSource fallbackBufferSource;
 
         private Builder() {
             this.bufferSources = new ObjectArraySet<>();
+            this.modes = new ReferenceOpenHashSet<>();
             this.fallbackNames = new ObjectOpenHashSet<>();
             this.fallbackBufferSource = Minecraft
                     .getInstance()
@@ -87,6 +98,11 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
             return this;
         }
 
+        public Builder mode(VertexFormat.Mode mode) {
+            this.modes.add(mode);
+            return this;
+        }
+
         public Builder fallbackName(String name) {
             this.fallbackNames.add(name);
             return this;
@@ -95,6 +111,7 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
         public RedirectingBufferSource build() {
             return new RedirectingBufferSource(
                     bufferSources,
+                    modes,
                     fallbackNames,
                     fallbackBufferSource
             );

@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.fallback;
 
 import com.github.argon4w.acceleratedrendering.CoreFeature;
-import com.github.argon4w.acceleratedrendering.core.buffers.IOutlineBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.outline.IOutlineBufferSource;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -14,7 +14,8 @@ public class FallbackOutlineBufferSource implements IOutlineBufferSource {
 
     public FallbackOutlineBufferSource(
             OutlineBufferSource outlineBufferSource,
-            IOutlineBufferSource vanillaBatchingBufferSource) {
+            IOutlineBufferSource vanillaBatchingBufferSource
+    ) {
         this.vanillaBufferSource = outlineBufferSource;
         this.vanillaBatchingBufferSource = vanillaBatchingBufferSource;
     }

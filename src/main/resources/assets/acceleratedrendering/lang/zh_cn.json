@@ -24,6 +24,8 @@
   "acceleratedrendering.configuration.normal_culling.tooltip": "简单法线面剔除在绘制调用前使用一个判断组成面的顶点的法线是否朝向屏幕的ComputeShader(计算着色器)来剔除在屏幕上不可见的面, 减少需要绘制的面数.",
   "acceleratedrendering.configuration.normal_culling.feature_status": "启用简单法线面剔除",
   "acceleratedrendering.configuration.normal_culling.feature_status.tooltip": "- DISABLED: 禁用简单法线面剔除.\n- ENABLED: 启用简单法线面剔除.",
+  "acceleratedrendering.configuration.normal_culling.default_culling": "默认剔除设置",
+  "acceleratedrendering.configuration.normal_culling.default_culling.tooltip": "- DISABLED: 除非其他MOD在渲染其面时显式声明临时开启简单法线面剔除, 否则面将不会被剔除\n- ENABLED: 除非其他MOD在渲染其面时显式声明临时关闭简单法线面剔除, 否则面将始终被剔除",
   "acceleratedrendering.configuration.normal_culling.ignore_cull_state": "强制剔除",
   "acceleratedrendering.configuration.normal_culling.ignore_cull_state.tooltip": "- DISABLED: 简单法线面剔除将不会剔除被声明为不可剔除的实体\n- ENABLED: 简单法线面剔除将会对所有实体进行强制剔除, 即使其被声明为不可剔除, 可能会造成轻微渲染差异.",
   "acceleratedrendering.configuration.normal_culling.button": "配置",
@@ -33,6 +35,8 @@
   "acceleratedrendering.configuration.iris_compatibility.feature_status.tooltip": "- DISABLED: 加速渲染将与Iris不兼容, 并在与Iris一同工作时造成视觉错误.\n- ENABLED: 加速渲染将使用与Iris顶点格式匹配的兼容Shader用于在Iris环境中正常工作并兼容Iris.",
   "acceleratedrendering.configuration.iris_compatibility.normal_culling_compatibility": "启用简单法线剔除兼容",
   "acceleratedrendering.configuration.iris_compatibility.normal_culling_compatibility.tooltip": "- DISABLED: 在Iris环境下简单法线剔除将不可用, 因为其剔除Shader仅为原版顶点格式设计.\n- ENABLED: 简单法线剔除将使用与Iris顶点格式匹配的兼容Shader用于在Iris环境中正常剔除.",
+  "acceleratedrendering.configuration.iris_compatibility.shadow_culling": "启用阴影剔除",
+  "acceleratedrendering.configuration.iris_compatibility.shadow_culling.tooltip": "- DISABLED: 当实体渲染阴影时, 多余的面将不会被剔除, 这可能导致由多余面造成的FPS下降.\n- ENABLED: 当实体渲染阴影时, 多余的面将会被剔除以提升FPS, 但这可能会导致不正确的阴影渲染.",
   "acceleratedrendering.configuration.iris_compatibility.entities_compatibility": "启用加速实体渲染兼容",
   "acceleratedrendering.configuration.iris_compatibility.entities_compatibility.tooltip": "- DISABLED: 从Iris发出的renderEntity调用将不会把实体放入加速管线渲染.\n- ENABLED: 从Iris发怵的renderEntity调用会将实体放入加速管线渲染",
   "acceleratedrendering.configuration.iris_compatibility.button": "配置"

@@ -3,15 +3,16 @@
   "minVersion": "0.8",
   "package": "com.github.argon4w.acceleratedrendering.compat.iris.mixins",
   "compatibilityLevel": "JAVA_21",
-  "plugin": "com.github.argon4w.acceleratedrendering.compat.iris.mixins.IrisCompatMixinPlugin",
+  "plugin": "com.github.argon4w.acceleratedrendering.compat.iris.mixins.plugin.IrisCompatMixinPlugin",
   "client": [
-    "RenderTypeUtilsMixin",
-    "IrisVertexFormatMixin",
-    "AcceleratedBufferSourceMixin",
-    "AcceleratedRenderingModEntryMixin",
-    "IBufferEnvironmentPresetsMixin",
-    "RedirectingBufferSourceMixin",
-    "RedirectingColoredBufferSourceMixin"
+    "acceleratedrendering.RenderTypeUtilsMixin",
+    "acceleratedrendering.AcceleratedBufferSourceMixin",
+    "acceleratedrendering.AcceleratedRenderingModEntryMixin",
+    "acceleratedrendering.IBufferEnvironmentPresetsMixin",
+    "acceleratedrendering.RedirectingBufferSourceMixin",
+    "acceleratedrendering.RedirectingOutlineBufferSourceMixin",
+    "iris.IrisVertexFormatsMixin",
+    "iris.ShadowRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

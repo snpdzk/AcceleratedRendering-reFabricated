@@ -6,7 +6,7 @@ import net.neoforged.fml.ModLoader;
 
 public interface ICullingProgramSelector {
 
-    ICullingProgram select(RenderType renderType, VertexFormat vertexFormat);
+    ICullingProgram select(RenderType renderType);
     int getSharingFlags();
 
     static ICullingProgramSelector passThrough() {

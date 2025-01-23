@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.buffers;
+package com.github.argon4w.acceleratedrendering.core.buffers.outline;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedOutlineBufferSource;

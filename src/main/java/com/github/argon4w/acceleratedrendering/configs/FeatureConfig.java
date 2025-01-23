@@ -17,10 +17,12 @@ public class FeatureConfig {
     public final ModConfigSpec.ConfigValue<MeshType> acceleratedEntityRenderingMeshType;
 
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingFeatureStatus;
+    public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingDefaultCulling;
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingIgnoreCullState;
 
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatFeatureStatus;
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatNormalCullingCompat;
+    public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatShadowCulling;
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatEntitiesCompat;
 
     static {
@@ -72,7 +74,7 @@ public class FeatureConfig {
                 .defineEnum("feature_status", FeatureStatus.ENABLED);
 
         acceleratedEntityRenderingDefaultPipeline = builder
-                .comment("- VANILLA: entities will be not rendered into the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own entities.")
+                .comment("- VANILLA: entities will not be rendered into the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own entities.")
                 .comment("- ACCELERATED: all entities will be rendered in the accelerated pipeline unless mods explicitly disable it temporarily when rendering their own entities.")
                 .translation("acceleratedrendering.configuration.accelerated_entity_rendering.default_pipeline")
                 .defineEnum("default_pipeline", PipelineSetting.ACCELERATED);
@@ -97,6 +99,12 @@ public class FeatureConfig {
                 .comment("- ENABLED: Enable simple normal face culling.")
                 .translation("acceleratedrendering.configuration.normal_culling.feature_status")
                 .defineEnum("feature_Status", FeatureStatus.ENABLED);
+
+        normalCullingDefaultCulling = builder
+                .comment("- DISABLED: Faces will not be culled unless mods explicitly enable it temporarily when rendering their own faces.")
+                .comment("- ENABLED: all faces will be culled unless mods explicitly disable it temporarily when rendering their own faces.")
+                .translation("acceleratedrendering.configuration.normal_culling.default_culling")
+                .defineEnum("default_culling", FeatureStatus.ENABLED);
 
         normalCullingIgnoreCullState = builder
                 .comment("- DISABLED: Simple normal face culling will not cull entities that are not declared as \"cullable\".")
@@ -123,6 +131,12 @@ public class FeatureConfig {
                 .comment("- ENABLED: Normal culling will use another culling shader that fits iris's vertex format, which make it compatible with Iris.")
                 .translation("acceleratedrendering.configuration.iris_compatibility.normal_culling_compatibility")
                 .defineEnum("normal_culling_compatibility", FeatureStatus.ENABLED);
+
+        irisCompatShadowCulling = builder
+                .comment("- DISABLED: Entities will not be culled when they are rendered as shadows. Which reduce FPS due to redundant faces.")
+                .comment("- ENABLED: Entities will be culled when they are rendered as shadows. Redundant faces will be culled and improve FPS, but it may cause incorrect shadows.")
+                .translation("acceleratedrendering.configuration.iris_compatibility.shadow_culling")
+                .defineEnum("shadow_culling", FeatureStatus.ENABLED);
 
         irisCompatEntitiesCompat = builder
                 .comment()

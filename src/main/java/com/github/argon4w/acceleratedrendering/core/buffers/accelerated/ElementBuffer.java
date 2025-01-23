@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
-import com.github.argon4w.acceleratedrendering.core.utils.IntIndexUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.IntElementUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 public class ElementBuffer extends MappedBuffer {
@@ -18,7 +18,7 @@ public class ElementBuffer extends MappedBuffer {
     }
 
     public void reserveElements(int vertexCount) {
-        IntIndexUtils.putIndices(
+        IntElementUtils.putElements(
                 mode,
                 this,
                 bufferSet.getElement(vertexCount),

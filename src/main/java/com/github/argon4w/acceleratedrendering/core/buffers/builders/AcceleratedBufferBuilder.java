@@ -312,7 +312,7 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
         ByteBufferUtils.putMatrix4f(transform, pose.pose());
         ByteBufferUtils.putMatrix3x4f(normal, pose.normal());
-        MemoryUtil.memPutFloat(flags, bufferEnvironment.getSharingFlags());
+        MemoryUtil.memPutInt(flags, bufferEnvironment.getSharingFlags());
     }
 
     @Override

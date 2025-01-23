@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftMixin {
 
     @Inject(method = "runTick", at = @At("TAIL"))
-    public void checkControllerStack(boolean pRenderLevel, CallbackInfo ci) {
+    public void checkControllerState(boolean pRenderLevel, CallbackInfo ci) {
         NormalCullingFeature.checkControllerState();
     }
 }

@@ -1,12 +1,11 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.redirecting;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.IOutlineBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.outline.IOutlineBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedOutlineBufferSource;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
@@ -14,16 +13,20 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
 
     private final ObjectSet<IOutlineBufferSource> allBufferSources;
     private final ObjectSet<IAcceleratedOutlineBufferSource> bufferSources;
+    private final ReferenceSet<VertexFormat.Mode> modes;
     private final ObjectSet<String> fallbackNames;
     private final IOutlineBufferSource fallbackBufferSource;
 
     public RedirectingOutlineBufferSource(
             ObjectSet<IAcceleratedOutlineBufferSource> bufferSources,
+            ReferenceSet<VertexFormat.Mode> modes,
             ObjectSet<String> fallbackNames,
             IOutlineBufferSource fallbackBufferSource
     ) {
         super(null, null);
+
         this.bufferSources = bufferSources;
+        this.modes = modes;
         this.fallbackNames = fallbackNames;
         this.fallbackBufferSource = fallbackBufferSource;
 
@@ -56,6 +59,10 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
 
     @Override
     public VertexConsumer getBuffer(RenderType pRenderType) {
+        if (!modes.contains(pRenderType.mode)) {
+            return fallbackBufferSource.getBuffer(pRenderType);
+        }
+
         if (fallbackNames.contains(pRenderType.name)) {
             return fallbackBufferSource.getBuffer(pRenderType);
         }
@@ -79,12 +86,14 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
     public static class Builder {
 
         private final ObjectSet<IAcceleratedOutlineBufferSource> bufferSources;
+        private final ReferenceSet<VertexFormat.Mode> modes;
         private final ObjectSet<String> fallbackNames;
 
         private IOutlineBufferSource fallbackBufferSource;
 
         private Builder() {
             this.bufferSources = new ObjectArraySet<>();
+            this.modes = new ReferenceOpenHashSet<>();
             this.fallbackNames = new ObjectOpenHashSet<>();
             this.fallbackBufferSource = null;
         }
@@ -99,6 +108,11 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
             return this;
         }
 
+        public Builder mode(VertexFormat.Mode mode) {
+            this.modes.add(mode);
+            return this;
+        }
+
         public Builder fallbackName(String name) {
             this.fallbackNames.add(name);
             return this;
@@ -107,6 +121,7 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
         public RedirectingOutlineBufferSource build() {
             return new RedirectingOutlineBufferSource(
                     bufferSources,
+                    modes,
                     fallbackNames,
                     fallbackBufferSource
             );

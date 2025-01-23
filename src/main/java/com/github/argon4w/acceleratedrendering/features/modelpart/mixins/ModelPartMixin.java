@@ -61,13 +61,13 @@ public class ModelPartMixin {
 
             IMesh.Builder builder = AcceleratedEntityRenderingFeature.getMeshBuilder();
             MeshCollector meshCollector = builder.newMeshCollector(renderType);
-            Optional<NativeImage> image = TextureUtils.downloadTexture(renderType);
+            NativeImage image = TextureUtils.downloadTexture(renderType);
 
             for (ModelPart.Cube cube : cubes) {
                 for (ModelPart.Polygon polygon : cube.polygons) {
                     Vector3f normal = polygon.normal;
 
-                    if (image.isPresent() && CullerUtils.shouldCull(polygon.vertices, image.get())) {
+                    if (CullerUtils.shouldCull(polygon.vertices, image)) {
                         continue;
                     }
 
@@ -93,7 +93,9 @@ public class ModelPartMixin {
             meshes.put(renderType, mesh);
             mesh.write(extension, pColor, pPackedLight, pPackedOverlay);
 
-            image.ifPresent(NativeImage::close);
+            if (image != null) {
+                image.close();
+            }
         }
 
         extension.endTransform();
