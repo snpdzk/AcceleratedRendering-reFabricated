@@ -16,12 +16,14 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
     private final ReferenceSet<VertexFormat.Mode> modes;
     private final ObjectSet<String> fallbackNames;
     private final IOutlineBufferSource fallbackBufferSource;
+    private final boolean supportSort;
 
     public RedirectingOutlineBufferSource(
             ObjectSet<IAcceleratedOutlineBufferSource> bufferSources,
             ReferenceSet<VertexFormat.Mode> modes,
             ObjectSet<String> fallbackNames,
-            IOutlineBufferSource fallbackBufferSource
+            IOutlineBufferSource fallbackBufferSource,
+            boolean supportSort
     ) {
         super(null, null);
 
@@ -29,6 +31,7 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
         this.modes = modes;
         this.fallbackNames = fallbackNames;
         this.fallbackBufferSource = fallbackBufferSource;
+        this.supportSort = supportSort;
 
         this.allBufferSources = new ObjectArraySet<>();
         this.allBufferSources.addAll(bufferSources);
@@ -59,6 +62,10 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
 
     @Override
     public VertexConsumer getBuffer(RenderType pRenderType) {
+        if (pRenderType.sortOnUpload && !supportSort) {
+            return fallbackBufferSource.getBuffer(pRenderType);
+        }
+
         if (!modes.contains(pRenderType.mode)) {
             return fallbackBufferSource.getBuffer(pRenderType);
         }
@@ -89,12 +96,15 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
         private final ReferenceSet<VertexFormat.Mode> modes;
         private final ObjectSet<String> fallbackNames;
 
+        private boolean supportSort;
         private IOutlineBufferSource fallbackBufferSource;
 
         private Builder() {
             this.bufferSources = new ObjectArraySet<>();
             this.modes = new ReferenceOpenHashSet<>();
             this.fallbackNames = new ObjectOpenHashSet<>();
+
+            this.supportSort = false;
             this.fallbackBufferSource = null;
         }
 
@@ -118,12 +128,18 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
             return this;
         }
 
+        public Builder supportSort() {
+            this.supportSort = true;
+            return this;
+        }
+
         public RedirectingOutlineBufferSource build() {
             return new RedirectingOutlineBufferSource(
                     bufferSources,
                     modes,
                     fallbackNames,
-                    fallbackBufferSource
+                    fallbackBufferSource,
+                    supportSort
             );
         }
     }

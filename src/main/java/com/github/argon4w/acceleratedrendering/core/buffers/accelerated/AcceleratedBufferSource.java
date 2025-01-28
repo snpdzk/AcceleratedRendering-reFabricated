@@ -56,10 +56,6 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        if (!bufferEnvironment.isAccelerated(renderType.format)) {
-            throw new IllegalStateException("Incorrect RenderType format: " + renderType.format);
-        }
-
         AcceleratedBufferBuilder builder = acceleratedBuilders.get(renderType);
 
         if (builder != null) {

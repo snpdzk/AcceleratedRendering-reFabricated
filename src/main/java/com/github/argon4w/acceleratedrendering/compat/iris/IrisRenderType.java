@@ -10,6 +10,7 @@ public class IrisRenderType extends RenderType {
 
     private final RenderType renderType;
     private final VertexFormat vertexFormat;
+    private final int hashCode;
 
     public IrisRenderType(
             RenderType renderType,
@@ -28,6 +29,10 @@ public class IrisRenderType extends RenderType {
 
         this.renderType = renderType;
         this.vertexFormat = vertexFormat;
+        this.hashCode = Objects.hashCode(
+                renderType,
+                vertexFormat
+        );
     }
 
     @Override
@@ -58,6 +63,6 @@ public class IrisRenderType extends RenderType {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(renderType, vertexFormat);
+        return hashCode;
     }
 }

@@ -4,7 +4,6 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceler
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
@@ -14,12 +13,14 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
     private final ReferenceSet<VertexFormat.Mode> modes;
     private final ObjectSet<String> fallbackNames;
     private final MultiBufferSource fallbackBufferSource;
+    private final boolean supportSort;
 
     public RedirectingBufferSource(
             ObjectSet<IAcceleratedBufferSource> bufferSources,
             ReferenceSet<VertexFormat.Mode> modes,
             ObjectSet<String> fallbackNames,
-            MultiBufferSource fallbackBufferSource
+            MultiBufferSource fallbackBufferSource,
+            boolean supportSort
     ) {
         super(null, null);
 
@@ -27,6 +28,7 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
         this.modes = modes;
         this.fallbackNames = fallbackNames;
         this.fallbackBufferSource = fallbackBufferSource;
+        this.supportSort = supportSort;
     }
 
     @Override
@@ -46,6 +48,10 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
 
     @Override
     public VertexConsumer getBuffer(RenderType pRenderType) {
+        if (pRenderType.sortOnUpload && !supportSort) {
+            return fallbackBufferSource.getBuffer(pRenderType);
+        }
+
         if (!modes.contains(pRenderType.mode)) {
             return fallbackBufferSource.getBuffer(pRenderType);
         }
@@ -76,16 +82,16 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
         private final ReferenceSet<VertexFormat.Mode> modes;
         private final ObjectSet<String> fallbackNames;
 
+        private boolean supportSort;
         private MultiBufferSource fallbackBufferSource;
 
         private Builder() {
             this.bufferSources = new ObjectArraySet<>();
             this.modes = new ReferenceOpenHashSet<>();
             this.fallbackNames = new ObjectOpenHashSet<>();
-            this.fallbackBufferSource = Minecraft
-                    .getInstance()
-                    .renderBuffers()
-                    .bufferSource();
+
+            this.supportSort = false;
+            this.fallbackBufferSource = null;
         }
 
         public Builder fallback(MultiBufferSource fallback) {
@@ -108,12 +114,18 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
             return this;
         }
 
+        public Builder supportSort() {
+            this.supportSort = true;
+            return this;
+        }
+
         public RedirectingBufferSource build() {
             return new RedirectingBufferSource(
                     bufferSources,
                     modes,
                     fallbackNames,
-                    fallbackBufferSource
+                    fallbackBufferSource,
+                    supportSort
             );
         }
     }

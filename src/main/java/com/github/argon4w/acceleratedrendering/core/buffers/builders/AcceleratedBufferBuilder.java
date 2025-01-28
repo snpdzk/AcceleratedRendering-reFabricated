@@ -59,6 +59,15 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     public abstract void putRgba(long pointer, int color);
     public abstract void putPackedUv(long pointer, int packedUv);
 
+    public void checkPolygon() {
+        if (++ elementCount < mode.primitiveLength) {
+            return;
+        }
+
+        elementBuffer.reserveElements(mode.primitiveLength);
+        elementCount = 0;
+    }
+
     private int getSize() {
         return bufferEnvironment.getVertexSize();
     }
@@ -96,11 +105,7 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     @Override
     public VertexConsumer addVertex(float pX, float pY, float pZ) {
         vertexCount ++;
-
-        if (++ elementCount >= mode.primitiveLength) {
-            elementBuffer.reserveElements(mode.primitiveLength);
-            elementCount = 0;
-        }
+        checkPolygon();
 
         vertex = bufferSet.reserveVertex();
         long offset = getPosOffset();
@@ -204,14 +209,23 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     @Override
     public VertexConsumer setNormal(PoseStack.Pose pPose, float pNormalX, float pNormalY, float pNormalZ) {
         if (transform == -1) {
-            return VertexConsumer.super.setNormal(pPose, pNormalX, pNormalY, pNormalZ);
+            return VertexConsumer.super.setNormal(
+                    pPose,
+                    pNormalX,
+                    pNormalY,
+                    pNormalZ
+            );
         }
 
         if (this.pose != pPose) {
             ByteBufferUtils.putMatrix3x4f(transform + 4L * 4L * 4L, pose.normal());
         }
 
-        return setNormal(pNormalX, pNormalY, pNormalZ);
+        return setNormal(
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
     }
 
     @Override
@@ -248,11 +262,7 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             float pNormalZ
     ) {
         vertexCount++;
-
-        if (++ elementCount >= mode.primitiveLength) {
-            elementBuffer.reserveElements(mode.primitiveLength);
-            elementCount = 0;
-        }
+        checkPolygon();
 
         long vertex = bufferSet.reserveVertex();
         long posOffset = getPosOffset();
@@ -331,10 +341,6 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             int light,
             int overlay
     ) {
-        if (!this.renderType.equals(renderType)) {
-            throw new IllegalArgumentException("Incorrect RenderType: " + renderType.toString());
-        }
-
         elementBuffer.reserveElements(size);
         vertexCount += size;
 
@@ -362,10 +368,6 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             int light,
             int overlay
     ) {
-        if (!this.renderType.equals(renderType)) {
-            throw new IllegalArgumentException("Incorrect RenderType: " + renderType.toString());
-        }
-
         elementBuffer.reserveElements(size);
         bufferSet.reservePolygons(size);
         vertexCount += size;

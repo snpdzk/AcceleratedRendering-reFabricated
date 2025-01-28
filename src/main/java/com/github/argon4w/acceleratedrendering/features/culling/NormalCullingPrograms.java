@@ -24,7 +24,16 @@ public class NormalCullingPrograms {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onLoadCullingPrograms(LoadCullingProgramSelectorEvent event) {
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new NormalCullingProgramSelector(parent, DefaultVertexFormat.NEW_ENTITY, CORE_ENTITY_POLYGON_CULLING_KEY));
-        event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, parent -> new NormalCullingProgramSelector(parent, DefaultVertexFormat.POSITION_TEX_COLOR, CORE_POS_TEX_COLOR_POLYGON_CULLING_KEY));
+        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new NormalCullingProgramSelector(
+                parent,
+                DefaultVertexFormat.NEW_ENTITY,
+                CORE_ENTITY_POLYGON_CULLING_KEY
+        ));
+
+        event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, parent -> new NormalCullingProgramSelector(
+                parent,
+                DefaultVertexFormat.POSITION_TEX_COLOR,
+                CORE_POS_TEX_COLOR_POLYGON_CULLING_KEY
+        ));
     }
 }

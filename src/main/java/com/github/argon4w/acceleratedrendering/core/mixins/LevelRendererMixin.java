@@ -22,4 +22,14 @@ public class LevelRendererMixin {
         CoreFeature.POS_TEX_COLOR.clearBuffers();
         CoreFeature.OUTLINE_BATCHING.clearBuffers();
     }
+
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0))
+    public void endAllEntityBatches(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
+        CoreFeature.ENTITY.drawBuffers();
+        CoreFeature.POS_TEX.drawBuffers();
+        CoreFeature.CORE_BATCHING.drawBuffers();
+        CoreFeature.ENTITY.clearBuffers();
+        CoreFeature.POS_TEX.clearBuffers();
+        CoreFeature.CORE_BATCHING.clearBuffers();
+    }
 }

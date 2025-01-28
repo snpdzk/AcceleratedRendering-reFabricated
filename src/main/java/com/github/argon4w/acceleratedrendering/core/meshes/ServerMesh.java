@@ -45,16 +45,17 @@ public class ServerMesh implements IMesh {
         }
 
         @Override
-        public IMesh build(MeshCollector meshCollector) {
+        public IMesh build(MeshCollector collector) {
+            int vertexCount = collector.getVertexCount();
 
-            if (meshCollector.getVertexCount() == 0) {
+            if (vertexCount == 0) {
                 return EmptyMesh.INSTANCE;
             }
 
             return new ServerMesh(
-                    meshCollector.getKey(),
-                    meshCollector.getVertexCount(),
-                    meshCollector.getOffset()
+                    collector.getKey(),
+                    vertexCount,
+                    collector.getOffset()
             );
         }
 

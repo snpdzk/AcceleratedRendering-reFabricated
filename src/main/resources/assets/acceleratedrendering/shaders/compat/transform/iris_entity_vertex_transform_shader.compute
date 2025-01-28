@@ -102,9 +102,9 @@ void main() {
 
     verticesOut[index].normal = (packedNormalZ << 16) | (packedNormalY << 8) | (packedNormalX << 0);
 
-    verticesOut[index].iris_data_0 = refVertex.iris_data_0;
+    /*verticesOut[index].iris_data_0 = refVertex.iris_data_0;
     verticesOut[index].iris_data_1 = refVertex.iris_data_1;
     verticesOut[index].iris_data_2 = refVertex.iris_data_2;
     verticesOut[index].iris_data_3 = refVertex.iris_data_3;
-    verticesOut[index].iris_data_4 = refVertex.iris_data_4;
+    verticesOut[index].iris_data_4 = refVertex.iris_data_4;*/
 }
