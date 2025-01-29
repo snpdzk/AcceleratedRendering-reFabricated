@@ -20,7 +20,7 @@ void main() {
     }
 
     memoryBarrier();
-    atomicCounterIncrement(indexCounter);
 
+    atomicCounterIncrement(indexCounter);
     indicesOut[index] = indicesIn[index];
 }

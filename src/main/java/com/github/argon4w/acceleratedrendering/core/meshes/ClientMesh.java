@@ -41,7 +41,7 @@ public class ClientMesh implements IMesh {
 
         @Override
         public MeshCollector newMeshCollector(RenderType key) {
-            return MeshCollector.create(
+            return new MeshCollector(
                     key,
                     new SimpleClientBuffer(),
                     0

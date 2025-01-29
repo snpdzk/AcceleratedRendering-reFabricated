@@ -133,15 +133,10 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             throw new IllegalStateException("Vertex not building!");
         }
 
-        MemoryUtil.memPutByte(vertex + offset + 0L, (byte)pRed);
-        MemoryUtil.memPutByte(vertex + offset + 1L, (byte)pGreen);
-        MemoryUtil.memPutByte(vertex + offset + 2L, (byte)pBlue);
-        MemoryUtil.memPutByte(vertex + offset + 3L, (byte)pAlpha);
-
-        MemoryUtil.memPutByte(varying + 1 * 4L + 0L, (byte) pRed);
-        MemoryUtil.memPutByte(varying + 1 * 4L + 1L, (byte) pGreen);
-        MemoryUtil.memPutByte(varying + 1 * 4L + 2L, (byte) pBlue);
-        MemoryUtil.memPutByte(varying + 1 * 4L + 3L, (byte) pAlpha);
+        MemoryUtil.memPutByte(varying + 2 * 4L + 0L, (byte) pRed);
+        MemoryUtil.memPutByte(varying + 2 * 4L + 1L, (byte) pGreen);
+        MemoryUtil.memPutByte(varying + 2 * 4L + 2L, (byte) pBlue);
+        MemoryUtil.memPutByte(varying + 2 * 4L + 3L, (byte) pAlpha);
 
         return this;
     }
@@ -176,11 +171,8 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             throw new IllegalStateException("Vertex not building!");
         }
 
-        MemoryUtil.memPutShort(vertex + offset + 0L, (short) pU);
-        MemoryUtil.memPutShort(vertex + offset + 2L, (short) pV);
-
-        MemoryUtil.memPutShort(varying + 3 * 4L + 0L, (short) pU);
-        MemoryUtil.memPutShort(varying + 3 * 4L + 2L, (short) pV);
+        MemoryUtil.memPutShort(varying + 4 * 4L + 0L, (short) pU);
+        MemoryUtil.memPutShort(varying + 4 * 4L + 2L, (short) pV);
 
         return this;
     }
@@ -197,11 +189,11 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
             throw new IllegalStateException("Vertex not building!");
         }
 
-        MemoryUtil.memPutShort(vertex + offset + 0L, (short) pU);
-        MemoryUtil.memPutShort(vertex + offset + 2L, (short) pV);
+        //MemoryUtil.memPutShort(vertex + offset + 0L, (short) pU);
+        //MemoryUtil.memPutShort(vertex + offset + 2L, (short) pV);
 
-        MemoryUtil.memPutShort(varying + 2 * 4L + 0L, (short) pU);
-        MemoryUtil.memPutShort(varying + 2 * 4L + 2L, (short) pV);
+        MemoryUtil.memPutShort(varying + 3 * 4L + 0L, (short) pU);
+        MemoryUtil.memPutShort(varying + 3 * 4L + 2L, (short) pV);
 
         return this;
     }
@@ -266,31 +258,16 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
         long vertex = bufferSet.reserveVertex();
         long posOffset = getPosOffset();
-        long colorOffset = getColorOffset();
         long uv0Offset = getUvOffset();
-        long uv1Offset = getUv1Offset();
-        long uv2Offset = getUv2Offset();
         long normalOffset = getNormalOffset();
 
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
 
-        if (colorOffset != -1) {
-            putRgba(vertex + colorOffset, pColor);
-        }
-
         if (uv0Offset != -1) {
             MemoryUtil.memPutFloat(vertex + uv0Offset + 0L, pU);
             MemoryUtil.memPutFloat(vertex + uv0Offset + 4L, pV);
-        }
-
-        if (uv1Offset != -1) {
-            putPackedUv(vertex + uv1Offset, pPackedOverlay);
-        }
-
-        if (uv2Offset != -1) {
-            putPackedUv(vertex + uv2Offset, pPackedLight);
         }
 
         if (normalOffset != -1) {
@@ -300,11 +277,12 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         }
 
         long varying = bufferSet.reserveVarying();
+
         MemoryUtil.memPutInt(varying + 0 * 4L, -1);
         MemoryUtil.memPutInt(varying + 1 * 4L, -1);
-        MemoryUtil.memPutInt(varying + 2 * 4L, pColor);
-        MemoryUtil.memPutInt(varying + 3 * 4L, pPackedLight);
-        MemoryUtil.memPutInt(varying + 4 * 4L, pPackedOverlay);
+        putRgba(varying + 2 * 4L, pColor);
+        putPackedUv(varying + 3 * 4L, pPackedLight);
+        putPackedUv(varying + 4 * 4L, pPackedOverlay);
     }
 
     @Override
@@ -351,7 +329,8 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
         for (int i = 0; i < size; i++) {
             long address = varying + i * 5L * 4L;
-            MemoryUtil.memPutInt( address + 0 * 4L, -1);
+
+            MemoryUtil.memPutInt(address + 0 * 4L, -1);
             MemoryUtil.memPutInt(address + 1 * 4L, sharing);
             putRgba(address + 2 * 4L, color);
             putPackedUv(address + 3 * 4L, light);
@@ -377,7 +356,8 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
         for (int i = 0; i < size; i++) {
             long address = varying + i * 5L * 4L;
-            MemoryUtil.memPutInt( address + 0 * 4L, mesh + i);
+
+            MemoryUtil.memPutInt(address + 0 * 4L, mesh + i);
             MemoryUtil.memPutInt(address + 1 * 4L, sharing);
             putRgba(address + 2 * 4L, color);
             putPackedUv(address + 3 * 4L, light);
@@ -432,10 +412,7 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
         @Override
         public void putRgba(long pointer, int color) {
-            MemoryUtil.memPutInt(
-                    pointer,
-                    Integer.reverseBytes(FastColor.ABGR32.fromArgb32(color))
-            );
+            MemoryUtil.memPutInt(pointer, Integer.reverseBytes(FastColor.ABGR32.fromArgb32(color)));
         }
 
         @Override

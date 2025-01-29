@@ -16,12 +16,13 @@ public class TextureUtils {
             return null;
         }
 
-        int id = Minecraft.getInstance().getTextureManager().getTexture(textureResourceLocation).getId();
+        Minecraft.getInstance().getTextureManager().getTexture(textureResourceLocation).bind();
+
         int[] width = new int[1];
         int[] height = new int[1];
 
-        glGetTextureLevelParameteriv(id, 0, GL_TEXTURE_WIDTH, width);
-        glGetTextureLevelParameteriv(id, 0, GL_TEXTURE_HEIGHT, height);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, width);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, height);
 
         if (width[0] == 0 || height[0] == 0) {
             return null;

@@ -69,7 +69,7 @@ public class ServerMesh implements IMesh {
                 storageBuffers.put(vertexFormat, buffer);
             }
 
-            return MeshCollector.create(
+            return new MeshCollector(
                     key,
                     buffer,
                     (int) buffer.getPosition()

@@ -66,26 +66,25 @@ uniform mat4 ViewMatrix;
 bool isNormalVisable(Vertex vertex);
 
 void main() {
-    int indexIn = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
+    int index = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
 
-    Polygon polygon = polygonsIn[indexIn];
-    VaryingData varyingData = varyings[polygon.vertex1];
-    uint noCull = 0;
-
-    if (varyingData.sharing != -1) {
-        SharingData sharingData = sharings[varyingData.sharing];
-        noCull = sharingData.flags & 0x1u;
-    }
-
-    if (indexIn == 0) {
+    if (index == 0) {
         atomicCounterExchange(indexCounter, 0u);
     }
 
     memoryBarrier();
 
-    if (noCull > 0u || isNormalVisable(vertices[polygon.vertex1]) || isNormalVisable(vertices[polygon.vertex2]) || isNormalVisable(vertices[polygon.vertex3])) {
-        int indexOut = int(atomicCounterAdd(indexCounter, 3));
-        indexOut /= 3;
+    Polygon polygon = polygonsIn[index];
+    VaryingData varyingData = varyings[polygon.vertex1];
+    SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u);
+    uint noCull = sharingData.flags & 0x1u;
+
+    if (noCull > 0u
+    || isNormalVisable(vertices[polygon.vertex1])
+    || isNormalVisable(vertices[polygon.vertex2])
+    || isNormalVisable(vertices[polygon.vertex3])
+    ) {
+        int indexOut = int(atomicCounterAdd(indexCounter, 3)) / 3;
 
         polygonsOut[indexOut].vertex1 = polygon.vertex1;
         polygonsOut[indexOut].vertex2 = polygon.vertex2;
