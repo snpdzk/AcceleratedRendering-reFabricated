@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.programs;
+package com.github.argon4w.acceleratedrendering.compat.iris.programs.culling;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.ElementBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;

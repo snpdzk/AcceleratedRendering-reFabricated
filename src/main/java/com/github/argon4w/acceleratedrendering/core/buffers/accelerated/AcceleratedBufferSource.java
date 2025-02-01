@@ -72,7 +72,6 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
         builder = AcceleratedBufferBuilder.create(
                 elementBuffer.setMode(renderType.mode),
-                bufferEnvironment,
                 bufferSet,
                 renderType
         );

@@ -6,7 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBuffer
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.CommandBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MutableBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.IntBuffer;
@@ -16,8 +16,8 @@ import static org.lwjgl.opengl.GL46.*;
 public class AcceleratedBufferSetPool {
 
     private final IBufferEnvironment bufferEnvironment;
-    private final int size;
     private final BufferSet[] bufferSets;
+    private final int size;
 
     public AcceleratedBufferSetPool(IBufferEnvironment bufferEnvironment) {
         this.bufferEnvironment = bufferEnvironment;
@@ -135,6 +135,18 @@ public class AcceleratedBufferSetPool {
             return elementBufferPool.get();
         }
 
+        public int getOffset(VertexFormatElement element) {
+            return bufferEnvironment.getOffset(element);
+        }
+
+        public int getVertexSize() {
+            return bufferEnvironment.getVertexSize();
+        }
+
+        public int getSharingFlags() {
+            return bufferEnvironment.getSharingFlags();
+        }
+
         public int getSharing() {
             return ++ this.sharing;
         }
@@ -161,6 +173,14 @@ public class AcceleratedBufferSetPool {
 
         public long reserveVaryings(long count) {
             return varyingBuffer.reserve(5L * 4L * count);
+        }
+
+        public void uploadSharings(long address) {
+            bufferEnvironment.uploadSharings(address);
+        }
+
+        public void uploadVertex(long address) {
+            bufferEnvironment.uploadVertex(address);
         }
 
         public void bindVertexArray() {

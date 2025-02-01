@@ -1,8 +1,12 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
+import com.github.argon4w.acceleratedrendering.compat.iris.programs.culling.IrisCullingProgramSelector;
+import com.github.argon4w.acceleratedrendering.compat.iris.programs.processing.IrisEntityPolygonProcessor;
+import com.github.argon4w.acceleratedrendering.compat.iris.programs.transform.IrisTransformProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.LoadComputeShaderEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.LoadTransformProgramSelectorEvent;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
@@ -35,6 +39,14 @@ public class IrisPrograms {
                 parent,
                 IrisVertexFormats.ENTITY,
                 IRIS_ENTITY_POLYGON_CULLING_KEY
+        ));
+    }
+
+    @SubscribeEvent
+    public static void onLoadPolygonProcessors(LoadPolygonProcessorEvent event) {
+        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new IrisEntityPolygonProcessor(
+                parent,
+                IrisVertexFormats.ENTITY
         ));
     }
 }

@@ -6,11 +6,14 @@ import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgram;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IProcessingProgram;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
+import net.irisshaders.iris.vertices.ImmediateState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.client.renderer.RenderType;
 
@@ -26,6 +29,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 
     private final ITransformProgramSelector transformProgramSelector;
     private final ICullingProgramSelector cullingProgramSelector;
+    private final IPolygonProcessor polygonProcessor;
 
     public IrisBufferEnvironment(VertexFormat vertexFormat, VertexFormat irisVertexFormat) {
         this.vertexFormat = vertexFormat;
@@ -33,10 +37,12 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 
         this.transformProgramSelector = ITransformProgramSelector.get(this.vertexFormat);
         this.cullingProgramSelector = ICullingProgramSelector.get(this.vertexFormat);
+        this.polygonProcessor = IPolygonProcessor.get(this.vertexFormat);
     }
 
     private boolean isExtended() {
-        return WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat();
+        return WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat()
+                && ImmediateState.isRenderingLevel;
     }
 
     private VertexFormat getCurrentActiveVertexFormat() {
@@ -48,6 +54,16 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     @Override
     public void setupBufferState() {
         getCurrentActiveVertexFormat().setupBufferState();
+    }
+
+    @Override
+    public void uploadSharings(long address) {
+        polygonProcessor.uploadSharings(address);
+    }
+
+    @Override
+    public void uploadVertex(long address) {
+        polygonProcessor.uploadVertex(address);
     }
 
     @Override
@@ -63,6 +79,11 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     @Override
     public ICullingProgram selectCullProgram(RenderType renderType) {
         return cullingProgramSelector.select(renderType);
+    }
+
+    @Override
+    public IProcessingProgram selectProcessingProgram() {
+        return polygonProcessor.selectProgram(getCurrentActiveVertexFormat());
     }
 
     @Override

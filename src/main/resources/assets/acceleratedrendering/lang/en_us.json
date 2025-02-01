@@ -39,5 +39,7 @@
   "acceleratedrendering.configuration.iris_compatibility.shadow_culling.tooltip": "- DISABLED: Entities will not be culled when they are rendered as shadows. Which reduce FPS due to redundant faces.\n- ENABLED: Entities will be culled when they are rendered as shadows. Redundant faces will be culled and improve FPS, but it may cause incorrect shadows.",
   "acceleratedrendering.configuration.iris_compatibility.entities_compatibility": "Enable Accelerated Entity Rendering Compatibility",
   "acceleratedrendering.configuration.iris_compatibility.entities_compatibility.tooltip": "- DISABLED: renderEntity called from Iris will not render entities into the accelerated pipeline.\n- ENABLED: renderEntity called from Iris will render entities into the accelerated pipeline.",
+  "acceleratedrendering.configuration.iris_compatibility.polygon_processing": "Enable Polygon Processing",
+  "acceleratedrendering.configuration.iris_compatibility.polygon_processing.tooltip": "- DISABLED: Extra information in vertices provided by Iris will not be included or calculated in the accelerated pipeline, which may cause visual glitches or incorrect rendering.\n- DISABLED: Extra information in vertices provided by Iris will be included and calculated in the accelerated pipeline by a compute shader.",
   "acceleratedrendering.configuration.iris_compatibility.button": "Configure"
 }

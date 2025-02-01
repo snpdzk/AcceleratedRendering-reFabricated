@@ -3,23 +3,39 @@ package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(value = IrisVertexFormats.class, priority = Integer.MAX_VALUE)
 public class IrisVertexFormatsMixin {
 
-    @WrapOperation(
-            method = "<clinit>",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/VertexFormat$Builder;build()Lcom/mojang/blaze3d/vertex/VertexFormat;"),
-            slice = @Slice(
-                    from = @At(value = "FIELD", target = "Lnet/irisshaders/iris/vertices/IrisVertexFormats;TERRAIN:Lcom/mojang/blaze3d/vertex/VertexFormat;", opcode = Opcodes.PUTSTATIC),
-                    to = @At(value = "FIELD", target = "Lnet/irisshaders/iris/vertices/IrisVertexFormats;ENTITY:Lcom/mojang/blaze3d/vertex/VertexFormat;", opcode = Opcodes.PUTSTATIC))
-    )
-    private static VertexFormat addPaddingForEntityFormat(VertexFormat.Builder instance, Operation<VertexFormat> original) {
-        return original.call(instance.padding(2));
+    @Shadow @Final @Mutable public static VertexFormat ENTITY;
+    @Shadow @Final public static VertexFormatElement ENTITY_ID_ELEMENT;
+    @Shadow @Final public static VertexFormatElement MID_TEXTURE_ELEMENT;
+    @Shadow @Final public static VertexFormatElement TANGENT_ELEMENT;
+
+    @WrapOperation(method = "<clinit>", at = @At(value = "FIELD", target = "Lnet/irisshaders/iris/vertices/IrisVertexFormats;ENTITY:Lcom/mojang/blaze3d/vertex/VertexFormat;", opcode = Opcodes.PUTSTATIC))
+    private static void addPaddingForEntityFormat(VertexFormat value, Operation<Void> original) {
+        original.call(VertexFormat
+                .builder()
+                .add("Position", VertexFormatElement.POSITION)
+                .add("Color", VertexFormatElement.COLOR)
+                .add("UV0", VertexFormatElement.UV0)
+                .add("UV1", VertexFormatElement.UV1)
+                .add("UV2", VertexFormatElement.UV2)
+                .add("Normal", VertexFormatElement.NORMAL)
+                .padding(1)
+                .add("iris_Entity", ENTITY_ID_ELEMENT)
+                .padding(2)
+                .add("mc_midTexCoord", MID_TEXTURE_ELEMENT)
+                .add("at_tangent", TANGENT_ELEMENT)
+                .build()
+        );
     }
 }

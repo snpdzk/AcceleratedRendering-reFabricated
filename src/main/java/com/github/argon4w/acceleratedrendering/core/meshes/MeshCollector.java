@@ -5,10 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.utils.ByteBufferUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.FastColor;
 import org.lwjgl.system.MemoryUtil;
-
-import java.nio.ByteOrder;
 
 public class MeshCollector {
 
@@ -30,22 +27,6 @@ public class MeshCollector {
         this.offset = offset;
     }
 
-    private int getSize() {
-        return vertexFormat.getVertexSize();
-    }
-
-    private long getPosOffset() {
-        return vertexFormat.getOffset(VertexFormatElement.POSITION);
-    }
-
-    private long getUvOffset() {
-        return vertexFormat.getOffset(VertexFormatElement.UV);
-    }
-
-    public long getNormalOffset() {
-        return vertexFormat.getOffset(VertexFormatElement.NORMAL);
-    }
-
     public void addVertex(
             float pX,
             float pY,
@@ -61,10 +42,10 @@ public class MeshCollector {
     ) {
         this.vertexCount++;
 
-        long vertex = this.buffer.reserve(getSize());
-        long posOffset = getPosOffset();
-        long uv0Offset = getUvOffset();
-        long normalOffset = getNormalOffset();
+        long vertex = this.buffer.reserve(vertexFormat.getVertexSize());
+        long posOffset = vertexFormat.getOffset(VertexFormatElement.POSITION);
+        long uv0Offset = vertexFormat.getOffset(VertexFormatElement.UV);
+        long normalOffset = vertexFormat.getOffset(VertexFormatElement.NORMAL);
 
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);

@@ -16,6 +16,7 @@ import java.util.Deque;
 public class IrisCompatFeature {
 
     public static final Deque<FeatureStatus> SHADOW_CULLING_CONTROLLER_STACK = new ArrayDeque<>();
+    public static final Deque<FeatureStatus> POLYGON_PROCESSING_CONTROLLER_STACK = new ArrayDeque<>();
 
     public static final RenderBuffers SHADOW_VANILLA_RENDER_BUFFERS = new RenderBuffers(Runtime.getRuntime().availableProcessors());
     public static final VanillaBatchingBufferSource SHADOW_BATCHING = new VanillaBatchingBufferSource();
@@ -44,6 +45,10 @@ public class IrisCompatFeature {
         return getShadowCullingSetting() == FeatureStatus.ENABLED;
     }
 
+    public static boolean isPolygonProcessingEnabled() {
+        return getPolygonProcessingSetting() == FeatureStatus.ENABLED;
+    }
+
     public static boolean isIrisCompatEntitiesEnabled() {
         return FeatureConfig.CONFIG.irisCompatEntitiesCompat.get() == FeatureStatus.ENABLED;
     }
@@ -52,29 +57,57 @@ public class IrisCompatFeature {
         SHADOW_CULLING_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
     }
 
+    public static void disablePolygonProcessing() {
+        POLYGON_PROCESSING_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
+    }
+
     public static void forceEnableShadowCulling() {
         SHADOW_CULLING_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
+    }
+
+    public static void enablePolygonProcessing() {
+        POLYGON_PROCESSING_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
     }
 
     public static void forceSetShadowCulling(FeatureStatus status) {
         SHADOW_CULLING_CONTROLLER_STACK.push(status);
     }
 
+    public static void forceSetIrisPolygonProcessing(FeatureStatus status) {
+        POLYGON_PROCESSING_CONTROLLER_STACK.push(status);
+    }
+
     public static void resetShadowCulling() {
         SHADOW_CULLING_CONTROLLER_STACK.pop();
+    }
+
+    public static void resetPolygonProcessing() {
+        POLYGON_PROCESSING_CONTROLLER_STACK.pop();
     }
 
     public static FeatureStatus getShadowCullingSetting() {
         return SHADOW_CULLING_CONTROLLER_STACK.isEmpty() ? getDefaultShadowCullingSetting() : SHADOW_CULLING_CONTROLLER_STACK.peek();
     }
 
+    public static FeatureStatus getPolygonProcessingSetting() {
+        return POLYGON_PROCESSING_CONTROLLER_STACK.isEmpty() ? getDefaultPolygonProcessingSetting() : POLYGON_PROCESSING_CONTROLLER_STACK.peek();
+    }
+
     public static FeatureStatus getDefaultShadowCullingSetting() {
         return FeatureConfig.CONFIG.irisCompatShadowCulling.get();
     }
 
+    public static FeatureStatus getDefaultPolygonProcessingSetting() {
+        return FeatureConfig.CONFIG.irisCompatPolygonProcessing.get();
+    }
+
     public static void checkControllerState() {
         if (!SHADOW_CULLING_CONTROLLER_STACK.isEmpty()) {
-            throw new IllegalStateException("Shadow culling Controller stack not empty!");
+            throw new IllegalStateException("Shadow Culling Controller stack not empty!");
+        }
+
+        if (!POLYGON_PROCESSING_CONTROLLER_STACK.isEmpty()) {
+            throw new IllegalStateException("Polygon Processing Controller stack not empty!");
         }
     }
 }

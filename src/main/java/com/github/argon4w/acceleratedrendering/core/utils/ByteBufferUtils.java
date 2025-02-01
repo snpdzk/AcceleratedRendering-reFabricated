@@ -11,6 +11,11 @@ public class ByteBufferUtils {
 
     private static final Matrix4f MATRIX = new Matrix4f();
 
+
+    public static void putReversedInt(long address, int value) {
+        MemoryUtil.memPutInt(address, Integer.reverseBytes(value));
+    }
+
     public static void putNormal(long address, float value) {
         MemoryUtil.memPutByte(address, (byte) ((int) (Mth.clamp(value, -1.0F, 1.0F) * 127.0F) & 0xFF));
     }

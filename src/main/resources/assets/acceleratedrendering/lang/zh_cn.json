@@ -39,5 +39,7 @@
   "acceleratedrendering.configuration.iris_compatibility.shadow_culling.tooltip": "- DISABLED: 当实体渲染阴影时, 多余的面将不会被剔除, 这可能导致由多余面造成的FPS下降.\n- ENABLED: 当实体渲染阴影时, 多余的面将会被剔除以提升FPS, 但这可能会导致不正确的阴影渲染.",
   "acceleratedrendering.configuration.iris_compatibility.entities_compatibility": "启用加速实体渲染兼容",
   "acceleratedrendering.configuration.iris_compatibility.entities_compatibility.tooltip": "- DISABLED: 从Iris发出的renderEntity调用将不会把实体放入加速管线渲染.\n- ENABLED: 从Iris发怵的renderEntity调用会将实体放入加速管线渲染",
+  "acceleratedrendering.configuration.iris_compatibility.polygon_processing": "启用多边形额外数据计算",
+  "acceleratedrendering.configuration.iris_compatibility.polygon_processing.tooltip": "- DISABLED: 加速渲染管线将不会计算或上传顶点中由Iris提供的额外信息, 可能会造成视觉错误或不正确的渲染结果.\n- DISABLED: 加速渲染管线将会使用ComputeShader(计算着色器)计算并上传顶点中由Iris提供的额外信息.",
   "acceleratedrendering.configuration.iris_compatibility.button": "配置"
 }

@@ -10,8 +10,8 @@ struct Vertex {
     int uv1;
     int uv2;
     uint normal;
-    uint iris_data_0;
-    uint iris_data_1;
+    uint iris_entity_0;
+    uint iris_entity_1;
     uint iris_data_2;
     uint iris_data_3;
     uint iris_data_4;
@@ -29,6 +29,9 @@ struct SharingData {
     mat4 transform;
     mat3 normal;
     uint flags;
+    uint iris_entity_0;
+    uint iris_entity_1;
+    uint extra_data_2;
 };
 
 layout(local_size_x=1, local_size_y=1) in;
@@ -57,8 +60,8 @@ void main() {
     int index = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
 
     VaryingData varyingData = varyings[index];
-    SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u);
     Vertex vertex = varyingData.mesh != -1 ? meshVertices[varyingData.mesh] : verticesIn[index];
+    SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u, vertex.iris_entity_0, vertex.iris_entity_1, 0u);
 
     vec4 pos = vec4(vertex.x, vertex.y, vertex.z, 1.0);
 
@@ -91,4 +94,7 @@ void main() {
     verticesOut[index].uv2 = varyingData.light;
 
     verticesOut[index].normal = (packedNormalZ << 16) | (packedNormalY << 8) | (packedNormalX << 0);
+
+    verticesOut[index].iris_entity_0 = sharingData.iris_entity_0;
+    verticesOut[index].iris_entity_1 = sharingData.iris_entity_1;
 }

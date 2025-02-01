@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.core.programs;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.FixedTransformProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.LoadTransformProgramSelectorEvent;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -53,6 +54,13 @@ public class ComputeShaderPrograms {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLoadCullingPrograms(LoadCullingProgramSelectorEvent event) {
+        event.loadFor(DefaultVertexFormat.NEW_ENTITY, UnaryOperator.identity());
+        event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, UnaryOperator.identity());
+        event.loadFor(DefaultVertexFormat.POSITION_TEX, UnaryOperator.identity());
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onLoadPolygonProcessors(LoadPolygonProcessorEvent event) {
         event.loadFor(DefaultVertexFormat.NEW_ENTITY, UnaryOperator.identity());
         event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, UnaryOperator.identity());
         event.loadFor(DefaultVertexFormat.POSITION_TEX, UnaryOperator.identity());

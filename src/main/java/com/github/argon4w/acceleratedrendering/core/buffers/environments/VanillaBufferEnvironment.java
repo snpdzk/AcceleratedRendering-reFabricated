@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgram;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IProcessingProgram;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
@@ -25,6 +26,16 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
+    public void uploadSharings(long address) {
+
+    }
+
+    @Override
+    public void uploadVertex(long address) {
+
+    }
+
+    @Override
     public void setupBufferState() {
         vertexFormat.setupBufferState();
     }
@@ -42,6 +53,11 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
     @Override
     public ICullingProgram selectCullProgram(RenderType renderType) {
         return cullingProgramSelector.select(renderType);
+    }
+
+    @Override
+    public IProcessingProgram selectProcessingProgram() {
+        return null;
     }
 
     @Override

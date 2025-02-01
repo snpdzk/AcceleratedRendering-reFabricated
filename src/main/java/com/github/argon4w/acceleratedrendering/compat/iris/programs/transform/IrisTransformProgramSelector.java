@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.programs;
+package com.github.argon4w.acceleratedrendering.compat.iris.programs.transform;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
@@ -6,6 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgra
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
+import net.irisshaders.iris.vertices.ImmediateState;
 import net.minecraft.resources.ResourceLocation;
 
 public class IrisTransformProgramSelector implements ITransformProgramSelector {
@@ -47,6 +48,10 @@ public class IrisTransformProgramSelector implements ITransformProgramSelector {
         }
 
         if (!WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat()) {
+            return parent.select(vertexFormat);
+        }
+
+        if (!ImmediateState.isRenderingLevel) {
             return parent.select(vertexFormat);
         }
 

@@ -24,6 +24,7 @@ public class FeatureConfig {
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatNormalCullingCompat;
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatShadowCulling;
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatEntitiesCompat;
+    public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatPolygonProcessing;
 
     static {
         Pair<FeatureConfig, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(FeatureConfig::new);
@@ -139,11 +140,16 @@ public class FeatureConfig {
                 .defineEnum("shadow_culling", FeatureStatus.ENABLED);
 
         irisCompatEntitiesCompat = builder
-                .comment()
                 .comment("- DISABLED: renderEntity called from Iris will not render entity into the accelerated pipeline.")
                 .comment("- ENABLED: renderEntity called from Iris will render entity into the accelerated pipeline.")
                 .translation("acceleratedrendering.configuration.iris_compatibility.entities_compatibility")
                 .defineEnum("entities_compatibility", FeatureStatus.ENABLED);
+
+        irisCompatPolygonProcessing = builder
+                .comment("- DISABLED: Extra information in vertices provided by Iris will not be included or calculated in the accelerated pipeline, which may cause visual glitches or incorrect rendering.")
+                .comment("- DISABLED: Extra information in vertices provided by Iris will be included and calculated in the accelerated pipeline by a compute shader.")
+                .translation("acceleratedrendering.configuration.iris_compatibility.polygon_processing")
+                .defineEnum("polygon_processing", FeatureStatus.ENABLED);
 
         builder.pop();
     }
