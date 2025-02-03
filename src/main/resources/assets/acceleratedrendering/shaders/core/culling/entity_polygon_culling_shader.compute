@@ -37,7 +37,7 @@ struct Polygon {
 
 layout(local_size_x=1, local_size_y=1) in;
 
-layout(binding=1, std430) buffer Vertices {
+layout(binding=1, std430) readonly buffer Vertices {
     Vertex vertices[];
 };
 
@@ -49,11 +49,11 @@ layout(binding=3, std430) readonly buffer Varyings {
     VaryingData varyings[];
 };
 
-layout(binding=5, std430) buffer PolygonsIn {
+layout(binding=5, std430) readonly buffer PolygonsIn {
     Polygon polygonsIn[];
 };
 
-layout(binding=6, std430) buffer PolygonsOut {
+layout(binding=6, std430) writeonly buffer PolygonsOut {
     Polygon polygonsOut[];
 };
 
@@ -91,17 +91,8 @@ void main() {
 }
 
 bool isNormalVisable(Vertex vertex) {
+    vec3 normal = unpackSnorm4x8(vertex.normal).xyz;
     vec4 posStart = vec4(vertex.x, vertex.y, vertex.z, 1.0);
-
-    int normalZ = int((vertex.normal >> 16) & 0xFFu);
-    int normalY = int((vertex.normal >> 8) & 0xFFu);
-    int normalX = int((vertex.normal >> 0) & 0xFFu);
-
-    if (normalX > 127) normalX -= 256;
-    if (normalY > 127) normalY -= 256;
-    if (normalZ > 127) normalZ -= 256;
-
-    vec3 normal = vec3(normalX / 127.0, normalY / 127.0, normalZ / 127.0);
     vec4 posEnd = posStart + vec4(normal, 0.0);
 
     posStart = ViewMatrix * posStart;

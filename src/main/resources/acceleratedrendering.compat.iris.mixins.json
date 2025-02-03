@@ -12,6 +12,7 @@
     "acceleratedrendering.RedirectingBufferSourceMixin",
     "acceleratedrendering.RedirectingOutlineBufferSourceMixin",
     "iris.IrisVertexFormatsMixin",
+    "iris.ModelToEntityVertexSerializerMixin",
     "iris.ShadowRendererMixin"
   ],
   "injectors": {

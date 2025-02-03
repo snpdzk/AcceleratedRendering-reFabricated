@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 public interface IPolygonProcessor {
 
     @Nullable
-    IProcessingProgram selectProgram(VertexFormat vertexFormat);
+    IProcessingProgram selectProgram(VertexFormat vertexFormat, VertexFormat.Mode mode);
     void uploadSharings(long address);
     void uploadVertex(long address);
 

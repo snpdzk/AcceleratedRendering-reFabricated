@@ -8,7 +8,10 @@ public class EmptyPolygonProcessor implements IPolygonProcessor {
     public static final EmptyPolygonProcessor INSTANCE = new EmptyPolygonProcessor();
 
     @Override
-    public @Nullable IProcessingProgram selectProgram(VertexFormat vertexFormat) {
+    public @Nullable IProcessingProgram selectProgram(
+            VertexFormat vertexFormat,
+            VertexFormat.Mode mode
+    ) {
         return null;
     }
 

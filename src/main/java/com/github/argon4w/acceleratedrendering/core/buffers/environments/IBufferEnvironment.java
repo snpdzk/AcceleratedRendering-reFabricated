@@ -18,7 +18,7 @@ public interface IBufferEnvironment {
     IServerBuffer getServerMeshBuffer();
     Program selectTransformProgram();
     ICullingProgram selectCullProgram(RenderType renderType);
-    IProcessingProgram selectProcessingProgram();
+    IProcessingProgram selectProcessingProgram(VertexFormat.Mode mode);
     VertexFormat getVertexFormat(RenderType renderType);
     int getOffset(VertexFormatElement element);
     int getSharingFlags();

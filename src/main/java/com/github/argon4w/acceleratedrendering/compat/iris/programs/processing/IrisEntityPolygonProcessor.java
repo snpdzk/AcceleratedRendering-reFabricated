@@ -8,6 +8,7 @@ import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.ImmediateState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
 
@@ -15,36 +16,63 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
 
     private final IPolygonProcessor parent;
     private final VertexFormat vertexFormat;
+    private final VertexFormat.Mode mode;
+    private final IProcessingProgram program;
     private final int entityOffset;
 
     public IrisEntityPolygonProcessor(
             IPolygonProcessor parent,
-            VertexFormat vertexFormat
+            VertexFormat vertexFormat,
+            VertexFormat.Mode mode,
+            IProcessingProgram program
     ) {
         this.parent = parent;
         this.vertexFormat = vertexFormat;
+        this.mode = mode;
+        this.program = program;
         this.entityOffset = this.vertexFormat.getOffset(IrisVertexFormats.ENTITY_ID_ELEMENT);
     }
 
+    public IrisEntityPolygonProcessor(
+            IPolygonProcessor parent,
+            VertexFormat vertexFormat,
+            VertexFormat.Mode mode,
+            ResourceLocation key
+    ) {
+        this(
+                parent,
+                vertexFormat,
+                mode,
+                new IrisProcessingProgram(key, mode)
+        );
+    }
+
     @Override
-    public @Nullable IProcessingProgram selectProgram(VertexFormat vertexFormat) {
+    public @Nullable IProcessingProgram selectProgram(
+            VertexFormat vertexFormat,
+            VertexFormat.Mode mode
+    ) {
         if (!IrisCompatFeature.isEnabled()) {
-            return parent.selectProgram(vertexFormat);
+            return parent.selectProgram(vertexFormat, mode);
         }
 
         if (this.vertexFormat != vertexFormat) {
-            return parent.selectProgram(vertexFormat);
+            return parent.selectProgram(vertexFormat, mode);
+        }
+
+        if (this.mode != mode) {
+            return parent.selectProgram(vertexFormat, mode);
         }
 
         if (!WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat()) {
-            return parent.selectProgram(vertexFormat);
+            return parent.selectProgram(vertexFormat, mode);
         }
 
         if (!ImmediateState.isRenderingLevel) {
-            return parent.selectProgram(vertexFormat);
+            return parent.selectProgram(vertexFormat, mode);
         }
 
-        return null;
+        return program;
     }
 
     @Override

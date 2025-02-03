@@ -9,6 +9,7 @@ import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCulling
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.LoadTransformProgramSelectorEvent;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -17,11 +18,15 @@ public class IrisPrograms {
 
     public static final ResourceLocation IRIS_ENTITY_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("compat_entity_vertex_transform_iris");
     public static final ResourceLocation IRIS_ENTITY_POLYGON_CULLING_KEY = AcceleratedRenderingModEntry.location("compat_entity_polygon_cull_iris");
+    public static final ResourceLocation IRIS_ENTITY_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_entity_quad_processing_iris");
+    public static final ResourceLocation IRIS_ENTITY_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_entity_triangle_processing_iris");
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
         event.loadComputeShader(IRIS_ENTITY_VERTEX_TRANSFORM_KEY, AcceleratedRenderingModEntry.location("shaders/compat/transform/iris_entity_vertex_transform_shader.compute"));
         event.loadComputeShader(IRIS_ENTITY_POLYGON_CULLING_KEY, AcceleratedRenderingModEntry.location("shaders/compat/culling/iris_entity_polygon_culling_shader.compute"));
+        event.loadComputeShader(IRIS_ENTITY_QUAD_PROCESSING_KEY, AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_entity_quad_processing_shader.compute"));
+        event.loadComputeShader(IRIS_ENTITY_TRIANGLE_PROCESSING_KEY, AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_entity_triangle_processing_shader.compute"));
     }
 
     @SubscribeEvent
@@ -46,7 +51,16 @@ public class IrisPrograms {
     public static void onLoadPolygonProcessors(LoadPolygonProcessorEvent event) {
         event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new IrisEntityPolygonProcessor(
                 parent,
-                IrisVertexFormats.ENTITY
+                IrisVertexFormats.ENTITY,
+                VertexFormat.Mode.TRIANGLES,
+                IRIS_ENTITY_TRIANGLE_PROCESSING_KEY
+        ));
+
+        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new IrisEntityPolygonProcessor(
+                parent,
+                IrisVertexFormats.ENTITY,
+                VertexFormat.Mode.QUADS,
+                IRIS_ENTITY_QUAD_PROCESSING_KEY
         ));
     }
 }

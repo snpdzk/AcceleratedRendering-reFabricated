@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.features.entities.mixins;
 
-import com.github.argon4w.acceleratedrendering.CoreFeature;
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import net.irisshaders.iris.mixin.LevelRendererAccessor;

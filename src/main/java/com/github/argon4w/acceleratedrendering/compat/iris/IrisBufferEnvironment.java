@@ -82,8 +82,8 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public IProcessingProgram selectProcessingProgram() {
-        return polygonProcessor.selectProgram(getCurrentActiveVertexFormat());
+    public IProcessingProgram selectProcessingProgram(VertexFormat.Mode mode) {
+        return polygonProcessor.selectProgram(getCurrentActiveVertexFormat(), mode);
     }
 
     @Override

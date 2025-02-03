@@ -59,23 +59,10 @@ void main() {
     Vertex vertex = varyingData.mesh != -1 ? meshVertices[varyingData.mesh] : verticesIn[index];
 
     vec4 pos = vec4(vertex.x, vertex.y, vertex.z, 1.0);
-
-    int normalZ = int((vertex.normal >> 16) & 0xFFu);
-    int normalY = int((vertex.normal >> 8) & 0xFFu);
-    int normalX = int((vertex.normal >> 0) & 0xFFu);
-
-    if (normalX > 127) normalX -= 256;
-    if (normalY > 127) normalY -= 256;
-    if (normalZ > 127) normalZ -= 256;
-
-    vec3 normal = vec3(normalX / 127.0, normalY / 127.0, normalZ / 127.0);
+    vec3 normal = unpackSnorm4x8(vertex.normal).xyz;
 
     pos = sharingData.transform * pos;
     normal = normalize(sharingData.normal * normal);
-
-    uint packedNormalX = uint(int(normal.x * 127.0) & 0xFF);
-    uint packedNormalY = uint(int(normal.y * 127.0) & 0xFF);
-    uint packedNormalZ = uint(int(normal.z * 127.0) & 0xFF);
 
     verticesOut[index].x = pos.x;
     verticesOut[index].y = pos.y;
@@ -88,5 +75,5 @@ void main() {
     verticesOut[index].uv1 = varyingData.overlay;
     verticesOut[index].uv2 = varyingData.light;
 
-    verticesOut[index].normal = (packedNormalZ << 16) | (packedNormalY << 8) | (packedNormalX << 0);
+    verticesOut[index].normal = packSnorm4x8(vec4(normal, 0.0));
 }

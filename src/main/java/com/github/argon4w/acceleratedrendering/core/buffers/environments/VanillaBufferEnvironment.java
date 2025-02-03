@@ -56,7 +56,7 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public IProcessingProgram selectProcessingProgram() {
+    public IProcessingProgram selectProcessingProgram(VertexFormat.Mode mode) {
         return null;
     }
 

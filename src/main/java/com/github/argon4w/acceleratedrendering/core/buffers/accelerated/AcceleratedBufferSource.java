@@ -4,6 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.builders.Accelerated
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgram;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IProcessingProgram;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -109,15 +110,28 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             }
 
             VertexFormat.Mode mode = renderType.mode;
-            ICullingProgram program = bufferEnvironment.selectCullProgram(renderType);
+            IProcessingProgram processingProgram = bufferEnvironment.selectProcessingProgram(mode);
+            ICullingProgram cullingProgram = bufferEnvironment.selectCullProgram(renderType);
 
-            program.useProgram();
-            program.uploadUniforms();
-
-            bufferSet.bindCullingBuffers(elementBuffer.getBufferSize());
+            processingProgram.useProgram();
             elementBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
 
-            int count = program.getCount(
+            int count = processingProgram.getCount(
+                    mode,
+                    elementBuffer,
+                    builder
+            );
+
+            glDispatchCompute(count, 1, 1);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+            processingProgram.resetProgram();
+
+            cullingProgram.useProgram();
+            cullingProgram.uploadUniforms();
+            bufferSet.bindCullingBuffers(elementBuffer.getBufferSize());
+
+            count = cullingProgram.getCount(
                     mode,
                     elementBuffer,
                     builder
@@ -130,7 +144,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
                             | GL_ATOMIC_COUNTER_BARRIER_BIT
             );
 
-            program.resetProgram();
+            cullingProgram.resetProgram();
 
             bufferSet.bindDrawBuffers();
 
