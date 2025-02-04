@@ -2,7 +2,6 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -101,23 +100,13 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             }
 
             VertexFormat.Mode mode = renderType.mode;
-            IProgramDispatcher processingProgram = bufferEnvironment.selectProcessingProgramDispatcher(mode);
-            IProgramDispatcher cullingProgram = bufferEnvironment.selectCullProgramDispatcher(renderType);
+            int vertexCount = builder.getVertexCount();
 
             elementBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
             bufferSet.bindCullingBuffers(elementBuffer.getBufferSize());
 
-            processingProgram.dispatch(
-                    mode,
-                    elementBuffer,
-                    builder
-            );
-
-            cullingProgram.dispatch(
-                    mode,
-                    elementBuffer,
-                    builder
-            );
+            bufferEnvironment.selectProcessingProgramDispatcher(mode).dispatch(mode, vertexCount);
+            bufferEnvironment.selectCullProgramDispatcher(renderType).dispatch(mode, vertexCount);
 
             bufferSet.bindDrawBuffers();
 

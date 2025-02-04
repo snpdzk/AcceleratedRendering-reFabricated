@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs.culling;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.ElementBuffer;
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.Uniform;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
@@ -28,15 +26,9 @@ public class IrisCullingProgramDispatcher implements IProgramDispatcher {
     }
 
     @Override
-    public void dispatch(
-            VertexFormat.Mode mode,
-            ElementBuffer elementBuffer,
-            AcceleratedBufferBuilder builder
-    ) {
-        int count = mode.indexCount(builder.getVertexCount()) / 3;
-
+    public void dispatch(VertexFormat.Mode mode, int vertexCount) {
         uniform.upload(getModelViewMatrix());
-        program.dispatch(count, 1, 1);
+        program.dispatch(mode.indexCount(vertexCount) / 3, 1, 1);
     }
 
     private Matrix4f getModelViewMatrix() {
