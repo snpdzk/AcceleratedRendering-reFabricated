@@ -4,6 +4,7 @@ import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
 import com.github.argon4w.acceleratedrendering.compat.iris.programs.culling.IrisCullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.compat.iris.programs.processing.IrisEntityPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.compat.iris.programs.transform.IrisTransformProgramSelector;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.BarrierFlags;
 import com.github.argon4w.acceleratedrendering.core.programs.LoadComputeShaderEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
@@ -23,10 +24,30 @@ public class IrisPrograms {
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
-        event.loadComputeShader(IRIS_ENTITY_VERTEX_TRANSFORM_KEY, AcceleratedRenderingModEntry.location("shaders/compat/transform/iris_entity_vertex_transform_shader.compute"));
-        event.loadComputeShader(IRIS_ENTITY_POLYGON_CULLING_KEY, AcceleratedRenderingModEntry.location("shaders/compat/culling/iris_entity_polygon_culling_shader.compute"));
-        event.loadComputeShader(IRIS_ENTITY_QUAD_PROCESSING_KEY, AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_entity_quad_processing_shader.compute"));
-        event.loadComputeShader(IRIS_ENTITY_TRIANGLE_PROCESSING_KEY, AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_entity_triangle_processing_shader.compute"));
+        event.loadComputeShader(
+                IRIS_ENTITY_VERTEX_TRANSFORM_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/transform/iris_entity_vertex_transform_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        event.loadComputeShader(
+                IRIS_ENTITY_POLYGON_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/culling/iris_entity_polygon_culling_shader.compute"),
+                BarrierFlags.SHADER_STORAGE,
+                BarrierFlags.ATOMIC_COUNTER
+        );
+
+        event.loadComputeShader(
+                IRIS_ENTITY_QUAD_PROCESSING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_entity_quad_processing_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        event.loadComputeShader(
+                IRIS_ENTITY_TRIANGLE_PROCESSING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_entity_triangle_processing_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
     }
 
     @SubscribeEvent

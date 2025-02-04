@@ -1,12 +1,13 @@
 package com.github.argon4w.acceleratedrendering.core.programs.culling;
 
+import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
 import net.neoforged.fml.ModLoader;
 
 public interface ICullingProgramSelector {
 
-    ICullingProgram select(RenderType renderType);
+    IProgramDispatcher select(RenderType renderType);
     int getSharingFlags();
 
     static ICullingProgramSelector passThrough() {

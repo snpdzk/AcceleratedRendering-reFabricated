@@ -2,12 +2,12 @@ package com.github.argon4w.acceleratedrendering.core.gl.programs;
 
 import static org.lwjgl.opengl.GL46.*;
 
-public class Shader {
+public class ComputeShader {
 
     private final int shaderHandle;
 
-    public Shader(int type) {
-        this.shaderHandle = glCreateShader(type);
+    public ComputeShader() {
+        this.shaderHandle = glCreateShader(GL_COMPUTE_SHADER);
     }
 
     public void setShaderSource(String source) {

@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.culling;
 
-import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgram;
+import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -11,16 +11,16 @@ public class NormalCullingProgramSelector implements ICullingProgramSelector {
 
     private final ICullingProgramSelector parent;
     private final VertexFormat vertexFormat;
-    private final ICullingProgram program;
+    private final IProgramDispatcher dispatcher;
 
     public NormalCullingProgramSelector(
             ICullingProgramSelector parent,
             VertexFormat vertexFormat,
-            ICullingProgram program
+            IProgramDispatcher dispatcher
     ) {
         this.parent = parent;
         this.vertexFormat = vertexFormat;
-        this.program = program;
+        this.dispatcher = dispatcher;
     }
 
     public NormalCullingProgramSelector(
@@ -31,12 +31,12 @@ public class NormalCullingProgramSelector implements ICullingProgramSelector {
         this(
                 parent,
                 vertexFormat,
-                new NormalCullingProgram(key)
+                new NormalCullingProgramDispatcher(key)
         );
     }
 
     @Override
-    public ICullingProgram select(RenderType renderType) {
+    public IProgramDispatcher select(RenderType renderType) {
         if (!NormalCullingFeature.isEnabled()) {
             return parent.select(renderType);
         }
@@ -46,11 +46,11 @@ public class NormalCullingProgramSelector implements ICullingProgramSelector {
         }
 
         if (NormalCullingFeature.shouldIgnoreCullState()) {
-            return program;
+            return dispatcher;
         }
 
         if (RenderTypeUtils.isCulled(renderType)) {
-            return program;
+            return dispatcher;
         }
 
         return parent.select(renderType);

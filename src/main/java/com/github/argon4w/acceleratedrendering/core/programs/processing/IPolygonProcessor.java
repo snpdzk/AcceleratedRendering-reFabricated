@@ -1,13 +1,12 @@
 package com.github.argon4w.acceleratedrendering.core.programs.processing;
 
+import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.neoforged.fml.ModLoader;
-import org.jetbrains.annotations.Nullable;
 
 public interface IPolygonProcessor {
 
-    @Nullable
-    IProcessingProgram selectProgram(VertexFormat vertexFormat, VertexFormat.Mode mode);
+    IProgramDispatcher selectDispatcher(VertexFormat vertexFormat, VertexFormat.Mode mode);
     void uploadSharings(long address);
     void uploadVertex(long address);
 

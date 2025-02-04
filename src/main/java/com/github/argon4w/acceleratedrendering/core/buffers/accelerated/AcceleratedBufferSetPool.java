@@ -106,6 +106,7 @@ public class AcceleratedBufferSetPool {
             vertexBufferOut.bindBase(GL_SHADER_STORAGE_BUFFER, 1);
             sharingBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 2);
             varyingBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 3);
+            bufferEnvironment.getServerMeshBuffer().bindBase(GL_SHADER_STORAGE_BUFFER, 4);
         }
 
         public void bindCullingBuffers(long indexSize) {

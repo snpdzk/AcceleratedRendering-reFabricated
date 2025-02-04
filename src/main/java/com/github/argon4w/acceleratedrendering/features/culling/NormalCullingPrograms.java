@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.features.culling;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.BarrierFlags;
 import com.github.argon4w.acceleratedrendering.core.programs.LoadComputeShaderEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -18,8 +19,19 @@ public class NormalCullingPrograms {
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
-        event.loadComputeShader(CORE_ENTITY_POLYGON_CULLING_KEY, AcceleratedRenderingModEntry.location("shaders/core/culling/entity_polygon_culling_shader.compute"));
-        event.loadComputeShader(CORE_POS_TEX_COLOR_POLYGON_CULLING_KEY, AcceleratedRenderingModEntry.location("shaders/core/culling/pos_tex_color_polygon_culling_shader.compute"));
+        event.loadComputeShader(
+                CORE_ENTITY_POLYGON_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/culling/entity_polygon_culling_shader.compute"),
+                BarrierFlags.SHADER_STORAGE,
+                BarrierFlags.ATOMIC_COUNTER
+        );
+
+        event.loadComputeShader(
+                CORE_POS_TEX_COLOR_POLYGON_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/culling/pos_tex_color_polygon_culling_shader.compute"),
+                BarrierFlags.SHADER_STORAGE,
+                BarrierFlags.ATOMIC_COUNTER
+        );
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)

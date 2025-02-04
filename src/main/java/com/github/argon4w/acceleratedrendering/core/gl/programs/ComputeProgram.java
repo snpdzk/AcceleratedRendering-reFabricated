@@ -2,17 +2,26 @@ package com.github.argon4w.acceleratedrendering.core.gl.programs;
 
 import static org.lwjgl.opengl.GL46.*;
 
-public class Program {
+public class ComputeProgram {
 
     private final int programHandle;
+    private final int barrierFlags;
 
     private int lastProgram;
     private boolean used;
 
-    public Program() {
+    public ComputeProgram(int barrierFlags) {
         this.programHandle = glCreateProgram();
+        this.barrierFlags = barrierFlags;
         this.lastProgram = 0;
         this.used = false;
+    }
+
+    public void dispatch(int x, int y, int z) {
+        useProgram();
+        glDispatchCompute(x, y, z);
+        glMemoryBarrier(barrierFlags);
+        resetProgram();
     }
 
     public void useProgram() {
@@ -31,8 +40,8 @@ public class Program {
         }
     }
 
-    public void attachShader(Shader shader) {
-        glAttachShader(programHandle, shader.getShaderHandle());
+    public void attachShader(ComputeShader computeShader) {
+        glAttachShader(programHandle, computeShader.getShaderHandle());
     }
 
     public boolean linkProgram() {

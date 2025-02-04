@@ -1,18 +1,19 @@
 package com.github.argon4w.acceleratedrendering.core.programs.processing;
 
+import com.github.argon4w.acceleratedrendering.core.programs.EmptyProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import org.jetbrains.annotations.Nullable;
 
 public class EmptyPolygonProcessor implements IPolygonProcessor {
 
     public static final EmptyPolygonProcessor INSTANCE = new EmptyPolygonProcessor();
 
     @Override
-    public @Nullable IProcessingProgram selectProgram(
+    public IProgramDispatcher selectDispatcher(
             VertexFormat vertexFormat,
             VertexFormat.Mode mode
     ) {
-        return null;
+        return EmptyProgramDispatcher.INSTANCE;
     }
 
     @Override

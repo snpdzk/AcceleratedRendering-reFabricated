@@ -2,49 +2,37 @@ package com.github.argon4w.acceleratedrendering.features.culling;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.ElementBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
-import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.Uniform;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
-import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgram;
+import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.resources.ResourceLocation;
 
-public class NormalCullingProgram implements ICullingProgram {
+public class NormalCullingProgramDispatcher implements IProgramDispatcher {
 
-    private final Program program;
+    private final ComputeProgram program;
     private final Uniform uniform;
 
-    private NormalCullingProgram(Program program) {
+    private NormalCullingProgramDispatcher(ComputeProgram program) {
         this.program = program;
         this.uniform = program.getUniform("ViewMatrix");
     }
 
-    public NormalCullingProgram(ResourceLocation key) {
+    public NormalCullingProgramDispatcher(ResourceLocation key) {
         this(ComputeShaderProgramLoader.getProgram(key));
     }
 
     @Override
-    public int getCount(
+    public void dispatch(
             VertexFormat.Mode mode,
             ElementBuffer elementBuffer,
             AcceleratedBufferBuilder builder
     ) {
-        return mode.indexCount(builder.getVertexCount()) / 3;
-    }
+        int count = mode.indexCount(builder.getVertexCount()) / 3;
 
-    @Override
-    public void uploadUniforms() {
         uniform.upload(RenderSystem.getModelViewMatrix());
-    }
-
-    @Override
-    public void useProgram() {
-        program.useProgram();
-    }
-
-    @Override
-    public void resetProgram() {
-        program.resetProgram();
+        program.dispatch(count, 1, 1);
     }
 }

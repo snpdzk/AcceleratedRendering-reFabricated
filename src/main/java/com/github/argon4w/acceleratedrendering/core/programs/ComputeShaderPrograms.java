@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.programs;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.BarrierFlags;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.FixedTransformProgramSelector;
@@ -25,10 +26,30 @@ public class ComputeShaderPrograms {
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
-        event.loadComputeShader(CORE_ENTITY_VERTEX_TRANSFORM_KEY, AcceleratedRenderingModEntry.location("shaders/core/transform/entity_vertex_transform_shader.compute"));
-        event.loadComputeShader(CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY, AcceleratedRenderingModEntry.location("shaders/core/transform/pos_tex_color_vertex_transform_shader.compute"));
-        event.loadComputeShader(CORE_POS_TEX_VERTEX_TRANSFORM_KEY, AcceleratedRenderingModEntry.location("shaders/core/transform/pos_tex_vertex_transform_shader.compute"));
-        event.loadComputeShader(CORE_PASS_THROUGH_POLYGON_CULLING_KEY, AcceleratedRenderingModEntry.location("shaders/core/culling/pass_through_polygon_culling_shader.compute"));
+        event.loadComputeShader(
+                CORE_ENTITY_VERTEX_TRANSFORM_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/transform/entity_vertex_transform_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        event.loadComputeShader(
+                CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/transform/pos_tex_color_vertex_transform_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        event.loadComputeShader(
+                CORE_POS_TEX_VERTEX_TRANSFORM_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/transform/pos_tex_vertex_transform_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        event.loadComputeShader(
+                CORE_PASS_THROUGH_POLYGON_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/culling/pass_through_polygon_culling_shader.compute"),
+                BarrierFlags.SHADER_STORAGE,
+                BarrierFlags.ATOMIC_COUNTER
+        );
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

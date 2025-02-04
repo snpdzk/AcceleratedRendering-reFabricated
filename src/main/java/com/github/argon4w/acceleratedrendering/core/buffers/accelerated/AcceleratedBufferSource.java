@@ -2,9 +2,8 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
-import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgram;
-import com.github.argon4w.acceleratedrendering.core.programs.processing.IProcessingProgram;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
+import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -87,16 +86,8 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             return;
         }
 
-        Program transformProgram = bufferEnvironment.selectTransformProgram();
-        transformProgram.useProgram();
-
         bufferSet.bindTransformBuffers();
-        bufferEnvironment.getServerMeshBuffer().bindBase(GL_SHADER_STORAGE_BUFFER, 4);
-
-        glDispatchCompute(bufferSet.getVertexCount(), 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-        transformProgram.resetProgram();
+        bufferEnvironment.selectTransformProgram().dispatch(bufferSet.getVertexCount(), 1, 1);
 
         BufferUploader.reset();
         bufferSet.bindVertexArray();
@@ -110,41 +101,23 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             }
 
             VertexFormat.Mode mode = renderType.mode;
-            IProcessingProgram processingProgram = bufferEnvironment.selectProcessingProgram(mode);
-            ICullingProgram cullingProgram = bufferEnvironment.selectCullProgram(renderType);
+            IProgramDispatcher processingProgram = bufferEnvironment.selectProcessingProgramDispatcher(mode);
+            IProgramDispatcher cullingProgram = bufferEnvironment.selectCullProgramDispatcher(renderType);
 
-            processingProgram.useProgram();
             elementBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
-
-            int count = processingProgram.getCount(
-                    mode,
-                    elementBuffer,
-                    builder
-            );
-
-            glDispatchCompute(count, 1, 1);
-            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-            processingProgram.resetProgram();
-
-            cullingProgram.useProgram();
-            cullingProgram.uploadUniforms();
             bufferSet.bindCullingBuffers(elementBuffer.getBufferSize());
 
-            count = cullingProgram.getCount(
+            processingProgram.dispatch(
                     mode,
                     elementBuffer,
                     builder
             );
 
-            glDispatchCompute(count, 1, 1);
-
-            glMemoryBarrier(
-                    GL_SHADER_STORAGE_BARRIER_BIT
-                            | GL_ATOMIC_COUNTER_BARRIER_BIT
+            cullingProgram.dispatch(
+                    mode,
+                    elementBuffer,
+                    builder
             );
-
-            cullingProgram.resetProgram();
 
             bufferSet.bindDrawBuffers();
 

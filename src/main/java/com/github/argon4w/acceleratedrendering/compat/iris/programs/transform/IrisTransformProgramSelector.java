@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs.transform;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
-import com.github.argon4w.acceleratedrendering.core.gl.programs.Program;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -13,12 +13,12 @@ public class IrisTransformProgramSelector implements ITransformProgramSelector {
 
     private final ITransformProgramSelector parent;
     private final VertexFormat vertexFormat;
-    private final Program program;
+    private final ComputeProgram program;
 
     public IrisTransformProgramSelector(
             ITransformProgramSelector parent,
             VertexFormat vertexFormat,
-            Program program
+            ComputeProgram program
     ) {
         this.parent = parent;
         this.vertexFormat = vertexFormat;
@@ -38,7 +38,7 @@ public class IrisTransformProgramSelector implements ITransformProgramSelector {
     }
 
     @Override
-    public Program select(VertexFormat vertexFormat) {
+    public ComputeProgram select(VertexFormat vertexFormat) {
         if (!IrisCompatFeature.isEnabled()) {
             return parent.select(vertexFormat);
         }
