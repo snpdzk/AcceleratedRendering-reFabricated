@@ -3,6 +3,7 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 import com.github.argon4w.acceleratedrendering.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.SimpleResetPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
+import com.github.argon4w.acceleratedrendering.core.gl.VertexArray;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.CommandBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MutableBuffer;
@@ -54,11 +55,10 @@ public class AcceleratedBufferSetPool {
         private final MappedBuffer varyingBuffer;
         private final MappedBuffer vertexBufferIn;
         private final MutableBuffer vertexBufferOut;
-        private final MutableBuffer indexBufferOut;
+        private final MutableBuffer elementBufferOut;
         private final CommandBuffer commandBuffer;
         private final IntBuffer holder;
-
-        private final int vaoHandle;
+        private final VertexArray vertexArray;
 
         private int sharing;
         private int element;
@@ -77,11 +77,10 @@ public class AcceleratedBufferSetPool {
             this.varyingBuffer = new MappedBuffer(64L);
             this.vertexBufferIn = new MappedBuffer(64L);
             this.vertexBufferOut = new MutableBuffer(64L, GL_DYNAMIC_STORAGE_BIT);
-            this.indexBufferOut = new MutableBuffer(64L, GL_DYNAMIC_STORAGE_BIT);
+            this.elementBufferOut = new MutableBuffer(64L, GL_DYNAMIC_STORAGE_BIT);
             this.commandBuffer = new CommandBuffer();
             this.holder = MemoryUtil.memCallocInt(1);
-
-            this.vaoHandle = glCreateVertexArrays();
+            this.vertexArray = new VertexArray();
 
             this.sharing = -1;
             this.element = 0;
@@ -110,14 +109,14 @@ public class AcceleratedBufferSetPool {
         }
 
         public void bindCullingBuffers(long indexSize) {
-            indexBufferOut.resizeTo(indexSize);
+            elementBufferOut.resizeTo(indexSize);
             commandBuffer.bindBase(GL_ATOMIC_COUNTER_BUFFER, 0);
-            indexBufferOut.bindBase(GL_SHADER_STORAGE_BUFFER, 6);
+            elementBufferOut.bindBase(GL_SHADER_STORAGE_BUFFER, 6);
         }
 
         public void bindDrawBuffers() {
             vertexBufferOut.bind(GL_ARRAY_BUFFER);
-            indexBufferOut.bind(GL_ELEMENT_ARRAY_BUFFER);
+            elementBufferOut.bind(GL_ELEMENT_ARRAY_BUFFER);
             commandBuffer.bind(GL_DRAW_INDIRECT_BUFFER);
         }
 
@@ -185,11 +184,11 @@ public class AcceleratedBufferSetPool {
         }
 
         public void bindVertexArray() {
-            glBindVertexArray(vaoHandle);
+            vertexArray.bindVertexArray();
         }
 
         public void resetVertexArray() {
-            glBindVertexArray(0);
+            vertexArray.unbindVertexArray();
         }
 
         public void setUsed() {
