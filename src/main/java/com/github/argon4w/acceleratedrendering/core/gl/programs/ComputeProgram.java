@@ -17,7 +17,19 @@ public class ComputeProgram {
         this.used = false;
     }
 
-    public void dispatch(int x, int y, int z) {
+    public void dispatch(int count) {
+        dispatch(
+                count,
+                1,
+                1
+        );
+    }
+
+    public void dispatch(
+            int x,
+            int y,
+            int z
+    ) {
         useProgram();
         glDispatchCompute(x, y, z);
         glMemoryBarrier(barrierFlags);
@@ -67,5 +79,9 @@ public class ComputeProgram {
 
     public boolean isUsed() {
         return used;
+    }
+
+    public void delete() {
+        glDeleteProgram(programHandle);
     }
 }

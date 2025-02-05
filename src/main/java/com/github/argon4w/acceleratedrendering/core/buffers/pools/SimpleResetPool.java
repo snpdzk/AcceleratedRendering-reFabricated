@@ -1,31 +1,25 @@
-package com.github.argon4w.acceleratedrendering.core.buffers;
+package com.github.argon4w.acceleratedrendering.core.buffers.pools;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-public class SimpleResetPool<T> {
+public abstract class SimpleResetPool<T, C> {
 
     private final int size;
     private final Object[] pool;
-    private final Consumer<T> resetter;
 
     private int cursor;
 
-    public SimpleResetPool(
-            int size,
-            Supplier<T> initializer,
-            Consumer<T> resetter
-    ) {
+    public SimpleResetPool(int size, C context) {
         this.size = size;
         this.pool = new Object[size];
-        this.resetter = resetter;
 
         this.cursor = 0;
 
         for (int i = 0; i < this.size; i++) {
-            this.pool[i] = initializer.get();
+            this.pool[i] = create(context);
         }
     }
+
+    protected abstract T create(C context);
+    protected abstract void reset(T t);
 
     @SuppressWarnings("unchecked")
     public T get() {
@@ -39,9 +33,10 @@ public class SimpleResetPool<T> {
     @SuppressWarnings("unchecked")
     public void reset() {
         for (int i = 0; i < cursor; i++) {
-            resetter.accept((T) pool[i]);
+            reset((T) pool[i]);
         }
 
         cursor = 0;
     }
+
 }

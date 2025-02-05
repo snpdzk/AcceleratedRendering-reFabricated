@@ -18,6 +18,6 @@ public class PassThroughCullingProgramDispatcher implements IProgramDispatcher {
 
     @Override
     public void dispatch(VertexFormat.Mode mode, int vertexCount) {
-        program.dispatch(mode.indexCount(vertexCount), 1, 1);
+        program.dispatch(mode.indexCount(vertexCount));
     }
 }

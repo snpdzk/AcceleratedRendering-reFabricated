@@ -1,7 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.fallback;
 
-import com.github.argon4w.acceleratedrendering.CoreFeature;
-import com.github.argon4w.acceleratedrendering.core.buffers.SimpleResetPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.pools.ByteBufferBuilderPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.mixins.BufferBuilderAccessor;
@@ -13,20 +12,12 @@ import net.minecraft.client.renderer.RenderType;
 
 public class VanillaBatchingBufferSource implements IAcceleratedBufferSource {
 
-    private final SimpleResetPool<ByteBufferBuilder> bufferPool;
+    private final ByteBufferBuilderPool bufferPool;
     private final Object2ObjectSortedMap<RenderType, BufferBuilder> bufferBuilders;
 
     public VanillaBatchingBufferSource() {
-        this.bufferPool = new SimpleResetPool<>(
-                CoreFeature.getPooledElementBufferSize(),
-                this::newByteBufferBuilder,
-                ByteBufferBuilder::clear
-        );
+        this.bufferPool = new ByteBufferBuilderPool();
         this.bufferBuilders = new Object2ObjectLinkedOpenHashMap<>();
-    }
-
-    private ByteBufferBuilder newByteBufferBuilder() {
-        return new ByteBufferBuilder(1024);
     }
 
     @Override
@@ -48,15 +39,14 @@ public class VanillaBatchingBufferSource implements IAcceleratedBufferSource {
 
         for (RenderType renderType : bufferBuilders.keySet()) {
             BufferBuilder bufferBuilder = bufferBuilders.get(renderType);
-            ByteBufferBuilder buffer = ((BufferBuilderAccessor) bufferBuilder).getBuffer();
-            MeshData meshData = bufferBuilders.get(renderType).build();
+            MeshData meshData = bufferBuilder.build();
 
             if (meshData == null) {
                 continue;
             }
 
             if (renderType.sortOnUpload) {
-                meshData.sortQuads(buffer, RenderSystem.getVertexSorting());
+                meshData.sortQuads(((BufferBuilderAccessor) bufferBuilder).getBuffer(), RenderSystem.getVertexSorting());
             }
 
             renderType.draw(meshData);

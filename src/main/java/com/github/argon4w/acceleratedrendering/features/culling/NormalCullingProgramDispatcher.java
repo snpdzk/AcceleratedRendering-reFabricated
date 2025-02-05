@@ -25,6 +25,6 @@ public class NormalCullingProgramDispatcher implements IProgramDispatcher {
     @Override
     public void dispatch(VertexFormat.Mode mode, int vertexCount) {
         uniform.upload(RenderSystem.getModelViewMatrix());
-        program.dispatch(mode.indexCount(vertexCount) / 3, 1, 1);
+        program.dispatch(mode.indexCount(vertexCount) / 3);
     }
 }

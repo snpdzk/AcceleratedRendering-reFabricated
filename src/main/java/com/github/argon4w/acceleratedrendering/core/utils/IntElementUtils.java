@@ -6,6 +6,8 @@ import org.lwjgl.system.MemoryUtil;
 
 public class IntElementUtils {
 
+    public static final int TYPE = VertexFormat.IndexType.INT.asGLType;
+
     public static void putElements(VertexFormat.Mode mode, IClientBuffer buffer, int from, int vertexCount) {
         switch (mode) {
             case QUADS -> putQuadElements(buffer, from, vertexCount / VertexFormat.Mode.QUADS.primitiveLength);

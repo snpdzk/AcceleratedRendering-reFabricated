@@ -20,6 +20,6 @@ public class IrisProcessingProgramDispatcher implements IProgramDispatcher {
 
     @Override
     public void dispatch(VertexFormat.Mode mode, int vertexCount) {
-        program.dispatch(vertexCount / mode.primitiveLength, 1, 1);
+        program.dispatch(vertexCount / mode.primitiveLength);
     }
 }

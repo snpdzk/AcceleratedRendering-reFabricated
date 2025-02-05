@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
+import com.github.argon4w.acceleratedrendering.core.utils.IntElementUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -11,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
+import org.lwjgl.system.MemoryUtil;
 
 import java.util.Map;
 
@@ -87,7 +89,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
         }
 
         bufferSet.bindTransformBuffers();
-        bufferEnvironment.selectTransformProgram().dispatch(bufferSet.getVertexCount(), 1, 1);
+        bufferEnvironment.selectTransformProgram().dispatch(bufferSet.getVertexCount());
 
         BufferUploader.reset();
         bufferSet.bindVertexArray();
@@ -109,9 +111,8 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             bufferEnvironment.selectProcessingProgramDispatcher(mode).dispatch(mode, vertexCount);
             bufferEnvironment.selectCullProgramDispatcher(renderType).dispatch(mode, vertexCount);
 
-            bufferSet.bindDrawBuffers();
-
             renderType.setupRenderState();
+            bufferSet.bindDrawBuffers();
             bufferEnvironment.setupBufferState();
 
             ShaderInstance shader = RenderSystem.getShader();
@@ -120,19 +121,16 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
                     mode,
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),
-                    Minecraft.getInstance().getWindow());
+                    Minecraft.getInstance().getWindow()
+            );
             shader.apply();
 
             glDrawElementsIndirect(
                     mode.asGLMode,
-                    VertexFormat.IndexType.INT.asGLType,
-                    0
+                    IntElementUtils.TYPE,
+                    MemoryUtil.NULL
             );
-
-            glMemoryBarrier(
-                    GL_ELEMENT_ARRAY_BARRIER_BIT
-                            | GL_COMMAND_BARRIER_BIT
-            );
+            glMemoryBarrier(GL_ELEMENT_ARRAY_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);
 
             shader.clear();
             renderType.clearRenderState();

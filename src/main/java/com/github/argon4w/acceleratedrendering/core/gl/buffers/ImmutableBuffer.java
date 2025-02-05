@@ -11,6 +11,11 @@ public class ImmutableBuffer implements IServerBuffer {
         glNamedBufferStorage(bufferHandle, size, bits);
     }
 
+    public ImmutableBuffer(int bits, int[] data) {
+        this.bufferHandle = glCreateBuffers();
+        glNamedBufferStorage(bufferHandle, data, bits);
+    }
+
     public void copyTo(IServerBuffer buffer, long size) {
         glCopyNamedBufferSubData(bufferHandle, buffer.getBufferHandle(), 0, 0, size);
     }

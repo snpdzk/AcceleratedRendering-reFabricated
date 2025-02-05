@@ -1,10 +1,11 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.CoreFeature;
-import com.github.argon4w.acceleratedrendering.core.buffers.SimpleResetPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.pools.ElementBufferPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.pools.SimpleResetPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.gl.VertexArray;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.CommandBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.ImmutableBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MutableBuffer;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
@@ -49,14 +50,13 @@ public class AcceleratedBufferSetPool {
 
     public class BufferSet {
 
-        private final SimpleResetPool<ElementBuffer> elementBufferPool;
-
+        private final ElementBufferPool elementBufferPool;
         private final MappedBuffer sharingBuffer;
         private final MappedBuffer varyingBuffer;
         private final MappedBuffer vertexBufferIn;
         private final MutableBuffer vertexBufferOut;
         private final MutableBuffer elementBufferOut;
-        private final CommandBuffer commandBuffer;
+        private final ImmutableBuffer commandBuffer;
         private final IntBuffer holder;
         private final VertexArray vertexArray;
 
@@ -67,18 +67,13 @@ public class AcceleratedBufferSetPool {
         private long sync;
 
         public BufferSet() {
-            this.elementBufferPool = new SimpleResetPool<>(
-                    CoreFeature.getPooledElementBufferSize(),
-                    this::newElementBuffer,
-                    ElementBuffer::reset
-            );
-
+            this.elementBufferPool = new ElementBufferPool(this);
             this.sharingBuffer = new MappedBuffer(64L);
             this.varyingBuffer = new MappedBuffer(64L);
             this.vertexBufferIn = new MappedBuffer(64L);
             this.vertexBufferOut = new MutableBuffer(64L, GL_DYNAMIC_STORAGE_BIT);
             this.elementBufferOut = new MutableBuffer(64L, GL_DYNAMIC_STORAGE_BIT);
-            this.commandBuffer = new CommandBuffer();
+            this.commandBuffer = new ImmutableBuffer(GL_DYNAMIC_STORAGE_BIT, new int[] {0, 1, 0, 0, 0});
             this.holder = MemoryUtil.memCallocInt(1);
             this.vertexArray = new VertexArray();
 

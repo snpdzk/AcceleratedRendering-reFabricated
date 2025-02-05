@@ -17,4 +17,8 @@ public class VertexArray {
     public void unbindVertexArray() {
         glBindVertexArray(0);
     }
+
+    public void delete() {
+        glDeleteVertexArrays(vaoHandle);
+    }
 }
