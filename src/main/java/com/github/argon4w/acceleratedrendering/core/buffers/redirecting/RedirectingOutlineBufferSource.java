@@ -1,8 +1,8 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.redirecting;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.outline.IOutlineBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedOutlineBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.outline.IOutlineBufferSource;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.*;

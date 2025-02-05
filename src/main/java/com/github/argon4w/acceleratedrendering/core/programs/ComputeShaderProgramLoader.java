@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.programs;
 
-import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeShader;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
+import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeShader;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;

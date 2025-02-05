@@ -6,7 +6,7 @@ import net.neoforged.fml.ModLoader;
 
 public interface IPolygonProcessor {
 
-    IProgramDispatcher selectDispatcher(VertexFormat vertexFormat, VertexFormat.Mode mode);
+    IProgramDispatcher select(VertexFormat.Mode mode);
     void uploadSharings(long address);
     void uploadVertex(long address);
 

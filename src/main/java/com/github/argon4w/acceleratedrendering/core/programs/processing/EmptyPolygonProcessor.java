@@ -9,10 +9,7 @@ public class EmptyPolygonProcessor implements IPolygonProcessor {
     public static final EmptyPolygonProcessor INSTANCE = new EmptyPolygonProcessor();
 
     @Override
-    public IProgramDispatcher selectDispatcher(
-            VertexFormat vertexFormat,
-            VertexFormat.Mode mode
-    ) {
+    public IProgramDispatcher select(VertexFormat.Mode mode) {
         return EmptyProgramDispatcher.INSTANCE;
     }
 

@@ -6,7 +6,7 @@ import net.neoforged.fml.ModLoader;
 
 public interface ITransformProgramSelector {
 
-    ComputeProgram select(VertexFormat vertexFormat);
+    ComputeProgram select();
     int getSharingFlags();
 
     static ITransformProgramSelector throwing() {

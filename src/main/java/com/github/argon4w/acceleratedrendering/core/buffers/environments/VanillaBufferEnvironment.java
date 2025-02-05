@@ -3,9 +3,9 @@ package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
+import com.github.argon4w.acceleratedrendering.core.programs.EmptyProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
-import com.github.argon4w.acceleratedrendering.core.programs.EmptyProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
@@ -47,7 +47,7 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 
     @Override
     public ComputeProgram selectTransformProgram() {
-        return transformProgramSelector.select(vertexFormat);
+        return transformProgramSelector.select();
     }
 
     @Override

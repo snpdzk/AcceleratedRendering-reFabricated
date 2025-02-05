@@ -4,9 +4,7 @@ import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
 import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
-import net.irisshaders.iris.vertices.ImmediateState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.system.MemoryUtil;
@@ -14,7 +12,6 @@ import org.lwjgl.system.MemoryUtil;
 public class IrisEntityPolygonProcessor implements IPolygonProcessor {
 
     private final IPolygonProcessor parent;
-    private final VertexFormat vertexFormat;
     private final VertexFormat.Mode mode;
     private final IProgramDispatcher dispatcher;
     private final int entityOffset;
@@ -26,10 +23,9 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
             IProgramDispatcher dispatcher
     ) {
         this.parent = parent;
-        this.vertexFormat = vertexFormat;
         this.mode = mode;
         this.dispatcher = dispatcher;
-        this.entityOffset = this.vertexFormat.getOffset(IrisVertexFormats.ENTITY_ID_ELEMENT);
+        this.entityOffset = vertexFormat.getOffset(IrisVertexFormats.ENTITY_ID_ELEMENT);
     }
 
     public IrisEntityPolygonProcessor(
@@ -47,28 +43,17 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
     }
 
     @Override
-    public IProgramDispatcher selectDispatcher(
-            VertexFormat vertexFormat,
-            VertexFormat.Mode mode
-    ) {
-        if (!WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat()) {
-            return parent.selectDispatcher(vertexFormat, mode);
-        }
-
-        if (!ImmediateState.isRenderingLevel) {
-            return parent.selectDispatcher(vertexFormat, mode);
-        }
-
+    public IProgramDispatcher select(VertexFormat.Mode mode) {
         if (!IrisCompatFeature.isEnabled()) {
-            return parent.selectDispatcher(vertexFormat, mode);
+            return parent.select(mode);
         }
 
-        if (this.vertexFormat != vertexFormat) {
-            return parent.selectDispatcher(vertexFormat, mode);
+        if (!IrisCompatFeature.isPolygonProcessingEnabled()) {
+            return parent.select(mode);
         }
 
         if (this.mode != mode) {
-            return parent.selectDispatcher(vertexFormat, mode);
+            return parent.select(mode);
         }
 
         return dispatcher;
@@ -82,14 +67,6 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
     @Override
     public void uploadSharings(long address) {
         parent.uploadSharings(address);
-
-        if (!WorldRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat()) {
-            return;
-        }
-
-        if (!ImmediateState.isRenderingLevel) {
-            return;
-        }
 
         if (!IrisCompatFeature.isEnabled()) {
             return;

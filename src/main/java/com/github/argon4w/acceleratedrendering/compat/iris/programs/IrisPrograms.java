@@ -9,7 +9,6 @@ import com.github.argon4w.acceleratedrendering.core.programs.LoadComputeShaderEv
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.LoadTransformProgramSelectorEvent;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.resources.ResourceLocation;
@@ -52,32 +51,30 @@ public class IrisPrograms {
 
     @SubscribeEvent
     public static void onLoadTransformPrograms(LoadTransformProgramSelectorEvent event) {
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new IrisTransformProgramSelector(
+        event.loadFor(IrisVertexFormats.ENTITY, parent -> new IrisTransformProgramSelector(
                 parent,
-                IrisVertexFormats.ENTITY,
                 IRIS_ENTITY_VERTEX_TRANSFORM_KEY
         ));
     }
 
     @SubscribeEvent
     public static void onLoadCullingPrograms(LoadCullingProgramSelectorEvent event) {
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new IrisCullingProgramSelector(
+        event.loadFor(IrisVertexFormats.ENTITY, parent -> new IrisCullingProgramSelector(
                 parent,
-                IrisVertexFormats.ENTITY,
                 IRIS_ENTITY_POLYGON_CULLING_KEY
         ));
     }
 
     @SubscribeEvent
     public static void onLoadPolygonProcessors(LoadPolygonProcessorEvent event) {
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new IrisEntityPolygonProcessor(
+        event.loadFor(IrisVertexFormats.ENTITY, parent -> new IrisEntityPolygonProcessor(
                 parent,
                 IrisVertexFormats.ENTITY,
                 VertexFormat.Mode.TRIANGLES,
                 IRIS_ENTITY_TRIANGLE_PROCESSING_KEY
         ));
 
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new IrisEntityPolygonProcessor(
+        event.loadFor(IrisVertexFormats.ENTITY, parent -> new IrisEntityPolygonProcessor(
                 parent,
                 IrisVertexFormats.ENTITY,
                 VertexFormat.Mode.QUADS,

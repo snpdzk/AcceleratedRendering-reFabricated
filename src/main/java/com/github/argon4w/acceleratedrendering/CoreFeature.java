@@ -2,14 +2,14 @@ package com.github.argon4w.acceleratedrendering;
 
 import com.github.argon4w.acceleratedrendering.configs.FeatureConfig;
 import com.github.argon4w.acceleratedrendering.configs.FeatureStatus;
-import com.github.argon4w.acceleratedrendering.core.buffers.outline.OutlineMaskBufferSource;
-import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingBufferSource;
-import com.github.argon4w.acceleratedrendering.core.buffers.outline.SimpleOutlineBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.buffers.fallback.FallbackBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.fallback.FallbackOutlineBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.fallback.VanillaBatchingBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.outline.OutlineMaskBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.outline.SimpleOutlineBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingOutlineBufferSource;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;

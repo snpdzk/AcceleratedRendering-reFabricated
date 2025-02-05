@@ -56,20 +56,17 @@ public class ComputeShaderPrograms {
     public static void onLoadTransformPrograms(LoadTransformProgramSelectorEvent event) {
         event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new FixedTransformProgramSelector(
                 parent,
-                CORE_ENTITY_VERTEX_TRANSFORM_KEY,
-                DefaultVertexFormat.NEW_ENTITY
+                CORE_ENTITY_VERTEX_TRANSFORM_KEY
         ));
 
         event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, parent -> new FixedTransformProgramSelector(
                 parent,
-                CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY,
-                DefaultVertexFormat.POSITION_TEX_COLOR
+                CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY
         ));
 
         event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new FixedTransformProgramSelector(
                 parent,
-                CORE_POS_TEX_VERTEX_TRANSFORM_KEY,
-                DefaultVertexFormat.POSITION_TEX
+                CORE_POS_TEX_VERTEX_TRANSFORM_KEY
         ));
     }
 

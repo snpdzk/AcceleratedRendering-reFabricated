@@ -23,7 +23,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Mixin(ModelPart.class)
 public class ModelPartMixin {
