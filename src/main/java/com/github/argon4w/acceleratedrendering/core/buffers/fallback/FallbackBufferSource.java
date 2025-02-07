@@ -10,9 +10,7 @@ public class FallbackBufferSource implements MultiBufferSource {
     private final MultiBufferSource vanillaBufferSource;
     private final MultiBufferSource vanillaBatchingBufferSource;
 
-    public FallbackBufferSource(
-            MultiBufferSource vanillaBufferSource,
-            MultiBufferSource vanillaBatchingBufferSource) {
+    public FallbackBufferSource(MultiBufferSource vanillaBufferSource, MultiBufferSource vanillaBatchingBufferSource) {
         this.vanillaBufferSource = vanillaBufferSource;
         this.vanillaBatchingBufferSource = vanillaBatchingBufferSource;
     }

@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
-import com.github.argon4w.acceleratedrendering.compat.iris.IrisRenderType;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import net.minecraft.client.renderer.RenderType;
@@ -17,9 +16,6 @@ public abstract class AcceleratedBufferSourceMixin {
 
     @ModifyVariable(method = "getBuffer", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     public RenderType unwrapIrisRenderType(RenderType renderType) {
-        return new IrisRenderType(
-                renderType,
-                bufferEnvironment.getVertexFormat(renderType)
-        );
+        return bufferEnvironment.getRenderType(renderType);
     }
 }

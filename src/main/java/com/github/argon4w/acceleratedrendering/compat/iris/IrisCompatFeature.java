@@ -53,6 +53,10 @@ public class IrisCompatFeature {
         return FeatureConfig.CONFIG.irisCompatEntitiesCompat.get() == FeatureStatus.ENABLED;
     }
 
+    public static boolean isFastIrisRenderTypeCheckEnabled() {
+        return FeatureConfig.CONFIG.irisCompatFastIrisRenderTypeCheck.get() == FeatureStatus.ENABLED;
+    }
+
     public static void disableShadowCulling() {
         SHADOW_CULLING_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
     }
@@ -86,11 +90,15 @@ public class IrisCompatFeature {
     }
 
     public static FeatureStatus getShadowCullingSetting() {
-        return SHADOW_CULLING_CONTROLLER_STACK.isEmpty() ? getDefaultShadowCullingSetting() : SHADOW_CULLING_CONTROLLER_STACK.peek();
+        return SHADOW_CULLING_CONTROLLER_STACK.isEmpty()
+                ? getDefaultShadowCullingSetting()
+                : SHADOW_CULLING_CONTROLLER_STACK.peek();
     }
 
     public static FeatureStatus getPolygonProcessingSetting() {
-        return POLYGON_PROCESSING_CONTROLLER_STACK.isEmpty() ? getDefaultPolygonProcessingSetting() : POLYGON_PROCESSING_CONTROLLER_STACK.peek();
+        return POLYGON_PROCESSING_CONTROLLER_STACK.isEmpty()
+                ? getDefaultPolygonProcessingSetting()
+                : POLYGON_PROCESSING_CONTROLLER_STACK.peek();
     }
 
     public static FeatureStatus getDefaultShadowCullingSetting() {

@@ -11,7 +11,6 @@ public class ByteBufferUtils {
 
     private static final Matrix4f MATRIX = new Matrix4f();
 
-
     public static void putReversedInt(long address, int value) {
         MemoryUtil.memPutInt(address, Integer.reverseBytes(value));
     }
@@ -28,7 +27,15 @@ public class ByteBufferUtils {
         matrix.get(MemoryUtil.memByteBuffer(address, 4 * 4 * 4));
     }
 
-    public static void putByteBuffer(ByteBuffer buffer, long address, long length) {
-        MemoryUtil.memCopy(MemoryUtil.memAddress0(buffer), address, length);
+    public static void putByteBuffer(
+            ByteBuffer buffer,
+            long address,
+            long length
+    ) {
+        MemoryUtil.memCopy(
+                MemoryUtil.memAddress0(buffer),
+                address,
+                length
+        );
     }
 }

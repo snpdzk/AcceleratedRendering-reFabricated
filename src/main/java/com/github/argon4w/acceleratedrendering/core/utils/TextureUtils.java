@@ -4,6 +4,9 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.system.MemoryUtil;
+
+import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL46.*;
 
@@ -16,20 +19,38 @@ public class TextureUtils {
             return null;
         }
 
-        Minecraft.getInstance().getTextureManager().getTexture(textureResourceLocation).bind();
+        Minecraft
+                .getInstance()
+                .getTextureManager()
+                .getTexture(textureResourceLocation)
+                .bind();
 
-        int[] width = new int[1];
-        int[] height = new int[1];
+        IntBuffer widthBuffer = MemoryUtil.memCallocInt(1);
+        IntBuffer heightBuffer = MemoryUtil.memCallocInt(1);
 
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, width);
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, height);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, widthBuffer);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, heightBuffer);
 
-        if (width[0] == 0 || height[0] == 0) {
+        int width = widthBuffer.get(0);
+        int height = heightBuffer.get(0);
+
+        if (width == 0) {
             return null;
         }
 
-        NativeImage nativeImage = new NativeImage(width[0], height[0], false);
+        if (height == 0) {
+            return null;
+        }
+
+        NativeImage nativeImage = new NativeImage(
+                width,
+                height,
+                false
+        );
+
         nativeImage.downloadTexture(0, false);
+        MemoryUtil.memFree(widthBuffer);
+        MemoryUtil.memFree(heightBuffer);
 
         return nativeImage;
     }

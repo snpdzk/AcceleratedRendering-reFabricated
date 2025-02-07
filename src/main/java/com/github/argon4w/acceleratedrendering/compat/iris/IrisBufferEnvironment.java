@@ -75,8 +75,8 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public VertexFormat getVertexFormat(RenderType renderType) {
-        return getSubSet().getVertexFormat(renderType);
+    public RenderType getRenderType(RenderType renderType) {
+        return getSubSet().getRenderType(renderType);
     }
 
     @Override
@@ -159,10 +159,10 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
         }
 
         @Override
-        public VertexFormat getVertexFormat(RenderType renderType) {
+        public RenderType getRenderType(RenderType renderType) {
             return renderType.format == vanillaVertexFormat
-                    ? irisVertexFormat
-                    : renderType.format;
+                    ? new IrisRenderType(renderType, irisVertexFormat)
+                    : new IrisRenderType(renderType, renderType.format);
         }
 
         @Override

@@ -41,5 +41,7 @@
   "acceleratedrendering.configuration.iris_compatibility.entities_compatibility.tooltip": "- DISABLED: renderEntity called from Iris will not render entities into the accelerated pipeline.\n- ENABLED: renderEntity called from Iris will render entities into the accelerated pipeline.",
   "acceleratedrendering.configuration.iris_compatibility.polygon_processing": "Enable Polygon Processing",
   "acceleratedrendering.configuration.iris_compatibility.polygon_processing.tooltip": "- DISABLED: Extra information in vertices provided by Iris will not be included or calculated in the accelerated pipeline, which may cause visual glitches or incorrect rendering.\n- DISABLED: Extra information in vertices provided by Iris will be included and calculated in the accelerated pipeline by a compute shader.",
+  "acceleratedrendering.configuration.iris_compatability.fast_iris_render_type_check": "Enable Fast Iris RenderType Check",
+  "acceleratedrendering.configuration.iris_compatability.fast_iris_render_type_check.tooltip": "- DISABLED: Accelerated Rendering will use slow but safe \"instanceof\" operation in checking wrapped RenderType created by Iris.\n- ENABlED: Accelerated Rendering will use extension interface in checking wrapped RenderType created by Iris, which is faster but unsafe if other mods also implemented \"WrappableRenderType\" (but who will?).",
   "acceleratedrendering.configuration.iris_compatibility.button": "Configure"
 }

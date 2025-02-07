@@ -6,9 +6,12 @@ import org.lwjgl.system.MemoryUtil;
 
 public class IntElementUtils {
 
-    public static final int TYPE = VertexFormat.IndexType.INT.asGLType;
-
-    public static void putElements(VertexFormat.Mode mode, IClientBuffer buffer, int from, int vertexCount) {
+    public static void putElements(
+            VertexFormat.Mode mode,
+            IClientBuffer buffer,
+            int from,
+            int vertexCount
+    ) {
         switch (mode) {
             case QUADS -> putQuadElements(buffer, from, vertexCount / VertexFormat.Mode.QUADS.primitiveLength);
             case LINES -> putLineElements(buffer, from, vertexCount / VertexFormat.Mode.LINES.primitiveLength);
@@ -16,7 +19,11 @@ public class IntElementUtils {
         }
     }
 
-    public static void putQuadElements(IClientBuffer buffer, int from, int quadCount) {
+    public static void putQuadElements(
+            IClientBuffer buffer,
+            int from,
+            int quadCount
+    ) {
         if (quadCount == 0) {
             return;
         }
@@ -36,7 +43,11 @@ public class IntElementUtils {
         }
     }
 
-    public static void putLineElements(IClientBuffer buffer, int from, int lineCount) {
+    public static void putLineElements(
+            IClientBuffer buffer,
+            int from,
+            int lineCount
+    ) {
         if (lineCount == 0) {
             return;
         }
@@ -56,7 +67,11 @@ public class IntElementUtils {
         }
     }
 
-    public static void putSequentialElements(IClientBuffer buffer, int from, int vertexCount) {
+    public static void putSequentialElements(
+            IClientBuffer buffer,
+            int from,
+            int vertexCount
+    ) {
         if (vertexCount == 0) {
             return;
         }

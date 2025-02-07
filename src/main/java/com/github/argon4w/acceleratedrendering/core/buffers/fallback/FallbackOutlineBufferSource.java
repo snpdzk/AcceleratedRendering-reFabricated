@@ -22,7 +22,12 @@ public class FallbackOutlineBufferSource implements IOutlineBufferSource {
 
     @Override
     public void setColor(int color) {
-        vanillaBufferSource.setColor(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color), 255);
+        vanillaBufferSource.setColor(
+                FastColor.ARGB32.red(color),
+                FastColor.ARGB32.green(color),
+                FastColor.ARGB32.blue(color),
+                255
+        );
         vanillaBatchingBufferSource.setColor(color);
     }
 

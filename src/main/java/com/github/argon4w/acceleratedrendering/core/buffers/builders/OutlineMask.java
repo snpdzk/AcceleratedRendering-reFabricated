@@ -76,7 +76,23 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
     }
 
     @Override
-    public VertexConsumer addVertex(float pX, float pY, float pZ) {
+    public VertexConsumer addVertex(
+            PoseStack.Pose pPose,
+            float pX,
+            float pY,
+            float pZ
+    ) {
+        return vertexConsumer
+                .addVertex(pPose, pX, pY, pZ)
+                .setColor(teamColor);
+    }
+
+    @Override
+    public VertexConsumer addVertex(
+            float pX,
+            float pY,
+            float pZ
+    ) {
         vertexConsumer
                 .addVertex(pX, pY, pZ)
                 .setColor(teamColor);
@@ -85,7 +101,12 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
     }
 
     @Override
-    public VertexConsumer setColor(int pRed, int pGreen, int pBlue, int pAlpha) {
+    public VertexConsumer setColor(
+            int pRed,
+            int pGreen,
+            int pBlue,
+            int pAlpha
+    ) {
         return this;
     }
 
@@ -106,7 +127,21 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
     }
 
     @Override
-    public VertexConsumer setNormal(float pNormalX, float pNormalY, float pNormalZ) {
+    public VertexConsumer setNormal(
+            PoseStack.Pose pPose,
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ
+    ) {
+        return this;
+    }
+
+    @Override
+    public VertexConsumer setNormal(
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ
+    ) {
         return this;
     }
 

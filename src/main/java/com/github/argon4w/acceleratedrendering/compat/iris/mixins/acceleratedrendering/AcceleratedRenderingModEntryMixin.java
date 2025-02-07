@@ -13,7 +13,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class AcceleratedRenderingModEntryMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    public void registerIrisEvents(IEventBus modEventBus, ModContainer modContainer, CallbackInfo ci) {
+    public void registerIrisEvents(
+            IEventBus modEventBus,
+            ModContainer modContainer,
+            CallbackInfo ci
+    ) {
         modEventBus.register(IrisPrograms.class);
     }
 }

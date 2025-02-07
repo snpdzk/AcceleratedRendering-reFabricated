@@ -1,5 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
+import org.lwjgl.system.MemoryUtil;
+
+import java.nio.ByteBuffer;
+
 import static org.lwjgl.opengl.GL46.*;
 
 public class MappedBuffer extends MutableBuffer implements IClientBuffer {
@@ -28,6 +32,11 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
 
         resize(bufferPosition);
         return bufferAddress + position;
+    }
+
+    @Override
+    public ByteBuffer asByteBuffer() {
+        return MemoryUtil.memByteBuffer(bufferAddress, (int) getBufferSize());
     }
 
     public void resizeTo(long newBufferSize) {

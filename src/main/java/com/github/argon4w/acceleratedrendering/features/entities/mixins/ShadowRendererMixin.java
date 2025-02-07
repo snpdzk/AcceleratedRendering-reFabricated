@@ -18,7 +18,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ShadowRendererMixin {
 
     @Inject(method = "renderShadows", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch()V"))
-    public void endAllBatches(LevelRendererAccessor levelRenderer, Camera playerCamera, CallbackInfo ci) {
+    public void endAllBatches(
+            LevelRendererAccessor levelRenderer,
+            Camera playerCamera,
+            CallbackInfo ci
+    ) {
         if (!IrisCompatFeature.isIrisCompatEntitiesEnabled()) {
             return;
         }

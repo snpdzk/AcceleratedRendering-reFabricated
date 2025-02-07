@@ -24,19 +24,57 @@ public abstract class LevelRendererMixin {
     @Shadow public abstract boolean shouldShowEntityOutlines();
 
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderEntity(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;)V"))
-    public void wrapRenderEntity(LevelRenderer instance, Entity pEntity, double pCamX, double pCamY, double pCamZ, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBufferSource, Operation<Void> original, @Local(name = "flag2") LocalBooleanRef flag2) {
+    public void wrapRenderEntity(
+            LevelRenderer instance,
+            Entity pEntity,
+            double pCamX,
+            double pCamY,
+            double pCamZ,
+            float pPartialTick,
+            PoseStack pPoseStack,
+            MultiBufferSource pBufferSource,
+            Operation<Void> original,
+            @Local(name = "flag2") LocalBooleanRef flag2
+    ) {
         if (!AcceleratedEntityRenderingFeature.isEnabled()) {
-            original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, pBufferSource);
+            original.call(
+                    instance,
+                    pEntity,
+                    pCamX,
+                    pCamY,
+                    pCamZ,
+                    pPartialTick,
+                    pPoseStack,
+                    pBufferSource
+            );
             return;
         }
 
         if (!shouldShowEntityOutlines()) {
-            original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, CoreFeature.CORE);
+            original.call(
+                    instance,
+                    pEntity,
+                    pCamX,
+                    pCamY,
+                    pCamZ,
+                    pPartialTick,
+                    pPoseStack,
+                    CoreFeature.CORE
+            );
             return;
         }
 
         if (minecraft.shouldEntityAppearGlowing(pEntity)) {
-            original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, CoreFeature.CORE_OUTLINE.setColor(pEntity.getTeamColor()));
+            original.call(
+                    instance,
+                    pEntity,
+                    pCamX,
+                    pCamY,
+                    pCamZ,
+                    pPartialTick,
+                    pPoseStack,
+                    CoreFeature.CORE_OUTLINE.setColor(pEntity.getTeamColor())
+            );
             flag2.set(true);
             return;
         }
@@ -45,6 +83,15 @@ public abstract class LevelRendererMixin {
             flag2.set(true);
         }
 
-        original.call(instance, pEntity, pCamX, pCamY, pCamZ, pPartialTick, pPoseStack, CoreFeature.CORE);
+        original.call(
+                instance,
+                pEntity,
+                pCamX,
+                pCamY,
+                pCamZ,
+                pPartialTick,
+                pPoseStack,
+                CoreFeature.CORE
+        );
     }
 }

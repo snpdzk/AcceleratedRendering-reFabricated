@@ -7,7 +7,12 @@ public class EmptyMesh implements IMesh {
     public static final EmptyMesh INSTANCE = new EmptyMesh();
 
     @Override
-    public void write(IVertexConsumerExtension extension, int color, int light, int overlay) {
+    public void write(
+            IVertexConsumerExtension extension,
+            int color,
+            int light,
+            int overlay
+    ) {
 
     }
 }

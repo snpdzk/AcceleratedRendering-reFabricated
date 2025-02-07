@@ -75,10 +75,7 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
         }
 
         for (IAcceleratedBufferSource bufferSource1 : bufferSources) {
-            if (bufferSource1
-                    .getBufferEnvironment()
-                    .isAccelerated(pRenderType.format)
-            ) {
+            if (bufferSource1.getBufferEnvironment().isAccelerated(pRenderType.format)) {
                 return bufferSource1.getBuffer(pRenderType);
             }
         }

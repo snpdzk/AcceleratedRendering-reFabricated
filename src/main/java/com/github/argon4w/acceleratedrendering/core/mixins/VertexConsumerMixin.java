@@ -27,13 +27,27 @@ public interface VertexConsumerMixin extends IVertexConsumerExtension {
 
     @Unique
     @Override
-    default void addClientMesh(RenderType renderType, ByteBuffer vertexBuffer, int size, int color, int light, int overlay) {
+    default void addClientMesh(
+            RenderType renderType,
+            ByteBuffer vertexBuffer,
+            int size,
+            int color,
+            int light,
+            int overlay
+    ) {
 
     }
 
     @Unique
     @Override
-    default void addServerMesh(RenderType renderType, int offset, int size, int color, int light, int overlay) {
+    default void addServerMesh(
+            RenderType renderType,
+            int offset,
+            int size,
+            int color,
+            int light,
+            int overlay
+    ) {
 
     }
 

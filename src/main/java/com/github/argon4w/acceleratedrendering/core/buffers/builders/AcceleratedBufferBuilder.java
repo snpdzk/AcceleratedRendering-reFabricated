@@ -12,12 +12,9 @@ import net.minecraft.util.FastColor;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Set;
 
-public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumerExtension {
-
-    private static final boolean LE = (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN);
+public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumerExtension {
 
     private final ElementBuffer elementBuffer;
     private final AcceleratedBufferSetPool.BufferSet bufferSet;
@@ -66,18 +63,27 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         this.sharing = -1;
     }
 
-    public abstract void putRgba(long ptr, int color);
-    public abstract void putAbgr(long ptr, int color);
-    public abstract void putPackedUv(long ptr, int packedUv);
-
     @Override
-    public VertexConsumer addVertex(PoseStack.Pose pPose, float pX, float pY, float pZ) {
+    public VertexConsumer addVertex(
+            PoseStack.Pose pPose,
+            float pX,
+            float pY,
+            float pZ
+    ) {
         beginTransform(pPose);
-        return addVertex(pX, pY, pZ);
+        return addVertex(
+                pX,
+                pY,
+                pZ
+        );
     }
 
     @Override
-    public VertexConsumer addVertex(float pX, float pY, float pZ) {
+    public VertexConsumer addVertex(
+            float pX,
+            float pY,
+            float pZ
+    ) {
         vertexCount ++;
         elementCount ++;
 
@@ -101,7 +107,12 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     }
 
     @Override
-    public VertexConsumer setColor(int pRed, int pGreen, int pBlue, int pAlpha) {
+    public VertexConsumer setColor(
+            int pRed,
+            int pGreen,
+            int pBlue,
+            int pAlpha
+    ) {
         if (colorOffset == -1) {
             return this;
         }
@@ -167,7 +178,12 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     }
 
     @Override
-    public VertexConsumer setNormal(PoseStack.Pose pPose, float pNormalX, float pNormalY, float pNormalZ) {
+    public VertexConsumer setNormal(
+            PoseStack.Pose pPose,
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ
+    ) {
         if (transform == -1) {
             return VertexConsumer.super.setNormal(
                     pPose,
@@ -189,7 +205,11 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
     }
 
     @Override
-    public VertexConsumer setNormal(float pNormalX, float pNormalY, float pNormalZ) {
+    public VertexConsumer setNormal(
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ
+    ) {
         if (normalOffset == -1) {
             return this;
         }
@@ -249,9 +269,9 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
         MemoryUtil.memPutInt(varying + 0 * 4L, -1);
         MemoryUtil.memPutInt(varying + 1 * 4L, -1);
-        putRgba(varying + 2 * 4L, pColor);
-        putPackedUv(varying + 3 * 4L, pPackedLight);
-        putPackedUv(varying + 4 * 4L, pPackedOverlay);
+        MemoryUtil.memPutInt(varying + 2 * 4L, FastColor.ABGR32.fromArgb32(pColor));
+        MemoryUtil.memPutInt(varying + 3 * 4L, pPackedLight);
+        MemoryUtil.memPutInt(varying + 4 * 4L, pPackedOverlay);
     }
 
     @Override
@@ -297,16 +317,20 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
         long varying = bufferSet.reserveVaryings(size);
         long length = (long) size * bufferSet.getVertexSize();
 
-        ByteBufferUtils.putByteBuffer(vertexBuffer, vertex, length);
+        ByteBufferUtils.putByteBuffer(
+                vertexBuffer,
+                vertex,
+                length
+        );
 
         for (int i = 0; i < size; i++) {
             long address = varying + i * 5L * 4L;
 
             MemoryUtil.memPutInt(address + 0 * 4L, -1);
             MemoryUtil.memPutInt(address + 1 * 4L, sharing);
-            putRgba(address + 2 * 4L, color);
-            putPackedUv(address + 3 * 4L, light);
-            putPackedUv(address + 4 * 4L, overlay);
+            MemoryUtil.memPutInt(address + 2 * 4L, FastColor.ABGR32.fromArgb32(color));
+            MemoryUtil.memPutInt(address + 3 * 4L, light);
+            MemoryUtil.memPutInt(address + 4 * 4L, overlay);
         }
     }
 
@@ -331,9 +355,9 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
             MemoryUtil.memPutInt(address + 0 * 4L, mesh + i);
             MemoryUtil.memPutInt(address + 1 * 4L, sharing);
-            putRgba(address + 2 * 4L, color);
-            putPackedUv(address + 3 * 4L, light);
-            putPackedUv(address + 4 * 4L, overlay);
+            MemoryUtil.memPutInt(address + 2 * 4L, FastColor.ABGR32.fromArgb32(color));
+            MemoryUtil.memPutInt(address + 3 * 4L, light);
+            MemoryUtil.memPutInt(address + 4 * 4L, overlay);
         }
     }
 
@@ -353,76 +377,5 @@ public abstract class AcceleratedBufferBuilder implements VertexConsumer, IVerte
 
     public ElementBuffer getElementBuffer() {
         return elementBuffer;
-    }
-
-    public static AcceleratedBufferBuilder create(
-            ElementBuffer elementBuffer,
-            AcceleratedBufferSetPool.BufferSet bufferSet,
-            RenderType renderType
-    ) {
-        return LE
-                ? new LE(elementBuffer, bufferSet, renderType)
-                : new BE(elementBuffer, bufferSet, renderType);
-    }
-
-    public static class BE extends AcceleratedBufferBuilder {
-
-        private BE(
-                ElementBuffer elementBuffer,
-                AcceleratedBufferSetPool.BufferSet bufferSet,
-                RenderType renderType
-        ) {
-            super(
-                    elementBuffer,
-                    bufferSet,
-                    renderType
-            );
-        }
-
-        @Override
-        public void putRgba(long ptr, int color) {
-            putAbgr(ptr, FastColor.ABGR32.fromArgb32(color));
-        }
-
-        @Override
-        public void putAbgr(long ptr, int color) {
-            ByteBufferUtils.putReversedInt(ptr, color);
-        }
-
-        @Override
-        public void putPackedUv(long ptr, int packed) {
-            MemoryUtil.memPutShort(ptr, (short) (packed & 65535));
-            MemoryUtil.memPutShort(ptr + 2L, (short) (packed >> 16 & 65535));
-        }
-    }
-
-    public static class LE extends AcceleratedBufferBuilder {
-
-        private LE(
-                ElementBuffer elementBuffer,
-                AcceleratedBufferSetPool.BufferSet bufferSet,
-                RenderType renderType
-        ) {
-            super(
-                    elementBuffer,
-                    bufferSet,
-                    renderType
-            );
-        }
-
-        @Override
-        public void putRgba(long ptr, int color) {
-            putAbgr(ptr, FastColor.ABGR32.fromArgb32(color));
-        }
-
-        @Override
-        public void putAbgr(long ptr, int color) {
-            MemoryUtil.memPutInt(ptr, color);
-        }
-
-        @Override
-        public void putPackedUv(long ptr, int packed) {
-            MemoryUtil.memPutInt(ptr, packed);
-        }
     }
 }

@@ -17,10 +17,6 @@ public class AcceleratedEntityRenderingFeature {
         return FeatureConfig.CONFIG.acceleratedEntityRenderingFeatureStatus.get() == FeatureStatus.ENABLED;
     }
 
-    public static PipelineSetting getDefaultPipeline() {
-        return FeatureConfig.CONFIG.acceleratedEntityRenderingDefaultPipeline.get();
-    }
-
     public static boolean shouldUseAcceleratedPipeline() {
         return getPipelineSetting() == PipelineSetting.ACCELERATED;
     }
@@ -50,7 +46,13 @@ public class AcceleratedEntityRenderingFeature {
     }
 
     public static PipelineSetting getPipelineSetting() {
-        return DEFAULT_PIPELINE_CONTROLLER_STACK.isEmpty() ? getDefaultPipeline() : DEFAULT_PIPELINE_CONTROLLER_STACK.peek();
+        return DEFAULT_PIPELINE_CONTROLLER_STACK.isEmpty()
+                ? getDefaultPipelineSetting()
+                : DEFAULT_PIPELINE_CONTROLLER_STACK.peek();
+    }
+
+    public static PipelineSetting getDefaultPipelineSetting() {
+        return FeatureConfig.CONFIG.acceleratedEntityRenderingDefaultPipeline.get();
     }
 
     public static void checkControllerState() {

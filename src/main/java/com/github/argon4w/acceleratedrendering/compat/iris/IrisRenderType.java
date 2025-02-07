@@ -29,10 +29,7 @@ public class IrisRenderType extends RenderType {
 
         this.renderType = renderType;
         this.vertexFormat = vertexFormat;
-        this.hashCode = Objects.hashCode(
-                renderType,
-                vertexFormat
-        );
+        this.hashCode = Objects.hashCode(renderType, vertexFormat);
     }
 
     @Override

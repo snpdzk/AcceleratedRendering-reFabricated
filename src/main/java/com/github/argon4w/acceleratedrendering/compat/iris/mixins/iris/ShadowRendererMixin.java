@@ -13,7 +13,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ShadowRendererMixin {
 
     @Inject(method = "renderShadows", at = @At("TAIL"))
-    public void checkControllerState(LevelRendererAccessor levelRenderer, Camera playerCamera, CallbackInfo ci) {
+    public void checkControllerState(
+            LevelRendererAccessor levelRenderer,
+            Camera playerCamera,
+            CallbackInfo ci
+    ) {
         IrisCompatFeature.checkControllerState();
     }
 }

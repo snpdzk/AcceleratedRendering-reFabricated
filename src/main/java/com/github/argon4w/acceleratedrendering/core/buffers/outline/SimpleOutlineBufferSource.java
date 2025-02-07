@@ -12,10 +12,7 @@ public class SimpleOutlineBufferSource implements MultiBufferSource {
     private final MultiBufferSource bufferSource;
     private final IOutlineBufferSource outlineBufferSource;
 
-    public SimpleOutlineBufferSource(
-            MultiBufferSource bufferSource,
-            IOutlineBufferSource outlineBufferSource
-    ) {
+    public SimpleOutlineBufferSource(MultiBufferSource bufferSource, IOutlineBufferSource outlineBufferSource) {
         this.bufferSource = bufferSource;
         this.outlineBufferSource = outlineBufferSource;
     }
@@ -33,10 +30,7 @@ public class SimpleOutlineBufferSource implements MultiBufferSource {
             return buffer;
         }
 
-        return new AcceleratedDoubleVertexConsumer(
-                buffer,
-                outlineBufferSource.getBuffer(outlineRenderType.get())
-        );
+        return new AcceleratedDoubleVertexConsumer(buffer, outlineBufferSource.getBuffer(outlineRenderType.get()));
     }
 
     public SimpleOutlineBufferSource setColor(int color) {

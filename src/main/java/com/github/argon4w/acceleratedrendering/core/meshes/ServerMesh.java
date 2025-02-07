@@ -16,14 +16,23 @@ public class ServerMesh implements IMesh {
     private final int size;
     private final int offset;
 
-    public ServerMesh(RenderType renderType, int size, int offset) {
+    public ServerMesh(
+            RenderType renderType,
+            int size,
+            int offset
+    ) {
         this.renderType = renderType;
         this.size = size;
         this.offset = offset;
     }
 
     @Override
-    public void write(IVertexConsumerExtension extension, int color, int light, int overlay) {
+    public void write(
+            IVertexConsumerExtension extension,
+            int color,
+            int light,
+            int overlay
+    ) {
         extension.addServerMesh(
                 renderType,
                 offset,

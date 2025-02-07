@@ -2,7 +2,6 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.utils.IntElementUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -12,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import org.lwjgl.system.MemoryUtil;
 
 import java.util.Map;
 
@@ -72,7 +70,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             elementBuffer = bufferSet.getElementBuffer();
         }
 
-        builder = AcceleratedBufferBuilder.create(
+        builder = new AcceleratedBufferBuilder(
                 elementBuffer.setMode(renderType.mode),
                 bufferSet,
                 renderType
@@ -117,8 +115,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
             ShaderInstance shader = RenderSystem.getShader();
 
-            shader.setDefaultUniforms(
-                    mode,
+            shader.setDefaultUniforms(mode,
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),
                     Minecraft.getInstance().getWindow()
@@ -127,8 +124,8 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
             glDrawElementsIndirect(
                     mode.asGLMode,
-                    IntElementUtils.TYPE,
-                    MemoryUtil.NULL
+                    VertexFormat.IndexType.INT.asGLType,
+                    0L
             );
             glMemoryBarrier(GL_ELEMENT_ARRAY_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);
 

@@ -8,13 +8,9 @@ import net.neoforged.fml.event.IModBusEvent;
 
 public class LoadComputeShaderEvent extends Event implements IModBusEvent {
 
-    private final ImmutableMap.Builder<
-            ResourceLocation,
-            ComputeShaderProgramLoader.ShaderDefinition> shaderLocations;
+    private final ImmutableMap.Builder<ResourceLocation, ComputeShaderProgramLoader.ShaderDefinition> shaderLocations;
 
-    public LoadComputeShaderEvent(ImmutableMap.Builder<
-            ResourceLocation,
-            ComputeShaderProgramLoader.ShaderDefinition> builder) {
+    public LoadComputeShaderEvent(ImmutableMap.Builder<ResourceLocation, ComputeShaderProgramLoader.ShaderDefinition> builder) {
         this.shaderLocations = builder;
     }
 

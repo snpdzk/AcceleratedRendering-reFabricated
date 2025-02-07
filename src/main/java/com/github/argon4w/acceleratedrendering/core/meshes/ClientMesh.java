@@ -13,14 +13,23 @@ public class ClientMesh implements IMesh {
     private final int size;
     private final ByteBuffer vertexBuffer;
 
-    public ClientMesh(RenderType renderType, int size, ByteBuffer vertexBuffer) {
+    public ClientMesh(
+            RenderType renderType,
+            int size,
+            ByteBuffer vertexBuffer
+    ) {
         this.renderType = renderType;
         this.size = size;
         this.vertexBuffer = vertexBuffer;
     }
 
     @Override
-    public void write(IVertexConsumerExtension extension, int color, int light, int overlay) {
+    public void write(
+            IVertexConsumerExtension extension,
+            int color,
+            int light,
+            int overlay
+    ) {
         extension.addClientMesh(
                 renderType,
                 vertexBuffer,
@@ -56,16 +65,16 @@ public class ClientMesh implements IMesh {
                 return EmptyMesh.INSTANCE;
             }
 
-            ByteBufferBuilder.Result result = ((SimpleClientBuffer) collector.getBuffer()).builder.build();
+            ByteBuffer byteBuffer = collector.getBuffer().asByteBuffer();
 
-            if (result == null) {
+            if (byteBuffer == null) {
                 return EmptyMesh.INSTANCE;
             }
 
             return new ClientMesh(
                     collector.getKey(),
                     vertexCount,
-                    result.byteBuffer()
+                    byteBuffer
             );
         }
 
@@ -78,6 +87,11 @@ public class ClientMesh implements IMesh {
             @Override
             public long reserve(long bytes) {
                 return builder.reserve((int) bytes);
+            }
+
+            @Override
+            public ByteBuffer asByteBuffer() {
+                return builder.build().byteBuffer();
             }
         }
     }

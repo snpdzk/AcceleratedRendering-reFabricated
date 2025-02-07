@@ -13,7 +13,11 @@
     "acceleratedrendering.RedirectingOutlineBufferSourceMixin",
     "iris.IrisVertexFormatsMixin",
     "iris.ModelToEntityVertexSerializerMixin",
-    "iris.ShadowRendererMixin"
+    "iris.ShadowRendererMixin",
+    "iris.OuterWrappedRenderTypeMixin",
+    "iris.InnerWrappedRenderTypeMixin",
+    "iris.TaggingRenderTypeWrapperMixin",
+    "vanilla.RenderTypeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

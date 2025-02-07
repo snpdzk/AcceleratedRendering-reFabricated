@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
 public enum MeshType {
+
     SERVER(ServerMesh.Builder.INSTANCE),
     CLIENT(ClientMesh.Builder.INSTANCE);
 

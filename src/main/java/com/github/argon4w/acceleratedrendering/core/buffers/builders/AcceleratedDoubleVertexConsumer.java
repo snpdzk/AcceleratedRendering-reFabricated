@@ -16,10 +16,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
     private final Set<RenderType> renderTypes2;
     private final Set<RenderType> renderTypes;
 
-    public AcceleratedDoubleVertexConsumer(
-            VertexConsumer vertexConsumer1,
-            VertexConsumer vertexConsumer2
-    ) {
+    public AcceleratedDoubleVertexConsumer(VertexConsumer vertexConsumer1, VertexConsumer vertexConsumer2) {
         this.vertexConsumer1 = vertexConsumer1;
         this.vertexConsumer2 = vertexConsumer2;
 
@@ -119,7 +116,24 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
     }
 
     @Override
-    public VertexConsumer addVertex(float pX, float pY, float pZ) {
+    public VertexConsumer addVertex(
+            PoseStack.Pose pPose,
+            float pX,
+            float pY,
+            float pZ
+    ) {
+        vertexConsumer1.addVertex(pPose, pX, pY, pZ);
+        vertexConsumer2.addVertex(pPose, pX, pY, pZ);
+
+        return this;
+    }
+
+    @Override
+    public VertexConsumer addVertex(
+            float pX,
+            float pY,
+            float pZ
+    ) {
         vertexConsumer1.addVertex(pX, pY, pZ);
         vertexConsumer2.addVertex(pX, pY, pZ);
 
@@ -127,7 +141,12 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
     }
 
     @Override
-    public VertexConsumer setColor(int pRed, int pGreen, int pBlue, int pAlpha) {
+    public VertexConsumer setColor(
+            int pRed,
+            int pGreen,
+            int pBlue,
+            int pAlpha
+    ) {
         vertexConsumer1.setColor(pRed, pGreen, pBlue, pAlpha);
         vertexConsumer2.setColor(pRed, pGreen, pBlue, pAlpha);
 
@@ -158,7 +177,24 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
     }
 
     @Override
-    public VertexConsumer setNormal(float pNormalX, float pNormalY, float pNormalZ) {
+    public VertexConsumer setNormal(
+            PoseStack.Pose pPose,
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ
+    ) {
+        vertexConsumer1.setNormal(pPose, pNormalX, pNormalY, pNormalZ);
+        vertexConsumer2.setNormal(pPose, pNormalX, pNormalY, pNormalZ);
+
+        return this;
+    }
+
+    @Override
+    public VertexConsumer setNormal(
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ
+    ) {
         vertexConsumer1.setNormal(pNormalX, pNormalY, pNormalZ);
         vertexConsumer2.setNormal(pNormalX, pNormalY, pNormalZ);
 
@@ -178,7 +214,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             float pNormalX,
             float pNormalY,
             float pNormalZ) {
-        vertexConsumer1.addVertex(pX, pY, pZ);
-        vertexConsumer2.addVertex(pX, pY, pZ);
+        vertexConsumer1.addVertex(pX, pY, pZ, pColor, pU, pV, pPackedOverlay, pPackedLight, pNormalX, pNormalY, pNormalZ);
+        vertexConsumer2.addVertex(pX, pY, pZ, pColor, pU, pV, pPackedOverlay, pPackedLight, pNormalX, pNormalY, pNormalZ);
     }
 }

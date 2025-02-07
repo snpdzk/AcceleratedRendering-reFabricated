@@ -18,7 +18,7 @@ public interface IBufferEnvironment {
     ComputeProgram selectTransformProgram();
     IProgramDispatcher selectCullProgramDispatcher(RenderType renderType);
     IProgramDispatcher selectProcessingProgramDispatcher(VertexFormat.Mode mode);
-    VertexFormat getVertexFormat(RenderType renderType);
+    RenderType getRenderType(RenderType renderType);
     int getOffset(VertexFormatElement element);
     int getSharingFlags();
     int getVertexSize();

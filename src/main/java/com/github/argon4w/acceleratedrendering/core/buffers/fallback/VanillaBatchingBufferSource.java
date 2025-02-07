@@ -46,7 +46,10 @@ public class VanillaBatchingBufferSource implements IAcceleratedBufferSource {
             }
 
             if (renderType.sortOnUpload) {
-                meshData.sortQuads(((BufferBuilderAccessor) bufferBuilder).getBuffer(), RenderSystem.getVertexSorting());
+                meshData.sortQuads(
+                        ((BufferBuilderAccessor) bufferBuilder).getBuffer(),
+                        RenderSystem.getVertexSorting()
+                );
             }
 
             renderType.draw(meshData);

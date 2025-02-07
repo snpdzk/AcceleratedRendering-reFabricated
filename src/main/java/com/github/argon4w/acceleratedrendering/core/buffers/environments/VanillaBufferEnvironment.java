@@ -61,8 +61,8 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public VertexFormat getVertexFormat(RenderType renderType) {
-        return renderType.format;
+    public RenderType getRenderType(RenderType renderType) {
+        return renderType;
     }
 
     @Override

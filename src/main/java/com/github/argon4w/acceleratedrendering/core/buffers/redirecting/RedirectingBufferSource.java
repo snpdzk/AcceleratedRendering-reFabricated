@@ -61,10 +61,7 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
         }
 
         for (IAcceleratedBufferSource bufferSource1 : bufferSources) {
-            if (bufferSource1
-                    .getBufferEnvironment()
-                    .isAccelerated(pRenderType.format)
-            ) {
+            if (bufferSource1.getBufferEnvironment().isAccelerated(pRenderType.format)) {
                 return bufferSource1.getBuffer(pRenderType);
             }
         }

@@ -30,10 +30,4 @@ public class ElementBuffer extends MappedBuffer {
         this.mode = mode;
         return this;
     }
-
-    @Override
-    public void reset() {
-        super.reset();
-        this.mode = null;
-    }
 }

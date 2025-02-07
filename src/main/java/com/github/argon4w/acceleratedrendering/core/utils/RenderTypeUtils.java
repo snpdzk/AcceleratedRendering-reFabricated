@@ -30,6 +30,9 @@ public class RenderTypeUtils {
             return false;
         }
 
-        return composite.state.cullState.enabled;
+        return composite
+                .state
+                .cullState
+                .enabled;
     }
 }

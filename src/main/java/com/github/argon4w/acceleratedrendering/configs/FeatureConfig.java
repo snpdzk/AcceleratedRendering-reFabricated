@@ -5,6 +5,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class FeatureConfig {
+
     public static final FeatureConfig CONFIG;
     public static final ModConfigSpec SPEC;
 
@@ -25,6 +26,7 @@ public class FeatureConfig {
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatShadowCulling;
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatEntitiesCompat;
     public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatPolygonProcessing;
+    public final ModConfigSpec.ConfigValue<FeatureStatus> irisCompatFastIrisRenderTypeCheck;
 
     static {
         Pair<FeatureConfig, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(FeatureConfig::new);
@@ -147,9 +149,15 @@ public class FeatureConfig {
 
         irisCompatPolygonProcessing = builder
                 .comment("- DISABLED: Extra information in vertices provided by Iris will not be included or calculated in the accelerated pipeline, which may cause visual glitches or incorrect rendering.")
-                .comment("- DISABLED: Extra information in vertices provided by Iris will be included and calculated in the accelerated pipeline by a compute shader.")
+                .comment("- ENABLED: Extra information in vertices provided by Iris will be included and calculated in the accelerated pipeline by a compute shader.")
                 .translation("acceleratedrendering.configuration.iris_compatibility.polygon_processing")
                 .defineEnum("polygon_processing", FeatureStatus.ENABLED);
+
+        irisCompatFastIrisRenderTypeCheck = builder
+                .comment("- DISABLED: Accelerated Rendering will use slow but safe \"instanceof\" operation in checking wrapped RenderType created by Iris.")
+                .comment("- ENABlED: Accelerated Rendering will use extension interface in checking wrapped RenderType created by Iris, which is faster but unsafe if other mods also implemented \"WrappableRenderType\".")
+                .translation("acceleratedrendering.configuration.iris_compatability.fast_iris_render_type_check")
+                .defineEnum("fast_iris_render_type_check", FeatureStatus.ENABLED);
 
         builder.pop();
     }

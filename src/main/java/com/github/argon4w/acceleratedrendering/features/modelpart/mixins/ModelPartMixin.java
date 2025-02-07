@@ -32,7 +32,14 @@ public class ModelPartMixin {
     @Unique private final Map<RenderType, IMesh> meshes = new Object2ObjectOpenHashMap<>();
 
     @Inject(method = "compile", at = @At("HEAD"), cancellable = true)
-    public void compile(PoseStack.Pose pPose, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, int pColor, CallbackInfo ci) {
+    public void compile(
+            PoseStack.Pose pPose,
+            VertexConsumer pBuffer,
+            int pPackedLight,
+            int pPackedOverlay,
+            int pColor,
+            CallbackInfo ci
+    ) {
         IVertexConsumerExtension extension = (IVertexConsumerExtension) pBuffer;
 
         if (!AcceleratedEntityRenderingFeature.isEnabled()) {
@@ -54,7 +61,12 @@ public class ModelPartMixin {
             IMesh mesh = meshes.get(renderType);
 
             if (mesh != null) {
-                mesh.write(extension, pColor, pPackedLight, pPackedOverlay);
+                mesh.write(
+                        extension,
+                        pColor,
+                        pPackedLight,
+                        pPackedOverlay
+                );
                 continue;
             }
 
@@ -90,7 +102,12 @@ public class ModelPartMixin {
 
             mesh = builder.build(meshCollector);
             meshes.put(renderType, mesh);
-            mesh.write(extension, pColor, pPackedLight, pPackedOverlay);
+            mesh.write(
+                    extension,
+                    pColor,
+                    pPackedLight,
+                    pPackedOverlay
+            );
 
             if (image != null) {
                 image.close();

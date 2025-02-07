@@ -16,7 +16,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LevelRendererMixin {
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/OutlineBufferSource;endOutlineBatch()V"))
-    public void endOutlineBatches(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
+    public void endOutlineBatches(
+            DeltaTracker pDeltaTracker,
+            boolean pRenderBlockOutline,
+            Camera pCamera,
+            GameRenderer pGameRenderer,
+            LightTexture pLightTexture,
+            Matrix4f pFrustumMatrix,
+            Matrix4f pProjectionMatrix,
+            CallbackInfo ci
+    ) {
         CoreFeature.POS_TEX_COLOR.drawBuffers();
         CoreFeature.OUTLINE_BATCHING.drawBuffers();
         CoreFeature.POS_TEX_COLOR.clearBuffers();
@@ -24,7 +33,16 @@ public class LevelRendererMixin {
     }
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0))
-    public void endAllEntityBatches(DeltaTracker pDeltaTracker, boolean pRenderBlockOutline, Camera pCamera, GameRenderer pGameRenderer, LightTexture pLightTexture, Matrix4f pFrustumMatrix, Matrix4f pProjectionMatrix, CallbackInfo ci) {
+    public void endAllEntityBatches(
+            DeltaTracker pDeltaTracker,
+            boolean pRenderBlockOutline,
+            Camera pCamera,
+            GameRenderer pGameRenderer,
+            LightTexture pLightTexture,
+            Matrix4f pFrustumMatrix,
+            Matrix4f pProjectionMatrix,
+            CallbackInfo ci
+    ) {
         CoreFeature.ENTITY.drawBuffers();
         CoreFeature.POS_TEX.drawBuffers();
         CoreFeature.CORE_BATCHING.drawBuffers();
