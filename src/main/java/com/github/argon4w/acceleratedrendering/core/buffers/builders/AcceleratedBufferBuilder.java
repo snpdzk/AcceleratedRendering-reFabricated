@@ -1,8 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSetPool;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.ElementBuffer;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.utils.ByteBufferUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.IntElementUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -16,10 +17,11 @@ import java.util.Set;
 
 public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumerExtension {
 
-    private final ElementBuffer elementBuffer;
+    private final MappedBuffer elementBuffer;
     private final AcceleratedBufferSetPool.BufferSet bufferSet;
     private final RenderType renderType;
     private final VertexFormat.Mode mode;
+    private final int polygonSize;
 
     private final long posOffset;
     private final long colorOffset;
@@ -37,7 +39,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
     private int sharing;
 
     public AcceleratedBufferBuilder(
-            ElementBuffer elementBuffer,
+            MappedBuffer elementBuffer,
             AcceleratedBufferSetPool.BufferSet bufferSet,
             RenderType renderType
 
@@ -45,7 +47,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         this.elementBuffer = elementBuffer;
         this.bufferSet = bufferSet;
         this.renderType = renderType;
-        this.mode = renderType.mode;
+        this.mode = this.renderType.mode;
+        this.polygonSize = this.mode.primitiveLength;
 
         this.posOffset = bufferSet.getOffset(VertexFormatElement.POSITION);
         this.colorOffset = bufferSet.getOffset(VertexFormatElement.COLOR);
@@ -61,6 +64,15 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         this.varying = -1;
         this.transform = -1;
         this.sharing = -1;
+    }
+
+    private void putElements(int size) {
+        IntElementUtils.putElements(
+                mode,
+                elementBuffer,
+                bufferSet.getElement(size),
+                size
+        );
     }
 
     @Override
@@ -87,8 +99,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         vertexCount ++;
         elementCount ++;
 
-        if (elementCount >= mode.primitiveLength) {
-            elementBuffer.reserveElements(mode.primitiveLength);
+        if (elementCount >= polygonSize) {
+            putElements(polygonSize);
             elementCount = 0;
         }
 
@@ -242,8 +254,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         vertexCount++;
         elementCount ++;
 
-        if (elementCount >= mode.primitiveLength) {
-            elementBuffer.reserveElements(mode.primitiveLength);
+        if (elementCount >= polygonSize) {
+            putElements(polygonSize);
             elementCount = 0;
         }
 
@@ -310,7 +322,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
             int light,
             int overlay
     ) {
-        elementBuffer.reserveElements(size);
+        putElements(size);
         vertexCount += size;
 
         long vertex = bufferSet.reservePolygons(size);
@@ -343,7 +355,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
             int light,
             int overlay
     ) {
-        elementBuffer.reserveElements(size);
+        putElements(size);
+
         bufferSet.reservePolygons(size);
         vertexCount += size;
 
@@ -375,7 +388,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         return vertexCount;
     }
 
-    public ElementBuffer getElementBuffer() {
+    public MappedBuffer getElementBuffer() {
         return elementBuffer;
     }
 }

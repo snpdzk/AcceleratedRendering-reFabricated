@@ -11,7 +11,7 @@ import java.util.Deque;
 
 public class AcceleratedEntityRenderingFeature {
 
-    private static final Deque<PipelineSetting> DEFAULT_PIPELINE_CONTROLLER_STACK = new ArrayDeque<>();
+    private static final Deque<PipelineSetting> PIPELINE_CONTROLLER_STACK = new ArrayDeque<>();
 
     public static boolean isEnabled() {
         return FeatureConfig.CONFIG.acceleratedEntityRenderingFeatureStatus.get() == FeatureStatus.ENABLED;
@@ -30,25 +30,23 @@ public class AcceleratedEntityRenderingFeature {
     }
 
     public static void useVanillaPipeline() {
-        DEFAULT_PIPELINE_CONTROLLER_STACK.push(PipelineSetting.VANILLA);
+        PIPELINE_CONTROLLER_STACK.push(PipelineSetting.VANILLA);
     }
 
     public static void forceUseAcceleratedPipeline() {
-        DEFAULT_PIPELINE_CONTROLLER_STACK.push(PipelineSetting.ACCELERATED);
+        PIPELINE_CONTROLLER_STACK.push(PipelineSetting.ACCELERATED);
     }
 
     public static void forceSetPipeline(PipelineSetting pipeline) {
-        DEFAULT_PIPELINE_CONTROLLER_STACK.push(pipeline);
+        PIPELINE_CONTROLLER_STACK.push(pipeline);
     }
 
     public static void resetPipelineSetting() {
-        DEFAULT_PIPELINE_CONTROLLER_STACK.pop();
+        PIPELINE_CONTROLLER_STACK.pop();
     }
 
     public static PipelineSetting getPipelineSetting() {
-        return DEFAULT_PIPELINE_CONTROLLER_STACK.isEmpty()
-                ? getDefaultPipelineSetting()
-                : DEFAULT_PIPELINE_CONTROLLER_STACK.peek();
+        return PIPELINE_CONTROLLER_STACK.isEmpty() ? getDefaultPipelineSetting() : PIPELINE_CONTROLLER_STACK.peek();
     }
 
     public static PipelineSetting getDefaultPipelineSetting() {
@@ -56,7 +54,7 @@ public class AcceleratedEntityRenderingFeature {
     }
 
     public static void checkControllerState() {
-        if (!DEFAULT_PIPELINE_CONTROLLER_STACK.isEmpty()) {
+        if (!PIPELINE_CONTROLLER_STACK.isEmpty()) {
             throw new IllegalStateException("Default pipeline Controller stack not empty!");
         }
     }

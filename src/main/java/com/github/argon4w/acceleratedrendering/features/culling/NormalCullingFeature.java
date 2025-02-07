@@ -39,9 +39,7 @@ public class NormalCullingFeature {
     }
 
     public static FeatureStatus getCullingSetting() {
-        return CULLING_CONTROLLER_STACK.isEmpty()
-                ? getDefaultCullingSetting()
-                : CULLING_CONTROLLER_STACK.peek();
+        return CULLING_CONTROLLER_STACK.isEmpty() ? getDefaultCullingSetting() : CULLING_CONTROLLER_STACK.peek();
     }
 
     public static FeatureStatus getDefaultCullingSetting() {

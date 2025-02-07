@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -62,7 +63,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             return builder;
         }
 
-        ElementBuffer elementBuffer = bufferSet.getElementBuffer();
+        MappedBuffer elementBuffer = bufferSet.getElementBuffer();
 
         if (elementBuffer == null) {
             drawBuffers();
@@ -71,7 +72,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
         }
 
         builder = new AcceleratedBufferBuilder(
-                elementBuffer.setMode(renderType.mode),
+                elementBuffer,
                 bufferSet,
                 renderType
         );
@@ -94,7 +95,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
         for (RenderType renderType : acceleratedBuilders.keySet()) {
             AcceleratedBufferBuilder builder = acceleratedBuilders.get(renderType);
-            ElementBuffer elementBuffer = builder.getElementBuffer();
+            MappedBuffer elementBuffer = builder.getElementBuffer();
 
             if (elementBuffer.getPosition() == 0) {
                 continue;

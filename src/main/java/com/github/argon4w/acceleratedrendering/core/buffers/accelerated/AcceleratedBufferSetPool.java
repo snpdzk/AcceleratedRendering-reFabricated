@@ -1,8 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
 import com.github.argon4w.acceleratedrendering.CoreFeature;
-import com.github.argon4w.acceleratedrendering.core.buffers.pools.ElementBufferPool;
-import com.github.argon4w.acceleratedrendering.core.buffers.pools.SimpleResetPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.pools.MappedBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.gl.VertexArray;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.ImmutableBuffer;
@@ -50,7 +49,7 @@ public class AcceleratedBufferSetPool {
 
     public class BufferSet {
 
-        private final ElementBufferPool elementBufferPool;
+        private final MappedBufferPool elementBufferPool;
         private final MappedBuffer sharingBuffer;
         private final MappedBuffer varyingBuffer;
         private final MappedBuffer vertexBufferIn;
@@ -67,7 +66,7 @@ public class AcceleratedBufferSetPool {
         private long sync;
 
         public BufferSet() {
-            this.elementBufferPool = new ElementBufferPool(this);
+            this.elementBufferPool = new MappedBufferPool();
             this.sharingBuffer = new MappedBuffer(64L);
             this.varyingBuffer = new MappedBuffer(64L);
             this.vertexBufferIn = new MappedBuffer(64L);
@@ -122,11 +121,7 @@ public class AcceleratedBufferSetPool {
             return element;
         }
 
-        private ElementBuffer newElementBuffer() {
-            return new ElementBuffer(this);
-        }
-
-        public ElementBuffer getElementBuffer() {
+        public MappedBuffer getElementBuffer() {
             return elementBufferPool.get();
         }
 
