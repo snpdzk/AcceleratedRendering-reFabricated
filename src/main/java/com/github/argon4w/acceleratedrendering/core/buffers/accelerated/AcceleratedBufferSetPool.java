@@ -165,11 +165,11 @@ public class AcceleratedBufferSetPool {
             return varyingBuffer.reserve(5L * 4L * count);
         }
 
-        public void uploadSharings(long address) {
+        public void addExtraSharings(long address) {
             bufferEnvironment.uploadSharings(address);
         }
 
-        public void uploadVertex(long address) {
+        public void addExtraVertex(long address) {
             bufferEnvironment.uploadVertex(address);
         }
 

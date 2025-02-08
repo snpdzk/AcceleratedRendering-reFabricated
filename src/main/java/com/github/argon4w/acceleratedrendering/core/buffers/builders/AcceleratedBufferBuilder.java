@@ -109,10 +109,10 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
-        bufferSet.uploadVertex(vertex);
+        bufferSet.addExtraVertex(vertex);
 
         varying = bufferSet.reserveVarying();
-        MemoryUtil.memPutInt(varying + 0 * 4L, -1);
+        MemoryUtil.memPutInt(varying + 0 * 4L, 0);
         MemoryUtil.memPutInt(varying + 1 * 4L, sharing);
 
         return this;
@@ -264,7 +264,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
-        bufferSet.uploadVertex(vertex);
+        bufferSet.addExtraVertex(vertex);
 
         if (uv0Offset != -1) {
             MemoryUtil.memPutFloat(vertex + uv0Offset + 0L, pU);
@@ -279,11 +279,11 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
         long varying = bufferSet.reserveVarying();
 
-        MemoryUtil.memPutInt(varying + 0 * 4L, -1);
-        MemoryUtil.memPutInt(varying + 1 * 4L, -1);
-        MemoryUtil.memPutInt(varying + 2 * 4L, FastColor.ABGR32.fromArgb32(pColor));
-        MemoryUtil.memPutInt(varying + 3 * 4L, pPackedLight);
-        MemoryUtil.memPutInt(varying + 4 * 4L, pPackedOverlay);
+        MemoryUtil.memPutInt(varying + 0L * 4L, 0);
+        MemoryUtil.memPutInt(varying + 1L * 4L, -1);
+        MemoryUtil.memPutInt(varying + 2L * 4L, FastColor.ABGR32.fromArgb32(pColor));
+        MemoryUtil.memPutInt(varying + 3L * 4L, pPackedLight);
+        MemoryUtil.memPutInt(varying + 4L * 4L, pPackedOverlay);
     }
 
     @Override
@@ -298,12 +298,15 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
 
         long normal = transform + 4L * 4L * 4L;
         long flags = normal + 4L * 3L * 4L;
-        long extra = flags + 4L;
+        long mesh = flags + 4L;
+        long extra = mesh + 4L;
 
         ByteBufferUtils.putMatrix4f(transform, pose.pose());
         ByteBufferUtils.putMatrix3x4f(normal, pose.normal());
         MemoryUtil.memPutInt(flags, bufferSet.getSharingFlags());
-        bufferSet.uploadSharings(extra);
+        MemoryUtil.memPutInt(mesh, -1);
+
+        bufferSet.addExtraSharings(extra);
     }
 
     @Override
@@ -335,14 +338,13 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
                 length
         );
 
-        for (int i = 0; i < size; i++) {
-            long address = varying + i * 5L * 4L;
+        MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
+        MemoryUtil.memPutInt(varying + 2L * 4L, FastColor.ABGR32.fromArgb32(color));
+        MemoryUtil.memPutInt(varying + 3L * 4L, light);
+        MemoryUtil.memPutInt(varying + 4L * 4L, overlay);
 
-            MemoryUtil.memPutInt(address + 0 * 4L, -1);
-            MemoryUtil.memPutInt(address + 1 * 4L, sharing);
-            MemoryUtil.memPutInt(address + 2 * 4L, FastColor.ABGR32.fromArgb32(color));
-            MemoryUtil.memPutInt(address + 3 * 4L, light);
-            MemoryUtil.memPutInt(address + 4 * 4L, overlay);
+        for (int i = 0; i < size; i++) {
+            MemoryUtil.memPutInt(varying + i * 5L * 4L, i);
         }
     }
 
@@ -360,17 +362,17 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
         bufferSet.reservePolygons(size);
         vertexCount += size;
 
-        int mesh = offset / bufferSet.getVertexSize();
         long varying = bufferSet.reserveVaryings(size);
+        long mesh = transform + 4L * 4L * 4L + 4L * 3L * 4L + 4L;
+
+        MemoryUtil.memPutInt(mesh, offset / bufferSet.getVertexSize());
+        MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
+        MemoryUtil.memPutInt(varying + 2L * 4L, FastColor.ABGR32.fromArgb32(color));
+        MemoryUtil.memPutInt(varying + 3L * 4L, light);
+        MemoryUtil.memPutInt(varying + 4L * 4L, overlay);
 
         for (int i = 0; i < size; i++) {
-            long address = varying + i * 5L * 4L;
-
-            MemoryUtil.memPutInt(address + 0 * 4L, mesh + i);
-            MemoryUtil.memPutInt(address + 1 * 4L, sharing);
-            MemoryUtil.memPutInt(address + 2 * 4L, FastColor.ABGR32.fromArgb32(color));
-            MemoryUtil.memPutInt(address + 3 * 4L, light);
-            MemoryUtil.memPutInt(address + 4 * 4L, overlay);
+            MemoryUtil.memPutInt(varying + i * 5L * 4L, i);
         }
     }
 

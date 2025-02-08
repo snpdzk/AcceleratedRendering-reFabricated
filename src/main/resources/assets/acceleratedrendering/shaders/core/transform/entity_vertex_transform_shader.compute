@@ -13,7 +13,7 @@ struct Vertex {
 };
 
 struct VaryingData {
-    int mesh;
+    int offset;
     int sharing;
     int color;
     int light;
@@ -24,7 +24,7 @@ struct SharingData {
     mat4 transform;
     mat3 normal;
     uint flags;
-    uint extra_data_0;
+    int mesh;
     uint extra_data_1;
     uint extra_data_2;
 };
@@ -53,10 +53,11 @@ layout(binding=4, std430) readonly buffer Mesh {
 
 void main() {
     int index = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
+    int offset = varyings[index].offset;
 
-    VaryingData varyingData = varyings[index];
-    SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u, 0u, 0u, 0u);
-    Vertex vertex = varyingData.mesh != -1 ? meshVertices[varyingData.mesh] : verticesIn[index];
+    VaryingData varyingData = varyings[index - offset];
+    SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u, -1, 0u, 0u);
+    Vertex vertex = sharingData.mesh != -1 ? meshVertices[sharingData.mesh + offset] : verticesIn[index];
 
     vec4 pos = vec4(vertex.x, vertex.y, vertex.z, 1.0);
     vec3 normal = unpackSnorm4x8(vertex.normal).xyz;

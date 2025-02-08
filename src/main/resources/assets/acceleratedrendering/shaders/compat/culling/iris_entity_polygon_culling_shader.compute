@@ -18,7 +18,7 @@ struct Vertex {
 };
 
 struct VaryingData {
-    int mesh;
+    int offset;
     int sharing;
     int color;
     int light;
@@ -29,9 +29,9 @@ struct SharingData {
     mat4 transform;
     mat3 normal;
     uint flags;
+    int mesh;
     uint iris_entity_0;
     uint iris_entity_1;
-    uint extra_data_2;
 };
 
 struct Polygon {
@@ -78,8 +78,8 @@ void main() {
     memoryBarrier();
 
     Polygon polygon = polygonsIn[index];
-    VaryingData varyingData = varyings[polygon.vertex1];
-    SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u, 0u, 0u, 0u);
+    VaryingData varyingData = varyings[index - varyings[polygon.vertex1].offset];
+    SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u, -1, 0u, 0u);
     uint noCull = sharingData.flags & 0x1u;
 
     if (noCull > 0u
