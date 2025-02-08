@@ -23,10 +23,10 @@ public class CoreFeature {
     public static final FallbackBufferSource CORE_FALLBACK = new FallbackBufferSource(Minecraft.getInstance().renderBuffers().bufferSource(), CORE_BATCHING);
     public static final FallbackOutlineBufferSource OUTLINE_FALLBACK = new FallbackOutlineBufferSource(Minecraft.getInstance().renderBuffers().outlineBufferSource(), OUTLINE_BATCHING_MASK);
 
-    public static final AcceleratedBufferSource ENTITY = new AcceleratedBufferSource(IBufferEnvironment.Presets.getEntityEnvironment());
-    public static final AcceleratedBufferSource POS_TEX = new AcceleratedBufferSource(IBufferEnvironment.Presets.getPosTexEnvironment());
+    public static final AcceleratedBufferSource ENTITY = new AcceleratedBufferSource(IBufferEnvironment.Presets.ENTITY);
+    public static final AcceleratedBufferSource POS_TEX = new AcceleratedBufferSource(IBufferEnvironment.Presets.POS_TEX);
 
-    public static final AcceleratedBufferSource POS_TEX_COLOR = new AcceleratedBufferSource(IBufferEnvironment.Presets.getPosTexColorEnvironment());
+    public static final AcceleratedBufferSource POS_TEX_COLOR = new AcceleratedBufferSource(IBufferEnvironment.Presets.POS_TEX_COLOR);
     public static final OutlineMaskBufferSource OUTLINE_MASK = new OutlineMaskBufferSource(POS_TEX_COLOR);
 
     public static final RedirectingBufferSource CORE = RedirectingBufferSource.builder()

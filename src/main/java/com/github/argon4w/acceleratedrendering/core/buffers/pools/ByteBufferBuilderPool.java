@@ -1,12 +1,11 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.pools;
 
-import com.github.argon4w.acceleratedrendering.CoreFeature;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 
 public class ByteBufferBuilderPool extends SimpleResetPool<ByteBufferBuilder> {
 
-    public ByteBufferBuilderPool() {
-        super(CoreFeature.getPooledBufferSetSize());
+    public ByteBufferBuilderPool(int size) {
+        super(size);
     }
 
     @Override

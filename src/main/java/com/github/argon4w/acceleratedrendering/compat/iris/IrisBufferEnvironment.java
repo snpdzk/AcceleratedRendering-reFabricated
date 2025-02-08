@@ -45,13 +45,13 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public void uploadSharings(long address) {
-        getSubSet().uploadSharings(address);
+    public void addExtraSharings(long address) {
+        getSubSet().addExtraSharings(address);
     }
 
     @Override
-    public void uploadVertex(long address) {
-        getSubSet().uploadVertex(address);
+    public void addExtraVertex(long address) {
+        getSubSet().addExtraVertex(address);
     }
 
     @Override
@@ -123,13 +123,13 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
         }
 
         @Override
-        public void uploadSharings(long address) {
-            polygonProcessor.uploadSharings(address);
+        public void addExtraSharings(long address) {
+            polygonProcessor.addExtraSharings(address);
         }
 
         @Override
-        public void uploadVertex(long address) {
-            polygonProcessor.uploadVertex(address);
+        public void addExtraVertex(long address) {
+            polygonProcessor.addExtraVertex(address);
         }
 
         @Override

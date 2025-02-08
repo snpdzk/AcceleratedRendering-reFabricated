@@ -60,13 +60,13 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
     }
 
     @Override
-    public void uploadVertex(long address) {
-        uploadSharings(address + entityOffset);
+    public void addExtraVertex(long address) {
+        addExtraSharings(address + entityOffset);
     }
 
     @Override
-    public void uploadSharings(long address) {
-        parent.uploadSharings(address);
+    public void addExtraSharings(long address) {
+        parent.addExtraSharings(address);
 
         if (!IrisCompatFeature.isEnabled()) {
             return;

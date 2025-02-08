@@ -21,7 +21,7 @@ public class IrisCompatFeature {
     public static final RenderBuffers SHADOW_VANILLA_RENDER_BUFFERS = new RenderBuffers(Runtime.getRuntime().availableProcessors());
     public static final VanillaBatchingBufferSource SHADOW_BATCHING = new VanillaBatchingBufferSource();
     public static final FallbackBufferSource SHADOW_FALLBACK = new FallbackBufferSource(SHADOW_VANILLA_RENDER_BUFFERS.bufferSource(), SHADOW_BATCHING);
-    public static final AcceleratedBufferSource ENTITY_SHADOW = new AcceleratedBufferSource(IBufferEnvironment.Presets.getEntityEnvironment());
+    public static final AcceleratedBufferSource ENTITY_SHADOW = new AcceleratedBufferSource(IBufferEnvironment.Presets.ENTITY);
 
     public static final RedirectingBufferSource SHADOW = RedirectingBufferSource.builder()
             .fallback(SHADOW_FALLBACK)

@@ -26,12 +26,12 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public void uploadSharings(long address) {
+    public void addExtraSharings(long address) {
 
     }
 
     @Override
-    public void uploadVertex(long address) {
+    public void addExtraVertex(long address) {
 
     }
 
