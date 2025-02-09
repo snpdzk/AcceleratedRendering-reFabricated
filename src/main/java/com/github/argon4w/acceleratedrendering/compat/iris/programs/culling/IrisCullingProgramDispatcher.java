@@ -27,7 +27,7 @@ public class IrisCullingProgramDispatcher implements IProgramDispatcher {
 
     @Override
     public void dispatch(VertexFormat.Mode mode, int vertexCount) {
-        uniform.upload(getModelViewMatrix());
+        uniform.uploadMatrix4fv(getModelViewMatrix());
         program.dispatch(mode.indexCount(vertexCount) / 3);
     }
 
