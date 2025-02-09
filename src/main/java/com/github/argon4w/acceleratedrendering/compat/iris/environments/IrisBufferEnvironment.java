@@ -3,12 +3,12 @@ package com.github.argon4w.acceleratedrendering.compat.iris.environments;
 import com.github.argon4w.acceleratedrendering.compat.iris.buffers.IrisRenderType;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
+import com.github.argon4w.acceleratedrendering.core.programs.transform.TransformProgramDispatcher;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
@@ -61,7 +61,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public ComputeProgram selectTransformProgram() {
+    public TransformProgramDispatcher selectTransformProgram() {
         return getSubSet().selectTransformProgram();
     }
 
@@ -145,7 +145,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
         }
 
         @Override
-        public ComputeProgram selectTransformProgram() {
+        public TransformProgramDispatcher selectTransformProgram() {
             return transformProgramSelector.select();
         }
 

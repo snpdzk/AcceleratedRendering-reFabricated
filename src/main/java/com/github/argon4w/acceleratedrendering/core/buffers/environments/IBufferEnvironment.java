@@ -1,8 +1,8 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.transform.TransformProgramDispatcher;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
@@ -15,7 +15,7 @@ public interface IBufferEnvironment {
     void addExtraVertex(long address);
     boolean isAccelerated(VertexFormat vertexFormat);
     IServerBuffer getServerMeshBuffer();
-    ComputeProgram selectTransformProgram();
+    TransformProgramDispatcher selectTransformProgram();
     IProgramDispatcher selectCullProgramDispatcher(RenderType renderType);
     IProgramDispatcher selectProcessingProgramDispatcher(VertexFormat.Mode mode);
     RenderType getRenderType(RenderType renderType);
