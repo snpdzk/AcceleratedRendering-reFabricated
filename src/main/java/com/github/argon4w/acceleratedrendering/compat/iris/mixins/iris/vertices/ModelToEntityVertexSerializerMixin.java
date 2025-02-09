@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris;
+package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris.vertices;
 
 import net.irisshaders.iris.vertices.sodium.ModelToEntityVertexSerializer;
 import org.spongepowered.asm.mixin.Mixin;

@@ -23,14 +23,10 @@ public interface IBufferEnvironment {
     int getSharingFlags();
     int getVertexSize();
 
-    final class Presets {
+    class Presets {
 
         public static final IBufferEnvironment ENTITY = new VanillaBufferEnvironment(DefaultVertexFormat.NEW_ENTITY);
         public static final IBufferEnvironment POS_TEX_COLOR = new VanillaBufferEnvironment(DefaultVertexFormat.POSITION_TEX_COLOR);
         public static final IBufferEnvironment POS_TEX = new VanillaBufferEnvironment(DefaultVertexFormat.POSITION_TEX);
-
-        private Presets() {
-
-        }
     }
 }

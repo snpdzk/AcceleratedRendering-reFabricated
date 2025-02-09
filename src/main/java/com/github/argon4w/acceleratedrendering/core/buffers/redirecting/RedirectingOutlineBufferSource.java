@@ -1,12 +1,15 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.redirecting;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedOutlineBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.outline.IOutlineBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.outline.VanillaOutlineBufferSource;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
 public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSource implements IOutlineBufferSource {
@@ -62,7 +65,7 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
 
     @Override
     public VertexConsumer getBuffer(RenderType pRenderType) {
-        if (pRenderType.sortOnUpload && !supportSort) {
+        if (!CoreFeature.shouldForceAccelerateTranslucent() && pRenderType.sortOnUpload && !supportSort) {
             return fallbackBufferSource.getBuffer(pRenderType);
         }
 
@@ -103,6 +106,10 @@ public class RedirectingOutlineBufferSource extends MultiBufferSource.BufferSour
 
             this.supportSort = false;
             this.fallbackBufferSource = null;
+        }
+
+        public Builder fallback(OutlineBufferSource fallback) {
+            return fallback(new VanillaOutlineBufferSource(fallback));
         }
 
         public Builder fallback(IOutlineBufferSource fallback) {

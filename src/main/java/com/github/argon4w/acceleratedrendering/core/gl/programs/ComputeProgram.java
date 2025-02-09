@@ -8,13 +8,11 @@ public class ComputeProgram {
     private final int barrierFlags;
 
     private int lastProgram;
-    private boolean used;
 
     public ComputeProgram(int barrierFlags) {
         this.programHandle = glCreateProgram();
         this.barrierFlags = barrierFlags;
         this.lastProgram = 0;
-        this.used = false;
     }
 
     public void dispatch(int count) {
@@ -31,25 +29,25 @@ public class ComputeProgram {
             int z
     ) {
         useProgram();
-        glDispatchCompute(x, y, z);
+
+        glDispatchCompute(
+                x,
+                y,
+                z
+        );
         glMemoryBarrier(barrierFlags);
+
         resetProgram();
     }
 
     public void useProgram() {
-        if (!used) {
-            lastProgram = glGetInteger(GL_CURRENT_PROGRAM);
-            glUseProgram(programHandle);
-            used = true;
-        }
+        lastProgram = glGetInteger(GL_CURRENT_PROGRAM);
+        glUseProgram(programHandle);
     }
 
     public void resetProgram() {
-        if (used) {
-            glUseProgram(lastProgram);
-            lastProgram = 0;
-            used = false;
-        }
+        glUseProgram(lastProgram);
+        lastProgram = 0;
     }
 
     public void attachShader(ComputeShader computeShader) {
@@ -75,10 +73,6 @@ public class ComputeProgram {
 
     public int getProgramHandle() {
         return programHandle;
-    }
-
-    public boolean isUsed() {
-        return used;
     }
 
     public void delete() {

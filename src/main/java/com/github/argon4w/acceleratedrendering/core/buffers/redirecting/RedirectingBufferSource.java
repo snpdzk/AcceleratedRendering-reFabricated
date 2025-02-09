@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.redirecting;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -48,7 +49,7 @@ public class RedirectingBufferSource extends MultiBufferSource.BufferSource {
 
     @Override
     public VertexConsumer getBuffer(RenderType pRenderType) {
-        if (pRenderType.sortOnUpload && !supportSort) {
+        if (!CoreFeature.shouldForceAccelerateTranslucent() && pRenderType.sortOnUpload && !supportSort) {
             return fallbackBufferSource.getBuffer(pRenderType);
         }
 

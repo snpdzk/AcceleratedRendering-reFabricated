@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.entities.mixins;
 
-import com.github.argon4w.acceleratedrendering.CoreFeature;
+import com.github.argon4w.acceleratedrendering.core.CoreBuffers;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -59,7 +59,7 @@ public abstract class LevelRendererMixin {
                     pCamZ,
                     pPartialTick,
                     pPoseStack,
-                    CoreFeature.CORE
+                    CoreBuffers.CORE
             );
             return;
         }
@@ -73,7 +73,7 @@ public abstract class LevelRendererMixin {
                     pCamZ,
                     pPartialTick,
                     pPoseStack,
-                    CoreFeature.CORE_OUTLINE.setColor(pEntity.getTeamColor())
+                    CoreBuffers.CORE_OUTLINE.setColor(pEntity.getTeamColor())
             );
             flag2.set(true);
             return;
@@ -91,7 +91,7 @@ public abstract class LevelRendererMixin {
                 pCamZ,
                 pPartialTick,
                 pPoseStack,
-                CoreFeature.CORE
+                CoreBuffers.CORE
         );
     }
 }

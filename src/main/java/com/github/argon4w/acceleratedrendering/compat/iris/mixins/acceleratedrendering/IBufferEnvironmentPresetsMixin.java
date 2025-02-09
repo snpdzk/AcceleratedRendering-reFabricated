@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
-import com.github.argon4w.acceleratedrendering.compat.iris.IrisBufferEnvironment;
+import com.github.argon4w.acceleratedrendering.compat.iris.environments.IrisBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;

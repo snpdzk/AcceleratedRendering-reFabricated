@@ -1,5 +1,6 @@
-package com.github.argon4w.acceleratedrendering.core.buffers.builders;
+package com.github.argon4w.acceleratedrendering.core.buffers.outline;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;

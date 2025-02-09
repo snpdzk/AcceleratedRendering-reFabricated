@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.mixins;
 
-import com.github.argon4w.acceleratedrendering.CoreFeature;
+import com.github.argon4w.acceleratedrendering.core.CoreBuffers;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
@@ -26,10 +26,8 @@ public class LevelRendererMixin {
             Matrix4f pProjectionMatrix,
             CallbackInfo ci
     ) {
-        CoreFeature.POS_TEX_COLOR.drawBuffers();
-        CoreFeature.OUTLINE_BATCHING.drawBuffers();
-        CoreFeature.POS_TEX_COLOR.clearBuffers();
-        CoreFeature.OUTLINE_BATCHING.clearBuffers();
+        CoreBuffers.POS_TEX_COLOR.drawBuffers();
+        CoreBuffers.POS_TEX_COLOR.clearBuffers();
     }
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0))
@@ -43,11 +41,9 @@ public class LevelRendererMixin {
             Matrix4f pProjectionMatrix,
             CallbackInfo ci
     ) {
-        CoreFeature.ENTITY.drawBuffers();
-        CoreFeature.POS_TEX.drawBuffers();
-        CoreFeature.CORE_BATCHING.drawBuffers();
-        CoreFeature.ENTITY.clearBuffers();
-        CoreFeature.POS_TEX.clearBuffers();
-        CoreFeature.CORE_BATCHING.clearBuffers();
+        CoreBuffers.ENTITY.drawBuffers();
+        CoreBuffers.POS_TEX.drawBuffers();
+        CoreBuffers.ENTITY.clearBuffers();
+        CoreBuffers.POS_TEX.clearBuffers();
     }
 }

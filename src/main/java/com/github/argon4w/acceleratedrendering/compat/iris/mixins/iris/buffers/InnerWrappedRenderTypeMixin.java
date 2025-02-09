@@ -1,6 +1,6 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris;
+package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris.buffers;
 
-import com.github.argon4w.acceleratedrendering.compat.iris.IRenderTypeExtension;
+import com.github.argon4w.acceleratedrendering.compat.iris.buffers.IRenderTypeExtension;
 import net.irisshaders.iris.layer.InnerWrappedRenderType;
 import net.minecraft.client.renderer.RenderType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,5 +16,11 @@ public abstract class InnerWrappedRenderTypeMixin implements IRenderTypeExtensio
     @Override
     public RenderType getOrUnwrap() {
         return unwrap();
+    }
+
+    @Unique
+    @Override
+    public boolean isFastUnwrapSupported() {
+        return true;
     }
 }
