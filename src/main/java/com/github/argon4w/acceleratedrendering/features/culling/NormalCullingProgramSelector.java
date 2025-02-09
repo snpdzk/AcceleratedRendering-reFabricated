@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.culling;
 
-import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import net.minecraft.client.renderer.RenderType;
@@ -9,9 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 public class NormalCullingProgramSelector implements ICullingProgramSelector {
 
     private final ICullingProgramSelector parent;
-    private final IProgramDispatcher dispatcher;
+    private final IPolygonProgramDispatcher dispatcher;
 
-    public NormalCullingProgramSelector(ICullingProgramSelector parent, IProgramDispatcher dispatcher) {
+    public NormalCullingProgramSelector(ICullingProgramSelector parent, IPolygonProgramDispatcher dispatcher) {
         this.parent = parent;
         this.dispatcher = dispatcher;
     }
@@ -21,7 +21,7 @@ public class NormalCullingProgramSelector implements ICullingProgramSelector {
     }
 
     @Override
-    public IProgramDispatcher select(RenderType renderType) {
+    public IPolygonProgramDispatcher select(RenderType renderType) {
         if (!NormalCullingFeature.isEnabled()) {
             return parent.select(renderType);
         }

@@ -3,11 +3,11 @@ package com.github.argon4w.acceleratedrendering.compat.iris.programs;
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
 import com.github.argon4w.acceleratedrendering.compat.iris.programs.culling.IrisCullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.compat.iris.programs.processing.IrisEntityPolygonProcessor;
-import com.github.argon4w.acceleratedrendering.compat.iris.programs.transform.IrisTransformProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.BarrierFlags;
 import com.github.argon4w.acceleratedrendering.core.programs.LoadComputeShaderEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
+import com.github.argon4w.acceleratedrendering.core.programs.transform.FixedTransformProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.LoadTransformProgramSelectorEvent;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
@@ -51,10 +51,10 @@ public class IrisPrograms {
 
     @SubscribeEvent
     public static void onLoadTransformPrograms(LoadTransformProgramSelectorEvent event) {
-        event.loadFor(IrisVertexFormats.ENTITY, parent -> new IrisTransformProgramSelector(
-                parent,
-                IRIS_ENTITY_VERTEX_TRANSFORM_KEY
-        ));
+        event.loadFor(
+                IrisVertexFormats.ENTITY,
+                parent -> new FixedTransformProgramSelector(IRIS_ENTITY_VERTEX_TRANSFORM_KEY)
+        );
     }
 
     @SubscribeEvent

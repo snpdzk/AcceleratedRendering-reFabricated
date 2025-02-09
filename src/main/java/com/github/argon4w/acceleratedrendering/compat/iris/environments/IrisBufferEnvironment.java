@@ -4,7 +4,7 @@ import com.github.argon4w.acceleratedrendering.compat.iris.buffers.IrisRenderTyp
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
-import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
@@ -61,17 +61,17 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public TransformProgramDispatcher selectTransformProgram() {
-        return getSubSet().selectTransformProgram();
+    public TransformProgramDispatcher selectTransformProgramDispatcher() {
+        return getSubSet().selectTransformProgramDispatcher();
     }
 
     @Override
-    public IProgramDispatcher selectCullProgramDispatcher(RenderType renderType) {
+    public IPolygonProgramDispatcher selectCullProgramDispatcher(RenderType renderType) {
         return getSubSet().selectCullProgramDispatcher(renderType);
     }
 
     @Override
-    public IProgramDispatcher selectProcessingProgramDispatcher(VertexFormat.Mode mode) {
+    public IPolygonProgramDispatcher selectProcessingProgramDispatcher(VertexFormat.Mode mode) {
         return getSubSet().selectProcessingProgramDispatcher(mode);
     }
 
@@ -145,17 +145,17 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
         }
 
         @Override
-        public TransformProgramDispatcher selectTransformProgram() {
+        public TransformProgramDispatcher selectTransformProgramDispatcher() {
             return transformProgramSelector.select();
         }
 
         @Override
-        public IProgramDispatcher selectCullProgramDispatcher(RenderType renderType) {
+        public IPolygonProgramDispatcher selectCullProgramDispatcher(RenderType renderType) {
             return cullingProgramSelector.select(renderType);
         }
 
         @Override
-        public IProgramDispatcher selectProcessingProgramDispatcher(VertexFormat.Mode mode) {
+        public IPolygonProgramDispatcher selectProcessingProgramDispatcher(VertexFormat.Mode mode) {
             return polygonProcessor.select(mode);
         }
 
@@ -173,8 +173,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 
         @Override
         public int getSharingFlags() {
-            return transformProgramSelector.getSharingFlags()
-                    | cullingProgramSelector.getSharingFlags();
+            return cullingProgramSelector.getSharingFlags();
         }
 
         @Override

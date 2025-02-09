@@ -96,9 +96,10 @@ public class AcceleratedBufferSetPool {
             bufferEnvironment.getServerMeshBuffer().bindBase(GL_SHADER_STORAGE_BUFFER, 4);
         }
 
-        public void bindCullingBuffers(long indexSize) {
-            elementBufferOut.resizeTo(indexSize);
+        public void bindCullingBuffers(MappedBuffer elementBufferIn) {
+            elementBufferOut.resizeTo(elementBufferIn.getBufferSize());
             commandBuffer.bindBase(GL_ATOMIC_COUNTER_BUFFER, 0);
+            elementBufferIn.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
             elementBufferOut.bindBase(GL_SHADER_STORAGE_BUFFER, 6);
         }
 

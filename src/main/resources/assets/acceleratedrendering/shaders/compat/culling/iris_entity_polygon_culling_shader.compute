@@ -40,7 +40,7 @@ struct Polygon {
     int vertex3;
 };
 
-layout(local_size_x=1, local_size_y=1) in;
+layout(local_size_x = 128) in;
 
 layout(binding=1, std430) readonly buffer Vertices {
     Vertex vertices[];
@@ -64,12 +64,17 @@ layout(binding=6, std430) writeonly buffer PolygonsOut {
 
 layout(binding=0, offset=0) uniform atomic_uint indexCounter;
 
-uniform mat4 ViewMatrix;
+layout(location=0) uniform mat4 viewMatrix;
+layout(location=1) uniform uint polygonCount;
 
 bool isNormalVisable(Vertex vertex);
 
 void main() {
-    int index = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
+    uint index = gl_GlobalInvocationID.x;
+
+    if (index >= polygonCount) {
+        return;
+    }
 
     if (index == 0) {
         atomicCounterExchange(indexCounter, 0u);
@@ -100,8 +105,8 @@ bool isNormalVisable(Vertex vertex) {
     vec4 posStart = vec4(vertex.x, vertex.y, vertex.z, 1.0);
     vec4 posEnd = posStart + vec4(normal, 0.0);
 
-    posStart = ViewMatrix * posStart;
-    posEnd = ViewMatrix * posEnd;
+    posStart = viewMatrix * posStart;
+    posEnd = viewMatrix * posEnd;
 
     normal = normalize((posEnd - posStart).xyz);
     vec3 ref = normalize(-posStart.xyz);

@@ -54,20 +54,9 @@ public class ComputeShaderPrograms {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLoadTransformPrograms(LoadTransformProgramSelectorEvent event) {
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new FixedTransformProgramSelector(
-                parent,
-                CORE_ENTITY_VERTEX_TRANSFORM_KEY
-        ));
-
-        event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, parent -> new FixedTransformProgramSelector(
-                parent,
-                CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY
-        ));
-
-        event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new FixedTransformProgramSelector(
-                parent,
-                CORE_POS_TEX_VERTEX_TRANSFORM_KEY
-        ));
+        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new FixedTransformProgramSelector(CORE_ENTITY_VERTEX_TRANSFORM_KEY));
+        event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, parent -> new FixedTransformProgramSelector(CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY));
+        event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new FixedTransformProgramSelector(CORE_POS_TEX_VERTEX_TRANSFORM_KEY));
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

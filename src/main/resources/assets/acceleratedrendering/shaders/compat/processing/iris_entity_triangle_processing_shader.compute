@@ -23,7 +23,7 @@ struct Polygon {
     int vertex3;
 };
 
-layout(local_size_x=1, local_size_y=1) in;
+layout(local_size_x = 128) in;
 
 layout(binding=1, std430) buffer Vertices {
     Vertex vertices[];
@@ -33,10 +33,16 @@ layout(binding=5, std430) readonly buffer Polygons {
     Polygon polygons[];
 };
 
+layout(location=0) uniform uint polygonCount;
+
 uint computeTangentSmooth(vec3 pos1, vec3 pos2, vec3 pos3, vec2 uv1, vec2 uv2, vec2 uv3, vec3 normal);
 
 void main() {
-    int index = int(gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y + gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
+    uint index = gl_GlobalInvocationID.x;
+
+    if (index >= polygonCount) {
+        return;
+    }
 
     Polygon polygon = polygons[index];
     Vertex vertex1 = vertices[polygon.vertex1];

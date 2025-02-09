@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs.processing;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
-import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
@@ -13,14 +13,14 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
 
     private final IPolygonProcessor parent;
     private final VertexFormat.Mode mode;
-    private final IProgramDispatcher dispatcher;
+    private final IPolygonProgramDispatcher dispatcher;
     private final int entityOffset;
 
     public IrisEntityPolygonProcessor(
             IPolygonProcessor parent,
             VertexFormat vertexFormat,
             VertexFormat.Mode mode,
-            IProgramDispatcher dispatcher
+            IPolygonProgramDispatcher dispatcher
     ) {
         this.parent = parent;
         this.mode = mode;
@@ -43,7 +43,7 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
     }
 
     @Override
-    public IProgramDispatcher select(VertexFormat.Mode mode) {
+    public IPolygonProgramDispatcher select(VertexFormat.Mode mode) {
         if (!IrisCompatFeature.isEnabled()) {
             return parent.select(mode);
         }

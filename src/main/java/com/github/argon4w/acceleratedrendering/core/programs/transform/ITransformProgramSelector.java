@@ -6,7 +6,6 @@ import net.neoforged.fml.ModLoader;
 public interface ITransformProgramSelector {
 
     TransformProgramDispatcher select();
-    int getSharingFlags();
 
     static ITransformProgramSelector throwing() {
         return ThrowingTransformProgramSelector.INSTANCE;

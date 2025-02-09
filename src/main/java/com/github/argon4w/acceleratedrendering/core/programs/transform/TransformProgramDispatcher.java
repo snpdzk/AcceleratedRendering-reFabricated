@@ -6,7 +6,8 @@ import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgra
 import net.minecraft.resources.ResourceLocation;
 
 public class TransformProgramDispatcher {
-    private static final int BATCH_SIZE = 128;
+
+    private static final int GROUP_SIZE = 128;
 
     private final ComputeProgram program;
     private final Uniform vertexCountUniform;
@@ -21,7 +22,7 @@ public class TransformProgramDispatcher {
     }
 
     public void dispatch(int vertexCount) {
-        vertexCountUniform.upload1ui(vertexCount);
-        program.dispatch((vertexCount + BATCH_SIZE - 1) / BATCH_SIZE);
+        vertexCountUniform.uploadUnsignedInt(vertexCount);
+        program.dispatch((vertexCount + GROUP_SIZE - 1) / GROUP_SIZE);
     }
 }

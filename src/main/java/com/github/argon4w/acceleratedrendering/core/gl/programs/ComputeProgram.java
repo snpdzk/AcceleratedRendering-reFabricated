@@ -7,47 +7,18 @@ public class ComputeProgram {
     private final int programHandle;
     private final int barrierFlags;
 
-    private int lastProgram;
-
     public ComputeProgram(int barrierFlags) {
         this.programHandle = glCreateProgram();
         this.barrierFlags = barrierFlags;
-        this.lastProgram = 0;
     }
 
     public void dispatch(int count) {
-        dispatch(
-                count,
-                1,
-                1
-        );
-    }
+        int lastProgram = glGetInteger(GL_CURRENT_PROGRAM);
 
-    public void dispatch(
-            int x,
-            int y,
-            int z
-    ) {
-        useProgram();
-
-        glDispatchCompute(
-                x,
-                y,
-                z
-        );
-        glMemoryBarrier(barrierFlags);
-
-        resetProgram();
-    }
-
-    public void useProgram() {
-        lastProgram = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(programHandle);
-    }
-
-    public void resetProgram() {
+        glDispatchCompute(count, 1, 1);
+        glMemoryBarrier(barrierFlags);
         glUseProgram(lastProgram);
-        lastProgram = 0;
     }
 
     public void attachShader(ComputeShader computeShader) {

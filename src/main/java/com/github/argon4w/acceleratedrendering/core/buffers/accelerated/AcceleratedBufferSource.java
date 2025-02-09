@@ -88,9 +88,9 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
         }
 
         bufferSet.bindTransformBuffers();
-        bufferEnvironment.selectTransformProgram().dispatch(bufferSet.getVertexCount());
+        bufferEnvironment.selectTransformProgramDispatcher().dispatch(bufferSet.getVertexCount());
 
-        BufferUploader.reset();
+        BufferUploader.invalidate();
         bufferSet.bindVertexArray();
 
         for (RenderType renderType : acceleratedBuilders.keySet()) {
@@ -104,9 +104,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             VertexFormat.Mode mode = renderType.mode;
             int vertexCount = builder.getVertexCount();
 
-            elementBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
-            bufferSet.bindCullingBuffers(elementBuffer.getBufferSize());
-
+            bufferSet.bindCullingBuffers(elementBuffer);
             bufferEnvironment.selectProcessingProgramDispatcher(mode).dispatch(mode, vertexCount);
             bufferEnvironment.selectCullProgramDispatcher(renderType).dispatch(mode, vertexCount);
 
@@ -116,7 +114,8 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
             ShaderInstance shader = RenderSystem.getShader();
 
-            shader.setDefaultUniforms(mode,
+            shader.setDefaultUniforms(
+                    mode,
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),
                     Minecraft.getInstance().getWindow()
@@ -125,7 +124,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
             glDrawElementsIndirect(
                     mode.asGLMode,
-                    VertexFormat.IndexType.INT.asGLType,
+                    GL_UNSIGNED_INT,
                     0L
             );
             glMemoryBarrier(GL_ELEMENT_ARRAY_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);

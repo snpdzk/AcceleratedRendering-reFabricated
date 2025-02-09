@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs.culling;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
-import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.github.argon4w.acceleratedrendering.features.culling.NormalCullingFeature;
@@ -12,9 +12,9 @@ import net.minecraft.resources.ResourceLocation;
 public class IrisCullingProgramSelector implements ICullingProgramSelector {
 
     private final ICullingProgramSelector parent;
-    private final IProgramDispatcher dispatcher;
+    private final IPolygonProgramDispatcher dispatcher;
 
-    public IrisCullingProgramSelector(ICullingProgramSelector parent, IProgramDispatcher dispatcher) {
+    public IrisCullingProgramSelector(ICullingProgramSelector parent, IPolygonProgramDispatcher dispatcher) {
         this.parent = parent;
         this.dispatcher = dispatcher;
     }
@@ -24,7 +24,7 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
     }
 
     @Override
-    public IProgramDispatcher select(RenderType renderType) {
+    public IPolygonProgramDispatcher select(RenderType renderType) {
         if (!IrisCompatFeature.isEnabled()) {
             return parent.select(renderType);
         }

@@ -6,11 +6,6 @@ public class ThrowingTransformProgramSelector implements ITransformProgramSelect
 
     @Override
     public TransformProgramDispatcher select() {
-        throw new IllegalStateException("Cannot select a valid transform program.");
-    }
-
-    @Override
-    public int getSharingFlags() {
-        return 0;
+        throw new IllegalStateException("Cannot select a valid transform program dispatcher.");
     }
 }

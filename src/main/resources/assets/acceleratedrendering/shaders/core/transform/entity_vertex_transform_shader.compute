@@ -1,7 +1,5 @@
 #version 460 core
 
-uniform uint vertexCount;
-
 struct Vertex {
     float x;
     float y;
@@ -53,8 +51,11 @@ layout(binding=4, std430) readonly buffer Mesh {
     Vertex meshVertices[];
 };
 
+layout(location=0) uniform uint vertexCount;
+
 void main() {
     uint index = gl_GlobalInvocationID.x;
+
     if (index >= vertexCount) {
         return;
     }

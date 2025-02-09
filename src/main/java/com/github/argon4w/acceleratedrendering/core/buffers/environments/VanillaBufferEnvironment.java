@@ -3,7 +3,7 @@ package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.EmptyProgramDispatcher;
-import com.github.argon4w.acceleratedrendering.core.programs.IProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.TransformProgramDispatcher;
@@ -46,17 +46,17 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public TransformProgramDispatcher selectTransformProgram() {
+    public TransformProgramDispatcher selectTransformProgramDispatcher() {
         return transformProgramSelector.select();
     }
 
     @Override
-    public IProgramDispatcher selectCullProgramDispatcher(RenderType renderType) {
+    public IPolygonProgramDispatcher selectCullProgramDispatcher(RenderType renderType) {
         return cullingProgramSelector.select(renderType);
     }
 
     @Override
-    public IProgramDispatcher selectProcessingProgramDispatcher(VertexFormat.Mode mode) {
+    public IPolygonProgramDispatcher selectProcessingProgramDispatcher(VertexFormat.Mode mode) {
         return EmptyProgramDispatcher.INSTANCE;
     }
 
@@ -77,8 +77,7 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 
     @Override
     public int getSharingFlags() {
-        return transformProgramSelector.getSharingFlags()
-                | cullingProgramSelector.getSharingFlags();
+        return cullingProgramSelector.getSharingFlags();
     }
 
     @Override

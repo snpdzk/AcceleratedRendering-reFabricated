@@ -3,8 +3,6 @@ package com.github.argon4w.acceleratedrendering.core.gl.programs;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 
-import java.nio.FloatBuffer;
-
 import static org.lwjgl.opengl.GL41.glProgramUniform1ui;
 import static org.lwjgl.opengl.GL46.glProgramUniformMatrix4fv;
 
@@ -18,15 +16,22 @@ public class Uniform {
         this.uniformLocation = uniformLocation;
     }
 
-    public void uploadMatrix4fv(Matrix4f matrix) {
+    public void uploadMatrix4f(Matrix4f matrix) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            FloatBuffer matrixBuffer = stack.mallocFloat(16);
-            matrix.get(matrixBuffer);
-            glProgramUniformMatrix4fv(programHandle, uniformLocation, false, matrixBuffer);
+            glProgramUniformMatrix4fv(
+                    programHandle,
+                    uniformLocation,
+                    false,
+                    matrix.get(stack.callocFloat(16))
+            );
         }
     }
 
-    public void upload1ui(int value) {
-        glProgramUniform1ui(programHandle, uniformLocation, value);
+    public void uploadUnsignedInt(int value) {
+        glProgramUniform1ui(
+                programHandle,
+                uniformLocation,
+                value
+        );
     }
 }
