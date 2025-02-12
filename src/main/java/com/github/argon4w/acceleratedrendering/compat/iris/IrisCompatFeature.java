@@ -31,10 +31,6 @@ public class IrisCompatFeature {
         return FeatureConfig.CONFIG.irisCompatEntitiesCompat.get() == FeatureStatus.ENABLED;
     }
 
-    public static boolean isFastIrisRenderTypeCheckEnabled() {
-        return FeatureConfig.CONFIG.irisCompatFastIrisRenderTypeCheck.get() == FeatureStatus.ENABLED;
-    }
-
     public static void disableShadowCulling() {
         SHADOW_CULLING_CONTROLLER_STACK.push(FeatureStatus.DISABLED);
     }
