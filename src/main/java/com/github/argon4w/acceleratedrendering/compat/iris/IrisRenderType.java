@@ -1,21 +1,19 @@
-package com.github.argon4w.acceleratedrendering.compat.iris.buffers;
+package com.github.argon4w.acceleratedrendering.compat.iris;
 
 import com.google.common.base.Objects;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.irisshaders.batchedentityrendering.impl.WrappableRenderType;
 import net.minecraft.client.renderer.RenderType;
 
 import java.util.Optional;
 
-public class IrisRenderType extends RenderType {
+public class IrisRenderType extends RenderType implements WrappableRenderType {
 
     private final RenderType renderType;
     private final VertexFormat vertexFormat;
     private final int hashCode;
 
-    public IrisRenderType(
-            RenderType renderType,
-            VertexFormat vertexFormat
-    ) {
+    public IrisRenderType(RenderType renderType, VertexFormat vertexFormat) {
         super(
                 renderType.name,
                 vertexFormat,
@@ -43,6 +41,16 @@ public class IrisRenderType extends RenderType {
     }
 
     @Override
+    public RenderType unwrap() {
+        return renderType;
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -60,10 +68,5 @@ public class IrisRenderType extends RenderType {
 
         return Objects.equal(renderType, that.renderType)
                 && Objects.equal(vertexFormat, that.vertexFormat);
-    }
-
-    @Override
-    public int hashCode() {
-        return hashCode;
     }
 }

@@ -76,12 +76,6 @@ void main() {
         return;
     }
 
-    if (index == 0) {
-        atomicCounterExchange(indexCounter, 0u);
-    }
-
-    memoryBarrier();
-
     Polygon polygon = polygonsIn[index];
     VaryingData varyingData = varyings[index - varyings[polygon.vertex1].offset];
     SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u, -1, 0u, 0u);

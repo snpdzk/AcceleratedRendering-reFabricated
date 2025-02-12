@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.EmptyServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
@@ -28,7 +28,7 @@ public class ServerMesh implements IMesh {
 
     @Override
     public void write(
-            IVertexConsumerExtension extension,
+            IAcceleratedVertexConsumer extension,
             int color,
             int light,
             int overlay

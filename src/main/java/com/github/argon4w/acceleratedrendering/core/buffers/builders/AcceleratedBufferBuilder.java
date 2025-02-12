@@ -15,7 +15,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
-public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumerExtension {
+public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVertexConsumer {
 
     private final MappedBuffer elementBuffer;
     private final AcceleratedBufferSetPool.BufferSet bufferSet;
@@ -377,7 +377,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IVertexConsumer
     }
 
     @Override
-    public boolean supportAcceleratedRendering() {
+    public boolean isAccelerated() {
         return true;
     }
 

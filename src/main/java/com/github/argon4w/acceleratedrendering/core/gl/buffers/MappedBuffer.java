@@ -8,17 +8,15 @@ import static org.lwjgl.opengl.GL46.*;
 
 public class MappedBuffer extends MutableBuffer implements IClientBuffer {
 
-    private static final int BITS = GL_DYNAMIC_STORAGE_BIT
-            | GL_MAP_PERSISTENT_BIT
-            | GL_MAP_COHERENT_BIT
-            | GL_MAP_WRITE_BIT;
-
     private long bufferAddress;
     private long bufferPosition;
 
     public MappedBuffer(long initialSize) {
-        super(initialSize, BITS);
-        this.bufferAddress = this.glBuffer.map(GL_WRITE_ONLY);
+        super(initialSize, GL_DYNAMIC_STORAGE_BIT
+                | GL_MAP_PERSISTENT_BIT
+                | GL_MAP_COHERENT_BIT
+                | GL_MAP_WRITE_BIT);
+        this.bufferAddress = map();
     }
 
     @Override
@@ -40,14 +38,18 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
     }
 
     public void resizeTo(long newBufferSize) {
-        glBuffer.unmap();
+        unmap();
         super.resizeTo(newBufferSize);
-        bufferAddress = glBuffer.map(GL_WRITE_ONLY);
+        bufferAddress = map();
     }
 
     public void delete() {
-        glBuffer.unmap();
-        glBuffer.delete();
+        unmap();
+        super.delete();
+    }
+
+    public long map() {
+        return map(GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
     }
 
     public void reset() {

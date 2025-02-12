@@ -37,6 +37,14 @@ public class MutableBuffer implements IServerBuffer {
         bufferSize = newBufferSize;
     }
 
+    public long map(int flags) {
+        return glBuffer.map(bufferSize, flags);
+    }
+
+    public void unmap() {
+        glBuffer.unmap();
+    }
+
     public void delete() {
         glBuffer.delete();
     }

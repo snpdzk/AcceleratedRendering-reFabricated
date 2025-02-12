@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
 
 public class EmptyMesh implements IMesh {
 
@@ -8,7 +8,7 @@ public class EmptyMesh implements IMesh {
 
     @Override
     public void write(
-            IVertexConsumerExtension extension,
+            IAcceleratedVertexConsumer extension,
             int color,
             int light,
             int overlay

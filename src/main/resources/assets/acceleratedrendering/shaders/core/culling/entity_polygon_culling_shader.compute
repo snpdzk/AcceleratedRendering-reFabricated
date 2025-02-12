@@ -71,12 +71,6 @@ void main() {
         return;
     }
 
-    if (index == 0) {
-        atomicCounterExchange(indexCounter, 0u);
-    }
-
-    memoryBarrier();
-
     Polygon polygon = polygonsIn[index];
 
     VaryingData varyingData = varyings[index - varyings[polygon.vertex1].offset];

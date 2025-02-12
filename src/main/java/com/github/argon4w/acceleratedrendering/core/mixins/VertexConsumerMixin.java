@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.mixins;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.util.Set;
 
 @Mixin(VertexConsumer.class)
-public interface VertexConsumerMixin extends IVertexConsumerExtension {
+public interface VertexConsumerMixin extends IAcceleratedVertexConsumer {
 
     @Unique
     @Override
@@ -53,7 +53,7 @@ public interface VertexConsumerMixin extends IVertexConsumerExtension {
 
     @Unique
     @Override
-    default boolean supportAcceleratedRendering() {
+    default boolean isAccelerated() {
         return false;
     }
 

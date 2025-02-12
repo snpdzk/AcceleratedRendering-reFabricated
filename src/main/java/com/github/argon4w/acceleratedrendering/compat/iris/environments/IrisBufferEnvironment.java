@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.environments;
 
-import com.github.argon4w.acceleratedrendering.compat.iris.buffers.IrisRenderType;
+import com.github.argon4w.acceleratedrendering.compat.iris.IrisRenderType;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;

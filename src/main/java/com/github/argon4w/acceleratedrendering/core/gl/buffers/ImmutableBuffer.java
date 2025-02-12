@@ -1,5 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
+import java.nio.IntBuffer;
+
 import static org.lwjgl.opengl.GL46.*;
 
 public class ImmutableBuffer implements IServerBuffer {
@@ -20,8 +22,12 @@ public class ImmutableBuffer implements IServerBuffer {
         glCopyNamedBufferSubData(bufferHandle, buffer.getBufferHandle(), 0, 0, size);
     }
 
-    public long map(int bits) {
-        return nglMapNamedBuffer(bufferHandle, bits);
+    public void clear(long offset, long size) {
+        glClearNamedBufferSubData(bufferHandle, GL_R32UI, offset, size, GL_RED_INTEGER, GL_UNSIGNED_INT, (IntBuffer) null);
+    }
+
+    public long map(long length, int bits) {
+        return nglMapNamedBufferRange(bufferHandle, 0L, length, bits);
     }
 
     public void unmap() {

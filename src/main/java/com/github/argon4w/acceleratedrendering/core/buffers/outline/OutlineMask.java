@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.outline;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.RenderType;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
-public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
+public class OutlineMask implements VertexConsumer, IAcceleratedVertexConsumer {
 
     private final VertexConsumer vertexConsumer;
     private final int teamColor;
@@ -20,12 +20,12 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
 
     @Override
     public void beginTransform(PoseStack.Pose pose) {
-        ((IVertexConsumerExtension) vertexConsumer).beginTransform(pose);
+        ((IAcceleratedVertexConsumer) vertexConsumer).beginTransform(pose);
     }
 
     @Override
     public void endTransform() {
-        ((IVertexConsumerExtension) vertexConsumer).endTransform();
+        ((IAcceleratedVertexConsumer) vertexConsumer).endTransform();
     }
 
     @Override
@@ -37,7 +37,7 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
             int light,
             int overlay
     ) {
-        ((IVertexConsumerExtension) vertexConsumer).addClientMesh(
+        ((IAcceleratedVertexConsumer) vertexConsumer).addClientMesh(
                 renderType,
                 vertexBuffer,
                 size,
@@ -56,7 +56,7 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
             int light,
             int overlay
     ) {
-        ((IVertexConsumerExtension) vertexConsumer).addServerMesh(
+        ((IAcceleratedVertexConsumer) vertexConsumer).addServerMesh(
                 renderType,
                 offset,
                 size,
@@ -67,13 +67,13 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
     }
 
     @Override
-    public boolean supportAcceleratedRendering() {
-        return ((IVertexConsumerExtension) vertexConsumer).supportAcceleratedRendering();
+    public boolean isAccelerated() {
+        return ((IAcceleratedVertexConsumer) vertexConsumer).isAccelerated();
     }
 
     @Override
     public Set<RenderType> getRenderTypes() {
-        return ((IVertexConsumerExtension) vertexConsumer).getRenderTypes();
+        return ((IAcceleratedVertexConsumer) vertexConsumer).getRenderTypes();
     }
 
     @Override
@@ -84,7 +84,12 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
             float pZ
     ) {
         return vertexConsumer
-                .addVertex(pPose, pX, pY, pZ)
+                .addVertex(
+                        pPose,
+                        pX,
+                        pY,
+                        pZ
+                )
                 .setColor(teamColor);
     }
 
@@ -95,7 +100,11 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
             float pZ
     ) {
         vertexConsumer
-                .addVertex(pX, pY, pZ)
+                .addVertex(
+                        pX,
+                        pY,
+                        pZ
+                )
                 .setColor(teamColor);
 
         return this;
@@ -160,7 +169,11 @@ public class OutlineMask implements VertexConsumer, IVertexConsumerExtension {
             float pNormalY,
             float pNormalZ) {
         vertexConsumer
-                .addVertex(pX, pY, pZ)
+                .addVertex(
+                        pX,
+                        pY,
+                        pZ
+                )
                 .setColor(teamColor)
                 .setUv(pU, pV);
     }

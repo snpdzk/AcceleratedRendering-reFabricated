@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.modelpart.mixins;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IVertexConsumerExtension;
+import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
 import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
@@ -40,7 +40,7 @@ public class ModelPartMixin {
             int pColor,
             CallbackInfo ci
     ) {
-        IVertexConsumerExtension extension = (IVertexConsumerExtension) pBuffer;
+        IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) pBuffer;
 
         if (!AcceleratedEntityRenderingFeature.isEnabled()) {
             return;
@@ -50,7 +50,7 @@ public class ModelPartMixin {
             return;
         }
 
-        if (!extension.supportAcceleratedRendering()) {
+        if (!extension.isAccelerated()) {
             return;
         }
 

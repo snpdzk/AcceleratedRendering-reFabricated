@@ -21,12 +21,6 @@ void main() {
         return;
     }
 
-    if (index == 0) {
-        atomicCounterExchange(indexCounter, 0u);
-    }
-
-    memoryBarrier();
-
     atomicCounterIncrement(indexCounter);
     indicesOut[index] = indicesIn[index];
 }

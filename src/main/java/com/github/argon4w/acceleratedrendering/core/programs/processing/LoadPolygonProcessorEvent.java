@@ -7,6 +7,7 @@ import net.neoforged.fml.event.IModBusEvent;
 import java.util.function.UnaryOperator;
 
 public class LoadPolygonProcessorEvent extends Event implements IModBusEvent {
+
     private final VertexFormat vertexFormat;
 
     IPolygonProcessor processor;

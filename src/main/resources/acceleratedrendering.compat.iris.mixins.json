@@ -11,16 +11,9 @@
     "acceleratedrendering.RedirectingBufferSourceMixin",
     "acceleratedrendering.RedirectingOutlineBufferSourceMixin",
     "acceleratedrendering.RenderTypeUtilsMixin",
-    "iris.buffers.InnerWrappedRenderTypeMixin",
-    "iris.buffers.OuterWrappedRenderTypeMixin",
-    "iris.buffers.TaggingRenderTypeWrapperMixin",
-    "iris.shadow.IrisRenderingPipelineMixin",
-    "iris.shadow.ShadowRendererAccessor",
-    "iris.shadow.ShadowRendererMixin",
-    "iris.shadow.WorldRenderingPipelineMixin",
-    "iris.vertices.IrisVertexFormatsMixin",
-    "iris.vertices.ModelToEntityVertexSerializerMixin",
-    "vanilla.RenderTypeMixin"
+    "iris.IrisVertexFormatsMixin",
+    "iris.ModelToEntityVertexSerializerMixin",
+    "iris.ShadowRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

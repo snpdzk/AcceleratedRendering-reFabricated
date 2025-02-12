@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.features.entities.mixins;
 
-import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatBuffers;
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
+import com.github.argon4w.acceleratedrendering.compat.iris.IShadowBufferSourceGetter;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import net.irisshaders.iris.shadows.ShadowRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -24,6 +24,6 @@ public class ShadowRendererMixin {
             return bufferSource;
         }
 
-        return IrisCompatBuffers.SHADOW;
+        return ((IShadowBufferSourceGetter) this).getShadowBufferSource();
     }
 }

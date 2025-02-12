@@ -101,6 +101,7 @@ public class AcceleratedBufferSetPool {
             commandBuffer.bindBase(GL_ATOMIC_COUNTER_BUFFER, 0);
             elementBufferIn.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
             elementBufferOut.bindBase(GL_SHADER_STORAGE_BUFFER, 6);
+            commandBuffer.clear(0, 4);
         }
 
         public void bindDrawBuffers() {

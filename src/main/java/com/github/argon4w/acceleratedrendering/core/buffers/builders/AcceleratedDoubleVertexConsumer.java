@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.RenderType;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
-public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexConsumerExtension {
+public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IAcceleratedVertexConsumer {
 
     private final VertexConsumer vertexConsumer1;
     private final VertexConsumer vertexConsumer2;
@@ -20,8 +20,8 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
         this.vertexConsumer1 = vertexConsumer1;
         this.vertexConsumer2 = vertexConsumer2;
 
-        this.renderTypes1 = ((IVertexConsumerExtension) this.vertexConsumer1).getRenderTypes();
-        this.renderTypes2 = ((IVertexConsumerExtension) this.vertexConsumer2).getRenderTypes();
+        this.renderTypes1 = ((IAcceleratedVertexConsumer) this.vertexConsumer1).getRenderTypes();
+        this.renderTypes2 = ((IAcceleratedVertexConsumer) this.vertexConsumer2).getRenderTypes();
 
         this.renderTypes = new ObjectOpenHashSet<>();
         this.renderTypes.addAll(renderTypes1);
@@ -30,14 +30,14 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
 
     @Override
     public void beginTransform(PoseStack.Pose pose) {
-        ((IVertexConsumerExtension) vertexConsumer1).beginTransform(pose);
-        ((IVertexConsumerExtension) vertexConsumer2).beginTransform(pose);
+        ((IAcceleratedVertexConsumer) vertexConsumer1).beginTransform(pose);
+        ((IAcceleratedVertexConsumer) vertexConsumer2).beginTransform(pose);
     }
 
     @Override
     public void endTransform() {
-        ((IVertexConsumerExtension) vertexConsumer1).endTransform();
-        ((IVertexConsumerExtension) vertexConsumer2).endTransform();
+        ((IAcceleratedVertexConsumer) vertexConsumer1).endTransform();
+        ((IAcceleratedVertexConsumer) vertexConsumer2).endTransform();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             int overlay
     ) {
         if (renderTypes1.contains(renderType)) {
-            ((IVertexConsumerExtension) vertexConsumer1).addClientMesh(
+            ((IAcceleratedVertexConsumer) vertexConsumer1).addClientMesh(
                     renderType,
                     vertexBuffer,
                     size,
@@ -59,7 +59,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
                     overlay
             );
         } else if (renderTypes2.contains(renderType)) {
-            ((IVertexConsumerExtension) vertexConsumer2).addClientMesh(
+            ((IAcceleratedVertexConsumer) vertexConsumer2).addClientMesh(
                     renderType,
                     vertexBuffer,
                     size,
@@ -82,7 +82,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             int overlay
     ) {
         if (renderTypes1.contains(renderType)) {
-            ((IVertexConsumerExtension) vertexConsumer1).addServerMesh(
+            ((IAcceleratedVertexConsumer) vertexConsumer1).addServerMesh(
                     renderType,
                     offset,
                     size,
@@ -91,7 +91,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
                     overlay
             );
         } else if (renderTypes2.contains(renderType)) {
-            ((IVertexConsumerExtension) vertexConsumer2).addServerMesh(
+            ((IAcceleratedVertexConsumer) vertexConsumer2).addServerMesh(
                     renderType,
                     offset,
                     size,
@@ -105,9 +105,9 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
     }
 
     @Override
-    public boolean supportAcceleratedRendering() {
-        return ((IVertexConsumerExtension) vertexConsumer1).supportAcceleratedRendering()
-                && ((IVertexConsumerExtension) vertexConsumer2).supportAcceleratedRendering();
+    public boolean isAccelerated() {
+        return ((IAcceleratedVertexConsumer) vertexConsumer1).isAccelerated()
+                && ((IAcceleratedVertexConsumer) vertexConsumer2).isAccelerated();
     }
 
     @Override
@@ -122,8 +122,18 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             float pY,
             float pZ
     ) {
-        vertexConsumer1.addVertex(pPose, pX, pY, pZ);
-        vertexConsumer2.addVertex(pPose, pX, pY, pZ);
+        vertexConsumer1.addVertex(
+                pPose,
+                pX,
+                pY,
+                pZ
+        );
+        vertexConsumer2.addVertex(
+                pPose,
+                pX,
+                pY,
+                pZ
+        );
 
         return this;
     }
@@ -134,8 +144,16 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             float pY,
             float pZ
     ) {
-        vertexConsumer1.addVertex(pX, pY, pZ);
-        vertexConsumer2.addVertex(pX, pY, pZ);
+        vertexConsumer1.addVertex(
+                pX,
+                pY,
+                pZ
+        );
+        vertexConsumer2.addVertex(
+                pX,
+                pY,
+                pZ
+        );
 
         return this;
     }
@@ -147,8 +165,18 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             int pBlue,
             int pAlpha
     ) {
-        vertexConsumer1.setColor(pRed, pGreen, pBlue, pAlpha);
-        vertexConsumer2.setColor(pRed, pGreen, pBlue, pAlpha);
+        vertexConsumer1.setColor(
+                pRed,
+                pGreen,
+                pBlue,
+                pAlpha
+        );
+        vertexConsumer2.setColor(
+                pRed,
+                pGreen,
+                pBlue,
+                pAlpha
+        );
 
         return this;
     }
@@ -183,8 +211,18 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             float pNormalY,
             float pNormalZ
     ) {
-        vertexConsumer1.setNormal(pPose, pNormalX, pNormalY, pNormalZ);
-        vertexConsumer2.setNormal(pPose, pNormalX, pNormalY, pNormalZ);
+        vertexConsumer1.setNormal(
+                pPose,
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
+        vertexConsumer2.setNormal(
+                pPose,
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
 
         return this;
     }
@@ -195,8 +233,16 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             float pNormalY,
             float pNormalZ
     ) {
-        vertexConsumer1.setNormal(pNormalX, pNormalY, pNormalZ);
-        vertexConsumer2.setNormal(pNormalX, pNormalY, pNormalZ);
+        vertexConsumer1.setNormal(
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
+        vertexConsumer2.setNormal(
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
 
         return this;
     }
@@ -214,7 +260,31 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IVertexC
             float pNormalX,
             float pNormalY,
             float pNormalZ) {
-        vertexConsumer1.addVertex(pX, pY, pZ, pColor, pU, pV, pPackedOverlay, pPackedLight, pNormalX, pNormalY, pNormalZ);
-        vertexConsumer2.addVertex(pX, pY, pZ, pColor, pU, pV, pPackedOverlay, pPackedLight, pNormalX, pNormalY, pNormalZ);
+        vertexConsumer1.addVertex(
+                pX,
+                pY,
+                pZ,
+                pColor,
+                pU,
+                pV,
+                pPackedOverlay,
+                pPackedLight,
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
+        vertexConsumer2.addVertex(
+                pX,
+                pY,
+                pZ,
+                pColor,
+                pU,
+                pV,
+                pPackedOverlay,
+                pPackedLight,
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
     }
 }
