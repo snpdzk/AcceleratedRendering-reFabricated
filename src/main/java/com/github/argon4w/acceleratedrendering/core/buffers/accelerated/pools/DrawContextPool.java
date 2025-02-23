@@ -14,7 +14,7 @@ public class DrawContextPool extends SimpleResetPool<DrawContextPool.IndirectDra
         super(size, new SegmentBuffer(20L * size, size));
     }
 
-    public void bindDrawBuffer() {
+    public void bindCommandBuffer() {
         getContext().bind(GL_DRAW_INDIRECT_BUFFER);
     }
 

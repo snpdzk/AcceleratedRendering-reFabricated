@@ -30,7 +30,7 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
     }
 
     @Override
-    public ByteBuffer asByteBuffer() {
+    public ByteBuffer byteBuffer() {
         return ByteUtils.toBuffer(address, bufferSize);
     }
 

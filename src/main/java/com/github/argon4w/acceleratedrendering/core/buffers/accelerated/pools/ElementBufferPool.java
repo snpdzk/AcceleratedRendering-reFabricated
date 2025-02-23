@@ -25,8 +25,13 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
         elementBufferOut.clearSegment();
     }
 
-    public void bindDrawBuffer() {
+    public void bindElementBuffer() {
         elementBufferOut.bind(GL_ELEMENT_ARRAY_BUFFER);
+        elementBufferOut.resetResized();
+    }
+
+    public boolean isResized() {
+        return elementBufferOut.isResized();
     }
 
     @Override

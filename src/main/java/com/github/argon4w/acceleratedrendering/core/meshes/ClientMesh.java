@@ -65,7 +65,7 @@ public class ClientMesh implements IMesh {
                 return EmptyMesh.INSTANCE;
             }
 
-            ByteBuffer byteBuffer = collector.getBuffer().asByteBuffer();
+            ByteBuffer byteBuffer = collector.getBuffer().byteBuffer();
 
             if (byteBuffer == null) {
                 return EmptyMesh.INSTANCE;
@@ -90,7 +90,7 @@ public class ClientMesh implements IMesh {
             }
 
             @Override
-            public ByteBuffer asByteBuffer() {
+            public ByteBuffer byteBuffer() {
                 return builder.build().byteBuffer();
             }
         }

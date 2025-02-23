@@ -5,5 +5,5 @@ import java.nio.ByteBuffer;
 public interface IClientBuffer {
 
     long reserve(long bytes);
-    ByteBuffer asByteBuffer();
+    ByteBuffer byteBuffer();
 }

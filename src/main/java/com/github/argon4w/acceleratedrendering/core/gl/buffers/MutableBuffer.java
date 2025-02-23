@@ -6,11 +6,13 @@ public class MutableBuffer implements IServerBuffer {
 
     private final int bits;
 
+    protected boolean resized;
     protected long bufferSize;
     protected ImmutableBuffer glBuffer;
 
     public MutableBuffer(long initialSize, int bits) {
         this.bits = bits;
+        this.resized = false;
         this.bufferSize = initialSize;
         this.glBuffer = new ImmutableBuffer(initialSize, bits);
     }
@@ -29,6 +31,7 @@ public class MutableBuffer implements IServerBuffer {
 
         onExpand(bytes);
 
+        resized = true;
         glBuffer = newBuffer;
         bufferSize += bytes;
 
@@ -69,6 +72,14 @@ public class MutableBuffer implements IServerBuffer {
 
     public long getBufferSize() {
         return bufferSize;
+    }
+
+    public boolean isResized() {
+        return resized;
+    }
+
+    public void resetResized() {
+        resized = false;
     }
 
     @Override

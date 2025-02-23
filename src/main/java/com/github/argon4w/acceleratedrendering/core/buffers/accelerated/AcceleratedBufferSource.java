@@ -123,7 +123,6 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
         BufferUploader.invalidate();
         bufferSet.bindVertexArray();
         bufferSet.bindDrawBuffers();
-        bufferEnvironment.setupBufferState();
 
         for (RenderType renderType : drawContexts.keySet()) {
             renderType.setupRenderState();

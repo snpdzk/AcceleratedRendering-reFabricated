@@ -99,9 +99,14 @@ public class AcceleratedBufferSetPool {
         }
 
         public void bindDrawBuffers() {
-            vertexBufferOut.bind(GL_ARRAY_BUFFER);
-            elementBufferPool.bindDrawBuffer();
-            drawContextPool.bindDrawBuffer();
+            if (elementBufferPool.isResized() || vertexBufferOut.isResized()) {
+                elementBufferPool.bindElementBuffer();
+                vertexBufferOut.bind(GL_ARRAY_BUFFER);
+                vertexBufferOut.resetResized();
+                bufferEnvironment.setupBufferState();
+            }
+
+            drawContextPool.bindCommandBuffer();
         }
 
         public void prepareElementBuffer() {
