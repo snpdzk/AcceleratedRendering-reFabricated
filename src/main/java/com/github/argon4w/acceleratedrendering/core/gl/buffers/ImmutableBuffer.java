@@ -1,6 +1,8 @@
 package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
-import java.nio.IntBuffer;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL46.*;
 
@@ -10,24 +12,41 @@ public class ImmutableBuffer implements IServerBuffer {
 
     public ImmutableBuffer(long size, int bits) {
         this.bufferHandle = glCreateBuffers();
-        glNamedBufferStorage(bufferHandle, size, bits);
+
+        glNamedBufferStorage(
+                bufferHandle,
+                size,
+                bits
+        );
     }
 
     public ImmutableBuffer(int bits, int[] data) {
         this.bufferHandle = glCreateBuffers();
-        glNamedBufferStorage(bufferHandle, data, bits);
+
+        glNamedBufferStorage(
+                bufferHandle,
+                data,
+                bits
+        );
     }
 
     public void copyTo(IServerBuffer buffer, long size) {
-        glCopyNamedBufferSubData(bufferHandle, buffer.getBufferHandle(), 0, 0, size);
-    }
-
-    public void clear(long offset, long size) {
-        glClearNamedBufferSubData(bufferHandle, GL_R32UI, offset, size, GL_RED_INTEGER, GL_UNSIGNED_INT, (IntBuffer) null);
+        glCopyNamedBufferSubData(
+                bufferHandle,
+                buffer.getBufferHandle(),
+                0,
+                0,
+                size
+        );
     }
 
     public long map(long length, int bits) {
-        return nglMapNamedBufferRange(bufferHandle, 0L, length, bits);
+        return nglMapNamedBufferRange(
+                bufferHandle,
+                0L,
+                length,
+                bits
+        );
     }
 
     public void unmap() {
@@ -44,8 +63,72 @@ public class ImmutableBuffer implements IServerBuffer {
     }
 
     @Override
+    public void subData(long offset, int[] data) {
+        glNamedBufferSubData(
+                bufferHandle,
+                offset,
+                data
+        );
+    }
+
+    @Override
     public void bindBase(int target, int index) {
-        glBindBufferBase(target, index, bufferHandle);
+        glBindBufferBase(
+                target,
+                index,
+                bufferHandle
+        );
+    }
+
+    @Override
+    public void bindRange(
+            int target,
+            int index,
+            long offset,
+            long size
+    ) {
+        glBindBufferRange(
+                target,
+                index,
+                bufferHandle,
+                offset,
+                size
+        );
+    }
+
+    @Override
+    public void clear(
+            long offset,
+            long size,
+            ByteBuffer buffer
+    ) {
+        glClearNamedBufferSubData(
+                bufferHandle,
+                GL_R32UI,
+                offset,
+                size,
+                GL_RED_INTEGER,
+                GL_UNSIGNED_INT,
+                buffer
+        );
+    }
+
+    @Override
+    public void clear(
+            long offset,
+            long size,
+            int value) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            glClearNamedBufferSubData(
+                    bufferHandle,
+                    GL_R32UI,
+                    offset,
+                    size,
+                    GL_RED_INTEGER,
+                    GL_UNSIGNED_INT,
+                    stack.mallocInt(1).put(0, value)
+            );
+        }
     }
 
     @Override

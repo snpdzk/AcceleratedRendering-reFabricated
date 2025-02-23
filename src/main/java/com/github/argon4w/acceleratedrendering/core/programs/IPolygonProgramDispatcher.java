@@ -4,5 +4,5 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 public interface IPolygonProgramDispatcher {
 
-    void dispatch(VertexFormat.Mode mode, int vertexCount);
+    int dispatch(VertexFormat.Mode mode, int vertexCount);
 }

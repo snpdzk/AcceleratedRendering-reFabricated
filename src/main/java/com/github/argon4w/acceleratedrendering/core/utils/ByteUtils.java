@@ -7,9 +7,13 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-public class ByteBufferUtils {
+public class ByteUtils {
 
     private static final Matrix4f MATRIX = new Matrix4f();
+
+    public static ByteBuffer toBuffer(long address, long size) {
+        return MemoryUtil.memByteBufferSafe(address, (int) size);
+    }
 
     public static void putReversedInt(long address, int value) {
         MemoryUtil.memPutInt(address, Integer.reverseBytes(value));

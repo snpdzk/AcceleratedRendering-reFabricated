@@ -1,8 +1,8 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSetPool;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
-import com.github.argon4w.acceleratedrendering.core.utils.ByteBufferUtils;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
+import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.IntElementUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVertexConsumer {
 
-    private final MappedBuffer elementBuffer;
+    private final ElementBufferPool.ElementBuffer elementBuffer;
     private final AcceleratedBufferSetPool.BufferSet bufferSet;
     private final RenderType renderType;
     private final VertexFormat.Mode mode;
@@ -39,7 +39,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     private int sharing;
 
     public AcceleratedBufferBuilder(
-            MappedBuffer elementBuffer,
+            ElementBufferPool.ElementBuffer elementBuffer,
             AcceleratedBufferSetPool.BufferSet bufferSet,
             RenderType renderType
 
@@ -206,7 +206,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         }
 
         if (this.pose != pPose) {
-            ByteBufferUtils.putMatrix3x4f(transform + 4L * 4L * 4L, pose.normal());
+            ByteUtils.putMatrix3x4f(transform + 4L * 4L * 4L, pose.normal());
         }
 
         return setNormal(
@@ -230,9 +230,9 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             throw new IllegalStateException("Vertex not building!");
         }
 
-        ByteBufferUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
-        ByteBufferUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
-        ByteBufferUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
+        ByteUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
+        ByteUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
+        ByteUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
 
         return this;
     }
@@ -272,9 +272,9 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         }
 
         if (normalOffset != -1) {
-            ByteBufferUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
-            ByteBufferUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
-            ByteBufferUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
+            ByteUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
+            ByteUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
+            ByteUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
         }
 
         long varying = bufferSet.reserveVarying();
@@ -301,8 +301,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         long mesh = flags + 4L;
         long extra = mesh + 4L;
 
-        ByteBufferUtils.putMatrix4f(transform, pose.pose());
-        ByteBufferUtils.putMatrix3x4f(normal, pose.normal());
+        ByteUtils.putMatrix4f(transform, pose.pose());
+        ByteUtils.putMatrix3x4f(normal, pose.normal());
         MemoryUtil.memPutInt(flags, bufferSet.getSharingFlags());
         MemoryUtil.memPutInt(mesh, -1);
 
@@ -332,7 +332,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         long varying = bufferSet.reserveVaryings(size);
         long length = (long) size * bufferSet.getVertexSize();
 
-        ByteBufferUtils.putByteBuffer(
+        ByteUtils.putByteBuffer(
                 vertexBuffer,
                 vertex,
                 length
@@ -390,7 +390,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         return vertexCount;
     }
 
-    public MappedBuffer getElementBuffer() {
+    public ElementBufferPool.ElementBuffer getElementBuffer() {
         return elementBuffer;
     }
 }

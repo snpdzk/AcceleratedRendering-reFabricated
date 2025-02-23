@@ -27,11 +27,16 @@ public class NormalCullingProgramDispatcher implements IPolygonProgramDispatcher
     }
 
     @Override
-    public void dispatch(VertexFormat.Mode mode, int vertexCount) {
+    public int dispatch(VertexFormat.Mode mode, int vertexCount) {
         int polygonCount = mode.indexCount(vertexCount) / 3;
 
         viewMatrixUniform.uploadMatrix4f(RenderSystem.getModelViewMatrix());
         polygonCountUniform.uploadUnsignedInt(polygonCount);
+
+        program.useProgram();
         program.dispatch((polygonCount + GROUP_SIZE - 1) / GROUP_SIZE);
+        program.resetProgram();
+
+        return program.getBarrierFlags();
     }
 }

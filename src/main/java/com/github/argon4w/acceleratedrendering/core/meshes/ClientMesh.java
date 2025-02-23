@@ -65,9 +65,7 @@ public class ClientMesh implements IMesh {
                 return EmptyMesh.INSTANCE;
             }
 
-            ByteBuffer byteBuffer = collector
-                    .getBuffer()
-                    .asByteBuffer();
+            ByteBuffer byteBuffer = collector.getBuffer().asByteBuffer();
 
             if (byteBuffer == null) {
                 return EmptyMesh.INSTANCE;

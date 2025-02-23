@@ -13,21 +13,36 @@ public class ComputeProgram {
     }
 
     public void dispatch(int count) {
-        int lastProgram = glGetInteger(GL_CURRENT_PROGRAM);
+        glDispatchCompute(
+                count,
+                1,
+                1
+        );
+    }
 
+    public boolean linkProgram() {
+        glLinkProgram(programHandle);
+        return glGetProgrami(programHandle, GL_LINK_STATUS) == GL_TRUE;
+    }
+
+    public void useProgram() {
         glUseProgram(programHandle);
-        glDispatchCompute(count, 1, 1);
-        glMemoryBarrier(barrierFlags);
-        glUseProgram(lastProgram);
+    }
+
+    public void resetProgram() {
+        glUseProgram(0);
     }
 
     public void attachShader(ComputeShader computeShader) {
         glAttachShader(programHandle, computeShader.getShaderHandle());
     }
 
-    public boolean linkProgram() {
-        glLinkProgram(programHandle);
-        return glGetProgrami(programHandle, GL_LINK_STATUS) == GL_TRUE;
+    public void waitBarriers() {
+        glMemoryBarrier(barrierFlags);
+    }
+
+    public int getBarrierFlags() {
+        return barrierFlags;
     }
 
     public int getUniformLocation(String name) {

@@ -23,6 +23,9 @@ public class TransformProgramDispatcher {
 
     public void dispatch(int vertexCount) {
         vertexCountUniform.uploadUnsignedInt(vertexCount);
+        program.useProgram();
         program.dispatch((vertexCount + GROUP_SIZE - 1) / GROUP_SIZE);
+        program.resetProgram();
+        program.waitBarriers();
     }
 }

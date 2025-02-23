@@ -12,11 +12,11 @@ public class IrisProcessingProgramDispatcher implements IPolygonProgramDispatche
     private static final int GROUP_SIZE = 128;
 
     private final ComputeProgram program;
-    private final Uniform uniform;
+    private final Uniform polygonCountUniform;
 
     public IrisProcessingProgramDispatcher(ComputeProgram program) {
         this.program = program;
-        this.uniform = this.program.getUniform("polygonCount");
+        this.polygonCountUniform = this.program.getUniform("polygonCount");
     }
 
     public IrisProcessingProgramDispatcher(ResourceLocation key) {
@@ -24,10 +24,14 @@ public class IrisProcessingProgramDispatcher implements IPolygonProgramDispatche
     }
 
     @Override
-    public void dispatch(VertexFormat.Mode mode, int vertexCount) {
+    public int dispatch(VertexFormat.Mode mode, int vertexCount) {
         int polygonCount = vertexCount / mode.primitiveLength;
 
-        uniform.uploadUnsignedInt(polygonCount);
+        polygonCountUniform.uploadUnsignedInt(polygonCount);
+        program.useProgram();
         program.dispatch((polygonCount + GROUP_SIZE - 1) / GROUP_SIZE);
+        program.resetProgram();
+
+        return program.getBarrierFlags();
     }
 }

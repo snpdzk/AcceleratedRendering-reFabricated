@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
-import org.lwjgl.system.MemoryUtil;
+import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
 
@@ -8,44 +8,45 @@ import static org.lwjgl.opengl.GL46.*;
 
 public class MappedBuffer extends MutableBuffer implements IClientBuffer {
 
-    private long bufferAddress;
-    private long bufferPosition;
+    private long address;
+    private long position;
 
     public MappedBuffer(long initialSize) {
-        super(initialSize, GL_DYNAMIC_STORAGE_BIT
-                | GL_MAP_PERSISTENT_BIT
-                | GL_MAP_COHERENT_BIT
-                | GL_MAP_WRITE_BIT);
-        this.bufferAddress = map();
+        super(initialSize, GL_DYNAMIC_STORAGE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT);
+        this.address = map();
     }
 
     @Override
     public long reserve(long bytes) {
-        long position = bufferPosition;
-        bufferPosition = position + bytes;
+        long position = this.position;
+        this.position += bytes;
 
-        if (bufferPosition <= bufferSize) {
-            return bufferAddress + position;
+        if (this.position <= bufferSize) {
+            return address + position;
         }
 
-        resize(bufferPosition);
-        return bufferAddress + position;
+        resize(this.position);
+        return address + position;
     }
 
     @Override
     public ByteBuffer asByteBuffer() {
-        return MemoryUtil.memByteBuffer(bufferAddress, (int) getBufferSize());
+        return ByteUtils.toBuffer(address, bufferSize);
     }
 
-    public void resizeTo(long newBufferSize) {
+    @Override
+    public void beforeExpand() {
         unmap();
-        super.resizeTo(newBufferSize);
-        bufferAddress = map();
     }
 
-    public void delete() {
-        unmap();
-        super.delete();
+    @Override
+    public void afterExpand() {
+        address = map();
+    }
+
+    @Override
+    public void bind(int target) {
+        throw new IllegalStateException("Buffer is mapped.");
     }
 
     public long map() {
@@ -53,10 +54,10 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
     }
 
     public void reset() {
-        bufferPosition = 0;
+        position = 0;
     }
 
     public long getPosition() {
-        return bufferPosition;
+        return position;
     }
 }

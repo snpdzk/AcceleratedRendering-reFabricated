@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IClientBuffer;
-import com.github.argon4w.acceleratedrendering.core.utils.ByteBufferUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderType;
@@ -57,9 +57,9 @@ public class MeshCollector {
         }
 
         if (normalOffset != -1) {
-            ByteBufferUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
-            ByteBufferUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
-            ByteBufferUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
+            ByteUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
+            ByteUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
+            ByteUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
         }
     }
 

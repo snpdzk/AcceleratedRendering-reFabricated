@@ -22,10 +22,14 @@ public class PassThroughCullingProgramDispatcher implements IPolygonProgramDispa
     }
 
     @Override
-    public void dispatch(VertexFormat.Mode mode, int vertexCount) {
+    public int dispatch(VertexFormat.Mode mode, int vertexCount) {
         int indexCount = mode.indexCount(vertexCount);
 
         indexCountUniform.uploadUnsignedInt(indexCount);
+        program.useProgram();
         program.dispatch((indexCount + GROUP_SIZE - 1) / GROUP_SIZE);
+        program.resetProgram();
+
+        return program.getBarrierFlags();
     }
 }

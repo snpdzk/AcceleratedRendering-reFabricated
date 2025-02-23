@@ -7,7 +7,7 @@ public class EmptyProgramDispatcher implements IPolygonProgramDispatcher {
     public static final EmptyProgramDispatcher INSTANCE = new EmptyProgramDispatcher();
 
     @Override
-    public void dispatch(VertexFormat.Mode mode, int vertexCount) {
-
+    public int dispatch(VertexFormat.Mode mode, int vertexCount) {
+        return 0;
     }
 }
