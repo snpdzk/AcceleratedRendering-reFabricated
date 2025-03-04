@@ -13,6 +13,7 @@ public class CoreBuffers {
 
     public static final AcceleratedBufferSource ENTITY = new AcceleratedBufferSource(IBufferEnvironment.Presets.ENTITY);
     public static final AcceleratedBufferSource POS_TEX = new AcceleratedBufferSource(IBufferEnvironment.Presets.POS_TEX);
+    public static final AcceleratedBufferSource POS_COLOR_TEX_LIGHT = new AcceleratedBufferSource(IBufferEnvironment.Presets.POS_COLOR_TEX_LIGHT);
 
     public static final AcceleratedBufferSource POS_TEX_COLOR = new AcceleratedBufferSource(IBufferEnvironment.Presets.POS_TEX_COLOR);
     public static final OutlineMaskBufferSource OUTLINE_MASK = new OutlineMaskBufferSource(POS_TEX_COLOR);
@@ -21,6 +22,7 @@ public class CoreBuffers {
             .fallback(Minecraft.getInstance().renderBuffers().bufferSource())
             .bufferSource(ENTITY)
             .bufferSource(POS_TEX)
+            .bufferSource(POS_COLOR_TEX_LIGHT)
             .mode(VertexFormat.Mode.QUADS)
             .mode(VertexFormat.Mode.TRIANGLES)
             .mode(VertexFormat.Mode.LINES)

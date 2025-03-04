@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 
 import java.util.Optional;
 
-public class IrisRenderType extends RenderType implements WrappableRenderType {
+public class IrisRenderType extends RenderType implements WrappableRenderType, IFastUnwrap {
 
     private final RenderType renderType;
     private final VertexFormat vertexFormat;
@@ -43,6 +43,16 @@ public class IrisRenderType extends RenderType implements WrappableRenderType {
     @Override
     public RenderType unwrap() {
         return renderType;
+    }
+
+    @Override
+    public RenderType unwrapFast() {
+        return renderType;
+    }
+
+    @Override
+    public boolean supportFastUnwrap() {
+        return true;
     }
 
     @Override

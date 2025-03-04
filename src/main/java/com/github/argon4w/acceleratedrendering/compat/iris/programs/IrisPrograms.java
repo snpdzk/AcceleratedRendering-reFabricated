@@ -17,15 +17,23 @@ import net.neoforged.bus.api.SubscribeEvent;
 public class IrisPrograms {
 
     public static final ResourceLocation IRIS_ENTITY_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("compat_entity_vertex_transform_iris");
+    public static final ResourceLocation IRIS_GLYPH_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("compat_glyph_vertex_transform_iris");
     public static final ResourceLocation IRIS_ENTITY_POLYGON_CULLING_KEY = AcceleratedRenderingModEntry.location("compat_entity_polygon_cull_iris");
     public static final ResourceLocation IRIS_ENTITY_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_entity_quad_processing_iris");
     public static final ResourceLocation IRIS_ENTITY_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_entity_triangle_processing_iris");
+    public static final ResourceLocation IRIS_GLYPH_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_glyph_quad_processing_iris");
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
         event.loadComputeShader(
                 IRIS_ENTITY_VERTEX_TRANSFORM_KEY,
                 AcceleratedRenderingModEntry.location("shaders/compat/transform/iris_entity_vertex_transform_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        event.loadComputeShader(
+                IRIS_GLYPH_VERTEX_TRANSFORM_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/transform/iris_glyph_vertex_transform_shader.compute"),
                 BarrierFlags.SHADER_STORAGE
         );
 
@@ -47,6 +55,12 @@ public class IrisPrograms {
                 AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_entity_triangle_processing_shader.compute"),
                 BarrierFlags.SHADER_STORAGE
         );
+
+        event.loadComputeShader(
+                IRIS_GLYPH_QUAD_PROCESSING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_glyph_quad_processing_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
     }
 
     @SubscribeEvent
@@ -54,6 +68,11 @@ public class IrisPrograms {
         event.loadFor(
                 IrisVertexFormats.ENTITY,
                 parent -> new FixedTransformProgramSelector(IRIS_ENTITY_VERTEX_TRANSFORM_KEY)
+        );
+
+        event.loadFor(
+                IrisVertexFormats.GLYPH,
+                parent -> new FixedTransformProgramSelector(IRIS_GLYPH_VERTEX_TRANSFORM_KEY)
         );
     }
 
@@ -79,6 +98,13 @@ public class IrisPrograms {
                 IrisVertexFormats.ENTITY,
                 VertexFormat.Mode.QUADS,
                 IRIS_ENTITY_QUAD_PROCESSING_KEY
+        ));
+
+        event.loadFor( IrisVertexFormats.GLYPH, parent -> new IrisEntityPolygonProcessor(
+                parent,
+                IrisVertexFormats.GLYPH,
+                VertexFormat.Mode.QUADS,
+                IRIS_GLYPH_QUAD_PROCESSING_KEY
         ));
     }
 }

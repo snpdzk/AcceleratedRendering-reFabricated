@@ -16,7 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(IBufferEnvironment.Presets.class)
 public class IBufferEnvironmentPresetsMixin {
 
-    @Mutable @Shadow @Final private static IBufferEnvironment ENTITY;
+    @Mutable @Shadow @Final public static IBufferEnvironment ENTITY;
+    @Mutable @Shadow @Final public static IBufferEnvironment POS_COLOR_TEX_LIGHT;
 
     @WrapOperation(method = "<clinit>", at = @At(value = "FIELD", target = "Lcom/github/argon4w/acceleratedrendering/core/buffers/environments/IBufferEnvironment$Presets;ENTITY:Lcom/github/argon4w/acceleratedrendering/core/buffers/environments/IBufferEnvironment;", opcode = Opcodes.PUTSTATIC))
     private static void useIrisEntityEnvironment(IBufferEnvironment value, Operation<Void> original) {
@@ -24,6 +25,15 @@ public class IBufferEnvironmentPresetsMixin {
                 value,
                 DefaultVertexFormat.NEW_ENTITY,
                 IrisVertexFormats.ENTITY
+        ));
+    }
+
+    @WrapOperation(method = "<clinit>", at = @At(value = "FIELD", target = "Lcom/github/argon4w/acceleratedrendering/core/buffers/environments/IBufferEnvironment$Presets;POS_COLOR_TEX_LIGHT:Lcom/github/argon4w/acceleratedrendering/core/buffers/environments/IBufferEnvironment;", opcode = Opcodes.PUTSTATIC))
+    private static void useIrisGlyphEnvironment(IBufferEnvironment value, Operation<Void> original) {
+        original.call(new IrisBufferEnvironment(
+                value,
+                DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
+                IrisVertexFormats.GLYPH
         ));
     }
 }

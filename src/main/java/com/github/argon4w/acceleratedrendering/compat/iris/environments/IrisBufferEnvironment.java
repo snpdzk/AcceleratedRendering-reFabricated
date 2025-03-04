@@ -56,6 +56,11 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
+    public VertexFormat getActiveFormat() {
+        return getSubSet().getActiveFormat();
+    }
+
+    @Override
     public IServerBuffer getServerMeshBuffer() {
         return getSubSet().getServerMeshBuffer();
     }
@@ -137,6 +142,11 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
         public boolean isAccelerated(VertexFormat vertexFormat) {
             return this.vanillaVertexFormat == vertexFormat
                     || this.irisVertexFormat == vertexFormat;
+        }
+
+        @Override
+        public VertexFormat getActiveFormat() {
+            return irisVertexFormat;
         }
 
         @Override

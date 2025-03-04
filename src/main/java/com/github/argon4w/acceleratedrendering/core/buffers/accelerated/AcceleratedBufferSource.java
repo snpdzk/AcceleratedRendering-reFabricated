@@ -146,11 +146,15 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
         DrawContextPool.waitBarriers();
         bufferSet.resetVertexArray();
-        acceleratedBuilders.clear();
     }
 
     @Override
     public void clearBuffers() {
+        if (acceleratedBuilders.isEmpty()) {
+            return;
+        }
+
+        acceleratedBuilders.clear();
         drawContexts.clear();
         bufferSet.reset();
         bufferSet.setInFlight();

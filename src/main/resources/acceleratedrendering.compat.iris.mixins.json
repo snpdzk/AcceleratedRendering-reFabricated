@@ -13,7 +13,10 @@
     "acceleratedrendering.RenderTypeUtilsMixin",
     "iris.IrisVertexFormatsMixin",
     "iris.ModelToEntityVertexSerializerMixin",
-    "iris.ShadowRendererMixin"
+    "iris.ShadowRendererMixin",
+    "iris.WrappableRenderTypeMixin",
+    "vanilla.LevelRendererMixin",
+    "vanilla.RenderTypeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

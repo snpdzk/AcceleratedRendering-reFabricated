@@ -24,13 +24,13 @@ public class SimpleOutlineBufferSource implements MultiBufferSource {
         }
 
         VertexConsumer buffer = bufferSource.getBuffer(pRenderType);
-        Optional<RenderType> outlineRenderType = pRenderType.outline();
+        Optional<RenderType> outline = pRenderType.outline();
 
-        if (outlineRenderType.isEmpty()) {
+        if (outline.isEmpty()) {
             return buffer;
         }
 
-        return new AcceleratedDoubleVertexConsumer(buffer, outlineBufferSource.getBuffer(outlineRenderType.get()));
+        return new AcceleratedDoubleVertexConsumer(buffer, outlineBufferSource.getBuffer(outline.get()));
     }
 
     public SimpleOutlineBufferSource setColor(int color) {

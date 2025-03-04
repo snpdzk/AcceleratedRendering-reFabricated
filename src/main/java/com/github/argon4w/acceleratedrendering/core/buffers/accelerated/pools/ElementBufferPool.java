@@ -27,6 +27,9 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
 
     public void bindElementBuffer() {
         elementBufferOut.bind(GL_ELEMENT_ARRAY_BUFFER);
+    }
+
+    public void resetResized() {
         elementBufferOut.resetResized();
     }
 

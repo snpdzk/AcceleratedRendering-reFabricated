@@ -1,9 +1,10 @@
 package com.github.argon4w.acceleratedrendering.core.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -15,7 +16,7 @@ public interface VertexConsumerMixin extends IAcceleratedVertexConsumer {
 
     @Unique
     @Override
-    default void beginTransform(PoseStack.Pose pose) {
+    default void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
 
     }
 

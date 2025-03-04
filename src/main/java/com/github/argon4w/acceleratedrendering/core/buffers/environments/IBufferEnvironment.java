@@ -14,6 +14,7 @@ public interface IBufferEnvironment {
     void addExtraSharings(long address);
     void addExtraVertex(long address);
     boolean isAccelerated(VertexFormat vertexFormat);
+    VertexFormat getActiveFormat();
     IServerBuffer getServerMeshBuffer();
     TransformProgramDispatcher selectTransformProgramDispatcher();
     IPolygonProgramDispatcher selectCullProgramDispatcher(RenderType renderType);
@@ -28,5 +29,6 @@ public interface IBufferEnvironment {
         public static final IBufferEnvironment ENTITY = new VanillaBufferEnvironment(DefaultVertexFormat.NEW_ENTITY);
         public static final IBufferEnvironment POS_TEX_COLOR = new VanillaBufferEnvironment(DefaultVertexFormat.POSITION_TEX_COLOR);
         public static final IBufferEnvironment POS_TEX = new VanillaBufferEnvironment(DefaultVertexFormat.POSITION_TEX);
+        public static final IBufferEnvironment POS_COLOR_TEX_LIGHT = new VanillaBufferEnvironment(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
     }
 }

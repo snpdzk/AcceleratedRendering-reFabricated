@@ -8,6 +8,7 @@ import com.github.argon4w.acceleratedrendering.core.gl.Sync;
 import com.github.argon4w.acceleratedrendering.core.gl.VertexArray;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MutableBuffer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -61,6 +62,7 @@ public class AcceleratedBufferSetPool {
         private final MutableInt element;
 
         private boolean used;
+        private VertexFormat format;
 
         public BufferSet() {
             this.size = CoreFeature.getPooledElementBufferSize();
@@ -76,6 +78,7 @@ public class AcceleratedBufferSetPool {
             this.element = new MutableInt(0);
 
             this.used = false;
+            this.format = null;
         }
 
         public void reset() {
@@ -99,8 +102,12 @@ public class AcceleratedBufferSetPool {
         }
 
         public void bindDrawBuffers() {
-            if (elementBufferPool.isResized() || vertexBufferOut.isResized()) {
+            if (format != bufferEnvironment.getActiveFormat()
+                    || elementBufferPool.isResized()
+                    || vertexBufferOut.isResized()) {
+                format = bufferEnvironment.getActiveFormat();
                 elementBufferPool.bindElementBuffer();
+                elementBufferPool.resetResized();
                 vertexBufferOut.bind(GL_ARRAY_BUFFER);
                 vertexBufferOut.resetResized();
                 bufferEnvironment.setupBufferState();

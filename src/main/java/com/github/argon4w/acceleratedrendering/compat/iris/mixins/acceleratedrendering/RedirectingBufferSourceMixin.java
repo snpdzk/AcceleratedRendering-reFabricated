@@ -1,5 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
+import com.github.argon4w.acceleratedrendering.compat.iris.IFastUnwrap;
+import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingBufferSource;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -13,8 +15,20 @@ public class RedirectingBufferSourceMixin {
 
     @WrapOperation(method = "getBuffer", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/RenderType;name:Ljava/lang/String;"))
     public String unwrapIrisRenderType(RenderType instance, Operation<String> original) {
-        return original.call(instance instanceof WrappableRenderType wrapped
-                ? wrapped.unwrap()
-                : instance);
+        IFastUnwrap fast = (IFastUnwrap) instance;
+
+        if (IrisCompatFeature.isFastRenderTypeCheckEnabled()) {
+            return original.call(fast.unwrapFast());
+        }
+
+        if (instance instanceof WrappableRenderType wrapped) {
+            return original.call(wrapped.unwrap());
+        }
+
+        if (fast.supportFastUnwrap()) {
+            return original.call(fast.unwrapFast());
+        }
+
+        return original.call(instance);
     }
 }

@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 
+import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSetPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
 import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
@@ -10,6 +11,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.FastColor;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -30,13 +33,15 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     private final long uv2Offset;
     private final long normalOffset;
 
-    private PoseStack.Pose pose;
     private int elementCount;
     private int vertexCount;
     private long vertex;
     private long varying;
     private long transform;
     private int sharing;
+
+    private Matrix4f cachedTransform;
+    private Matrix3f cachedNormal;
 
     public AcceleratedBufferBuilder(
             ElementBufferPool.ElementBuffer elementBuffer,
@@ -57,13 +62,15 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         this.uv2Offset = bufferSet.getOffset(VertexFormatElement.UV2);
         this.normalOffset = bufferSet.getOffset(VertexFormatElement.NORMAL);
 
-        this.pose = null;
         this.elementCount = 0;
         this.vertexCount = 0;
         this.vertex = -1;
         this.varying = -1;
         this.transform = -1;
         this.sharing = -1;
+
+        this.cachedTransform = null;
+        this.cachedNormal = null;
     }
 
     private void putElements(int size) {
@@ -82,7 +89,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             float pY,
             float pZ
     ) {
-        beginTransform(pPose);
+        beginTransform(pPose.pose(), pPose.normal());
         return addVertex(
                 pX,
                 pY,
@@ -205,8 +212,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             );
         }
 
-        if (this.pose != pPose) {
-            ByteUtils.putMatrix3x4f(transform + 4L * 4L * 4L, pose.normal());
+        if (!pPose.normal().equals(cachedNormal)) {
+            ByteUtils.putMatrix3x4f(transform + 4L * 4L * 4L, pPose.normal());
         }
 
         return setNormal(
@@ -251,7 +258,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             float pNormalY,
             float pNormalZ
     ) {
-        vertexCount++;
+        vertexCount ++;
         elementCount ++;
 
         if (elementCount >= polygonSize) {
@@ -287,12 +294,17 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     }
 
     @Override
-    public void beginTransform(PoseStack.Pose pose) {
-        if (this.pose == pose) {
+    public void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
+        if (CoreFeature.shouldCacheSamePose()
+                && transformMatrix.equals(cachedTransform)
+                && normalMatrix.equals(cachedNormal)
+        ) {
             return;
         }
 
-        this.pose = pose;
+        this.cachedTransform = new Matrix4f(transformMatrix);
+        this.cachedNormal = new Matrix3f(normalMatrix);
+
         this.sharing = bufferSet.getSharing();
         this.transform = bufferSet.reserveSharing();
 
@@ -301,8 +313,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         long mesh = flags + 4L;
         long extra = mesh + 4L;
 
-        ByteUtils.putMatrix4f(transform, pose.pose());
-        ByteUtils.putMatrix3x4f(normal, pose.normal());
+        ByteUtils.putMatrix4f(transform, transformMatrix);
+        ByteUtils.putMatrix3x4f(normal, normalMatrix);
         MemoryUtil.memPutInt(flags, bufferSet.getSharingFlags());
         MemoryUtil.memPutInt(mesh, -1);
 
@@ -311,7 +323,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
     @Override
     public void endTransform() {
-        this.pose = null;
+        this.cachedTransform = null;
+        this.cachedNormal = null;
         this.sharing = -1;
         this.transform = -1;
     }

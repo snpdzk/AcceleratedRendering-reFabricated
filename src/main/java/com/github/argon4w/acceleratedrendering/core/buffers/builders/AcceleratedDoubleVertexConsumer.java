@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.renderer.RenderType;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 import java.nio.ByteBuffer;
 import java.util.Set;
@@ -29,9 +31,9 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IAcceler
     }
 
     @Override
-    public void beginTransform(PoseStack.Pose pose) {
-        ((IAcceleratedVertexConsumer) vertexConsumer1).beginTransform(pose);
-        ((IAcceleratedVertexConsumer) vertexConsumer2).beginTransform(pose);
+    public void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
+        ((IAcceleratedVertexConsumer) vertexConsumer1).beginTransform(transformMatrix, normalMatrix);
+        ((IAcceleratedVertexConsumer) vertexConsumer2).beginTransform(transformMatrix, normalMatrix);
     }
 
     @Override

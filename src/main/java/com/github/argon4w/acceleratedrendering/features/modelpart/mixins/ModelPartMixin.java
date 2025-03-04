@@ -55,7 +55,7 @@ public class ModelPartMixin {
         }
 
         ci.cancel();
-        extension.beginTransform(pPose);
+        extension.beginTransform(pPose.pose(), pPose.normal());
 
         for (RenderType renderType : extension.getRenderTypes()) {
             IMesh mesh = meshes.get(renderType);
@@ -72,7 +72,7 @@ public class ModelPartMixin {
 
             IMesh.Builder builder = AcceleratedEntityRenderingFeature.getMeshBuilder();
             MeshCollector meshCollector = builder.newMeshCollector(renderType);
-            NativeImage image = TextureUtils.downloadTexture(renderType);
+            NativeImage image = TextureUtils.downloadTexture(renderType, 0);
 
             for (ModelPart.Cube cube : cubes) {
                 for (ModelPart.Polygon polygon : cube.polygons) {
@@ -101,6 +101,7 @@ public class ModelPartMixin {
             }
 
             mesh = builder.build(meshCollector);
+
             meshes.put(renderType, mesh);
             mesh.write(
                     extension,
