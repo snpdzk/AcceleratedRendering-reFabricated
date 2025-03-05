@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.RenderType;
 public interface IBufferEnvironment {
 
     void setupBufferState();
-    void addExtraSharings(long address);
     void addExtraVertex(long address);
     boolean isAccelerated(VertexFormat vertexFormat);
     VertexFormat getActiveFormat();

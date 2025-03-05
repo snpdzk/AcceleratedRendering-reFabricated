@@ -61,12 +61,7 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
 
     @Override
     public void addExtraVertex(long address) {
-        addExtraSharings(address + entityOffset);
-    }
-
-    @Override
-    public void addExtraSharings(long address) {
-        parent.addExtraSharings(address);
+        parent.addExtraVertex(address);
 
         if (!IrisCompatFeature.isEnabled()) {
             return;
@@ -76,8 +71,8 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
             return;
         }
 
-        MemoryUtil.memPutShort(address + 0L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedEntity());
-        MemoryUtil.memPutShort(address + 2L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedBlockEntity());
-        MemoryUtil.memPutShort(address + 4L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedItem());
+        MemoryUtil.memPutShort(address + entityOffset + 0L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedEntity());
+        MemoryUtil.memPutShort(address + entityOffset + 2L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedBlockEntity());
+        MemoryUtil.memPutShort(address + entityOffset + 4L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedItem());
     }
 }

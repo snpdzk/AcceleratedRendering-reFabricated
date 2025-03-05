@@ -14,11 +14,6 @@ public class EmptyPolygonProcessor implements IPolygonProcessor {
     }
 
     @Override
-    public void addExtraSharings(long address) {
-
-    }
-
-    @Override
     public void addExtraVertex(long address) {
 
     }

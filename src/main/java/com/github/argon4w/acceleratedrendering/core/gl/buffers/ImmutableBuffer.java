@@ -2,8 +2,6 @@ package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
 import org.lwjgl.system.MemoryStack;
 
-import java.nio.ByteBuffer;
-
 import static org.lwjgl.opengl.GL46.*;
 
 public class ImmutableBuffer implements IServerBuffer {
@@ -58,8 +56,35 @@ public class ImmutableBuffer implements IServerBuffer {
     }
 
     @Override
+    public int getBufferHandle() {
+        return bufferHandle;
+    }
+
+    @Override
     public void bind(int target) {
         glBindBuffer(target, bufferHandle);
+    }
+
+    @Override
+    public void clearInteger(long offset, int value) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            BufferClearType.INTEGER.clear(
+                    bufferHandle,
+                    offset,
+                    Integer.BYTES,
+                    stack.malloc(4).putInt(0, value)
+            );
+        }
+    }
+
+    @Override
+    public void clearBytes(long offset, long size) {
+        BufferClearType.BYTE.clear(
+                bufferHandle,
+                offset,
+                size,
+                null
+        );
     }
 
     @Override
@@ -94,45 +119,5 @@ public class ImmutableBuffer implements IServerBuffer {
                 offset,
                 size
         );
-    }
-
-    @Override
-    public void clear(
-            long offset,
-            long size,
-            ByteBuffer buffer
-    ) {
-        glClearNamedBufferSubData(
-                bufferHandle,
-                GL_R32UI,
-                offset,
-                size,
-                GL_RED_INTEGER,
-                GL_UNSIGNED_INT,
-                buffer
-        );
-    }
-
-    @Override
-    public void clear(
-            long offset,
-            long size,
-            int value) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            glClearNamedBufferSubData(
-                    bufferHandle,
-                    GL_R32UI,
-                    offset,
-                    size,
-                    GL_RED_INTEGER,
-                    GL_UNSIGNED_INT,
-                    stack.mallocInt(1).put(0, value)
-            );
-        }
-    }
-
-    @Override
-    public int getBufferHandle() {
-        return bufferHandle;
     }
 }

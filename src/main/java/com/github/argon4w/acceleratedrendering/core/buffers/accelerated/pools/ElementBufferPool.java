@@ -6,7 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.gl.buffers.SegmentBuffer;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import org.apache.commons.lang3.mutable.MutableLong;
 
-import static org.lwjgl.opengl.GL46.*;
+import static org.lwjgl.opengl.GL46.GL_ELEMENT_ARRAY_BUFFER;
 
 public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.ElementBuffer, Void> {
 

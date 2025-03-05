@@ -3,9 +3,7 @@ package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import org.apache.commons.lang3.mutable.MutableLong;
 
-import java.nio.ByteBuffer;
-
-import static org.lwjgl.opengl.GL46.*;
+import static org.lwjgl.opengl.GL46.GL_DYNAMIC_STORAGE_BIT;
 
 public class SegmentBuffer extends MutableBuffer {
 
@@ -103,13 +101,23 @@ public class SegmentBuffer extends MutableBuffer {
         }
 
         @Override
+        public void bind(int target) {
+            SegmentBuffer.this.bind(target);
+        }
+
+        @Override
         public void subData(long offset, int[] data) {
             SegmentBuffer.this.subData(offset + this.offset, data);
         }
 
         @Override
-        public void bind(int target) {
-            SegmentBuffer.this.bind(target);
+        public void clearInteger(long offset, int value) {
+            SegmentBuffer.this.clearInteger(offset + this.offset, value);
+        }
+
+        @Override
+        public void clearBytes(long offset, long size) {
+            SegmentBuffer.this.clearBytes(offset + this.offset, size);
         }
 
         @Override
@@ -134,32 +142,6 @@ public class SegmentBuffer extends MutableBuffer {
                     index,
                     this.offset + offset,
                     size
-            );
-        }
-
-        @Override
-        public void clear(
-                long offset,
-                long size,
-                ByteBuffer buffer
-        ) {
-            SegmentBuffer.this.clear(
-                    offset + this.offset,
-                    size,
-                    buffer
-            );
-        }
-
-        @Override
-        public void clear(
-                long offset,
-                long size,
-                int value
-        ) {
-            SegmentBuffer.this.clear(
-                    offset + this.offset,
-                    size,
-                    value
             );
         }
     }

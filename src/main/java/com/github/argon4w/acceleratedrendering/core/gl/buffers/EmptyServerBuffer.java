@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
-import java.nio.ByteBuffer;
-
 public class EmptyServerBuffer implements IServerBuffer {
 
     public static final EmptyServerBuffer INSTANCE = new EmptyServerBuffer();
@@ -13,6 +11,16 @@ public class EmptyServerBuffer implements IServerBuffer {
 
     @Override
     public void bind(int target) {
+
+    }
+
+    @Override
+    public void clearInteger(long offset, int value) {
+
+    }
+
+    @Override
+    public void clearBytes(long offset, long size) {
 
     }
 
@@ -32,24 +40,6 @@ public class EmptyServerBuffer implements IServerBuffer {
             int index,
             long offset,
             long size
-    ) {
-
-    }
-
-    @Override
-    public void clear(
-            long offset,
-            long size,
-            ByteBuffer buffer
-    ) {
-
-    }
-
-    @Override
-    public void clear(
-            long offset,
-            long size,
-            int value
     ) {
 
     }

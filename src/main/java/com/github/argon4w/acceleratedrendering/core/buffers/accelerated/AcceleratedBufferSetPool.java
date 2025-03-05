@@ -165,15 +165,11 @@ public class AcceleratedBufferSetPool {
         }
 
         public long reserveVarying() {
-            return varyingBuffer.reserve(5L * 4L);
+            return varyingBuffer.reserve(2L * 4L);
         }
 
         public long reserveVaryings(long count) {
-            return varyingBuffer.reserve(5L * 4L * count);
-        }
-
-        public void addExtraSharings(long address) {
-            bufferEnvironment.addExtraSharings(address);
+            return varyingBuffer.reserve(2L * 4L * count);
         }
 
         public void addExtraVertex(long address) {

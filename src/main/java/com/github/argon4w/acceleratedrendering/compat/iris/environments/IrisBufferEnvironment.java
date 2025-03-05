@@ -46,11 +46,6 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public void addExtraSharings(long address) {
-        getSubSet().addExtraSharings(address);
-    }
-
-    @Override
     public void addExtraVertex(long address) {
         getSubSet().addExtraVertex(address);
     }
@@ -126,11 +121,6 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
         @Override
         public void setupBufferState() {
             irisVertexFormat.setupBufferState();
-        }
-
-        @Override
-        public void addExtraSharings(long address) {
-            polygonProcessor.addExtraSharings(address);
         }
 
         @Override

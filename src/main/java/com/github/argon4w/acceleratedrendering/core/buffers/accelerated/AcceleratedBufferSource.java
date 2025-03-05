@@ -1,9 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
-import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.DrawContextPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
+import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -91,12 +91,12 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             return;
         }
 
+        int program = glGetInteger(GL_CURRENT_PROGRAM);
+        int barrier = 0;
+
         bufferSet.bindTransformBuffers();
         bufferSet.prepareElementBuffer();
         bufferEnvironment.selectTransformProgramDispatcher().dispatch(bufferSet.getVertexCount());
-
-        int program = glGetInteger(GL_CURRENT_PROGRAM);
-        int barrier = 0;
 
         for (RenderType renderType : acceleratedBuilders.keySet()) {
             AcceleratedBufferBuilder builder = acceleratedBuilders.get(renderType);

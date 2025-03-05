@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
-import java.nio.ByteBuffer;
-
 public class MutableBuffer implements IServerBuffer {
 
     private final int bits;
@@ -15,6 +13,7 @@ public class MutableBuffer implements IServerBuffer {
         this.resized = false;
         this.bufferSize = initialSize;
         this.glBuffer = new ImmutableBuffer(initialSize, bits);
+        this.glBuffer.clearBytes(0L, this.bufferSize);
     }
 
     public void expand(long bytes) {
@@ -24,8 +23,10 @@ public class MutableBuffer implements IServerBuffer {
 
         beforeExpand();
 
-        ImmutableBuffer newBuffer = new ImmutableBuffer(bufferSize + bytes, bits);
+        long newSize = bufferSize + bytes;
+        ImmutableBuffer newBuffer = new ImmutableBuffer(newSize, bits);
 
+        newBuffer.clearBytes(0L, newSize);
         glBuffer.copyTo(newBuffer, bufferSize);
         glBuffer.delete();
 
@@ -33,7 +34,7 @@ public class MutableBuffer implements IServerBuffer {
 
         resized = true;
         glBuffer = newBuffer;
-        bufferSize += bytes;
+        bufferSize = newSize;
 
         afterExpand();
     }
@@ -83,13 +84,28 @@ public class MutableBuffer implements IServerBuffer {
     }
 
     @Override
-    public void subData(long offset, int[] data) {
-        glBuffer.subData(offset, data);
+    public int getBufferHandle() {
+        return glBuffer.getBufferHandle();
     }
 
     @Override
     public void bind(int target) {
         glBuffer.bind(target);
+    }
+
+    @Override
+    public void clearInteger(long offset, int value) {
+        glBuffer.clearInteger(offset, value);
+    }
+
+    @Override
+    public void clearBytes(long offset, long size) {
+        glBuffer.clearBytes(offset, size);
+    }
+
+    @Override
+    public void subData(long offset, int[] data) {
+        glBuffer.subData(offset, data);
     }
 
     @Override
@@ -110,36 +126,5 @@ public class MutableBuffer implements IServerBuffer {
                 offset,
                 size
         );
-    }
-
-    @Override
-    public void clear(
-            long offset,
-            long size,
-            ByteBuffer buffer
-    ) {
-        glBuffer.clear(
-                offset,
-                size,
-                buffer
-        );
-    }
-
-    @Override
-    public void clear(
-            long offset,
-            long size,
-            int value
-    ) {
-        glBuffer.clear(
-                offset,
-                size,
-                value
-        );
-    }
-
-    @Override
-    public int getBufferHandle() {
-        return glBuffer.getBufferHandle();
     }
 }

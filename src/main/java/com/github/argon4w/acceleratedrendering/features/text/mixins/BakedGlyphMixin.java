@@ -74,10 +74,8 @@ public class BakedGlyphMixin {
         ci.cancel();
 
         TRANSFORM
-                .identity()
-                .mul(pMatrix)
+                .set(pMatrix)
                 .translate(pX, pY, 0.0f);
-
 
         extension.beginTransform(TRANSFORM, NORMAL);
 

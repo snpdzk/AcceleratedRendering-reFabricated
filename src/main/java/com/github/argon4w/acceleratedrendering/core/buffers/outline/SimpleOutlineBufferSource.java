@@ -33,8 +33,7 @@ public class SimpleOutlineBufferSource implements MultiBufferSource {
         return new AcceleratedDoubleVertexConsumer(buffer, outlineBufferSource.getBuffer(outline.get()));
     }
 
-    public SimpleOutlineBufferSource setColor(int color) {
-        outlineBufferSource.setColor(color);
-        return this;
+    public IOutlineBufferSource getOutlineBufferSource() {
+        return outlineBufferSource;
     }
 }

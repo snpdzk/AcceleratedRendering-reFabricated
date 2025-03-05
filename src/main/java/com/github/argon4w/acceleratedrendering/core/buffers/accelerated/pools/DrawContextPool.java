@@ -63,10 +63,10 @@ public class DrawContextPool extends SimpleResetPool<DrawContextPool.IndirectDra
 
             if (cachedOffset != elementOffset) {
                 cachedOffset = elementOffset;
-                commandBuffer.clear(8, 4, elementOffset / 4);
+                commandBuffer.clearInteger(8, elementOffset / 4);
             }
 
-            commandBuffer.clear(0, 4, null);
+            commandBuffer.clearInteger(0, 0);
             commandBuffer.bindBase(GL_ATOMIC_COUNTER_BUFFER, 0);
 
             elementBufferIn.bindBase(GL_SHADER_STORAGE_BUFFER, 5);

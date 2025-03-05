@@ -20,9 +20,6 @@ struct Vertex {
 struct VaryingData {
     int offset;
     int sharing;
-    int color;
-    int light;
-    int overlay;
 };
 
 struct SharingData {
@@ -30,8 +27,8 @@ struct SharingData {
     mat3 normal;
     uint flags;
     int mesh;
-    uint iris_entity_0;
-    uint iris_entity_1;
+    uint extra_data_1;
+    uint extra_data_2;
 };
 
 struct Polygon {
@@ -77,16 +74,17 @@ void main() {
     }
 
     Polygon polygon = polygonsIn[index];
-    VaryingData varyingData = varyings[index - varyings[polygon.vertex1].offset];
-    SharingData sharingData = varyingData.sharing != -1 ? sharings[varyingData.sharing] : SharingData(mat4(1.0), mat3(1.0), 0u, -1, 0u, 0u);
-    uint noCull = sharingData.flags & 0x1u;
+
+    int sharing = varyings[index - varyings[polygon.vertex1].offset].sharing;
+    uint flags = sharing != -1 ? sharings[sharing].flags : 0u;
+    uint noCull = flags & 0x1u;
 
     if (noCull > 0u
-    || isNormalVisable(vertices[polygon.vertex1])
-    || isNormalVisable(vertices[polygon.vertex2])
-    || isNormalVisable(vertices[polygon.vertex3])
+            || isNormalVisable(vertices[polygon.vertex1])
+            || isNormalVisable(vertices[polygon.vertex2])
+            || isNormalVisable(vertices[polygon.vertex3])
     ) {
-        int indexOut = int(atomicCounterAdd(indexCounter, 3)) / 3;
+        uint indexOut = atomicCounterAdd(indexCounter, 3u) / 3u;
 
         polygonsOut[indexOut].vertex1 = polygon.vertex1;
         polygonsOut[indexOut].vertex2 = polygon.vertex2;
@@ -101,8 +99,8 @@ bool isNormalVisable(Vertex vertex) {
 
     posStart = viewMatrix * posStart;
     posEnd = viewMatrix * posEnd;
-
     normal = normalize((posEnd - posStart).xyz);
+
     vec3 ref = normalize(-posStart.xyz);
     float result = dot(ref, normal);
 
