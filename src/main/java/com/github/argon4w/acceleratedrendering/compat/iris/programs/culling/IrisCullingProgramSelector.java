@@ -62,18 +62,18 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
             return parent.getSharingFlags();
         }
 
-        if (!IrisCompatFeature.isShadowCullingEnabled() && ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
-            return parent.getSharingFlags();
-        }
-
         if (!NormalCullingFeature.isEnabled()) {
             return parent.getSharingFlags();
         }
 
-        if (!NormalCullingFeature.shouldCull()) {
-            return parent.getSharingFlags() | 0b1;
+        if (!IrisCompatFeature.isShadowCullingEnabled() && ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
+            return 0b0;
         }
 
-        return parent.getSharingFlags();
+        if (!NormalCullingFeature.shouldCull()) {
+            return 0b1;
+        }
+
+        return 0;
     }
 }

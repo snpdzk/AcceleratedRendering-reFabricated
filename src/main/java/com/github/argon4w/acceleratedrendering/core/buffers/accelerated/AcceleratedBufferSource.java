@@ -27,7 +27,6 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
 
     private AcceleratedBufferSetPool.BufferSet bufferSet;
 
-
     public AcceleratedBufferSource(IBufferEnvironment bufferEnvironment) {
         super(null, null);
 

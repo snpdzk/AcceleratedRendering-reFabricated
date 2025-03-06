@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs.processing;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
+import com.github.argon4w.acceleratedrendering.compat.iris.programs.IrisPrograms;
 import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -60,19 +61,25 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
     }
 
     @Override
-    public void addExtraVertex(long address) {
-        parent.addExtraVertex(address);
+    public long addExtraVertex(long address) {
+        long result = parent.addExtraVertex(address);
 
         if (!IrisCompatFeature.isEnabled()) {
-            return;
+             return result;
         }
 
         if (!IrisCompatFeature.isPolygonProcessingEnabled()) {
-            return;
+            return result;
+        }
+
+        if ((result & IrisPrograms.ENTITY_ID_BIT) > 0) {
+            return result;
         }
 
         MemoryUtil.memPutShort(address + entityOffset + 0L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedEntity());
         MemoryUtil.memPutShort(address + entityOffset + 2L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedBlockEntity());
         MemoryUtil.memPutShort(address + entityOffset + 4L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedItem());
+
+        return result | IrisPrograms.ENTITY_ID_BIT;
     }
 }

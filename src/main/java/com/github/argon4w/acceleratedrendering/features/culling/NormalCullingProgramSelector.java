@@ -44,9 +44,9 @@ public class NormalCullingProgramSelector implements ICullingProgramSelector {
         }
 
         if (!NormalCullingFeature.shouldCull()) {
-            return parent.getSharingFlags() | 0b1;
+            return 0b1;
         }
 
-        return parent.getSharingFlags();
+        return 0b0;
     }
 }
