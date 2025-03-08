@@ -7,7 +7,7 @@ import net.neoforged.fml.ModLoader;
 public interface IPolygonProcessor {
 
     IPolygonProgramDispatcher select(VertexFormat.Mode mode);
-    long addExtraVertex(long address);
+    IExtraVertexData getExtraVertex(VertexFormat.Mode mode);
 
      static IPolygonProcessor empty() {
         return EmptyPolygonProcessor.INSTANCE;

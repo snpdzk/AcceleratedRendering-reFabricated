@@ -1,5 +1,6 @@
 package com.github.argon4w.acceleratedrendering.compat.iris;
 
+import com.github.argon4w.acceleratedrendering.core.utils.VertexFormatUtils;
 import com.google.common.base.Objects;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.batchedentityrendering.impl.WrappableRenderType;
@@ -27,7 +28,7 @@ public class IrisRenderType extends RenderType implements WrappableRenderType, I
 
         this.renderType = renderType;
         this.vertexFormat = vertexFormat;
-        this.hashCode = Objects.hashCode(renderType, vertexFormat);
+        this.hashCode = Objects.hashCode(renderType, VertexFormatUtils.hashCodeFast(vertexFormat));
     }
 
     @Override

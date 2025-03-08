@@ -14,7 +14,7 @@ public class EmptyPolygonProcessor implements IPolygonProcessor {
     }
 
     @Override
-    public long addExtraVertex(long address) {
-        return 0L;
+    public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
+        return EmptyExtraVertexData.INSTANCE;
     }
 }

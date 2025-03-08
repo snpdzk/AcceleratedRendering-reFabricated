@@ -5,6 +5,8 @@ import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.EmptyProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.EmptyExtraVertexData;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.TransformProgramDispatcher;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -26,13 +28,13 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public void addExtraVertex(long address) {
-
+    public void setupBufferState() {
+        vertexFormat.setupBufferState();
     }
 
     @Override
-    public void setupBufferState() {
-        vertexFormat.setupBufferState();
+    public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
+        return EmptyExtraVertexData.INSTANCE;
     }
 
     @Override

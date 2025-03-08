@@ -30,6 +30,7 @@ public class ShadowRendererMixin implements IShadowBufferSourceGetter {
     private Supplier<MultiBufferSource.BufferSource> SHADOW = Suppliers.memoize(() -> RedirectingBufferSource.builder()
             .fallback(buffers.bufferSource())
             .bufferSource(IrisCompatBuffers.ENTITY_SHADOW)
+            .bufferSource(IrisCompatBuffers.GLYPH_SHADOW)
             .bufferSource(IrisCompatBuffers.POS_TEX_SHADOW)
             .mode(VertexFormat.Mode.QUADS)
             .mode(VertexFormat.Mode.TRIANGLES)
@@ -45,9 +46,11 @@ public class ShadowRendererMixin implements IShadowBufferSourceGetter {
             CallbackInfo ci
     ) {
         IrisCompatBuffers.ENTITY_SHADOW.drawBuffers();
+        IrisCompatBuffers.GLYPH_SHADOW.drawBuffers();
         IrisCompatBuffers.POS_TEX_SHADOW.drawBuffers();
         IrisCompatBuffers.ENTITY_SHADOW.clearBuffers();
         IrisCompatBuffers.POS_TEX_SHADOW.clearBuffers();
+        IrisCompatBuffers.GLYPH_SHADOW.clearBuffers();
     }
 
     @Inject(method = "renderShadows", at = @At("TAIL"))

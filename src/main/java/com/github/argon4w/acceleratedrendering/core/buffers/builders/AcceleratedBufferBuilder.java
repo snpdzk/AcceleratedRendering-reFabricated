@@ -3,6 +3,7 @@ package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSetPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.IntElementUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -116,12 +117,16 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
-        bufferSet.addExtraVertex(vertex);
+
 
         long varying = bufferSet.reserveVarying();
 
         MemoryUtil.memPutInt(varying + 0 * 4L, 0);
         MemoryUtil.memPutInt(varying + 1 * 4L, sharing);
+
+        IExtraVertexData data = bufferSet.getExtraVertex(mode);
+        data.addExtraVertex(vertex);
+        data.addExtraVarying(varying);
 
         return this;
     }
@@ -271,11 +276,15 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
         long vertex = bufferSet.reserveVertex();
         long varying = bufferSet.reserveVarying();
+        IExtraVertexData data = bufferSet.getExtraVertex(mode);
+
+        data.addExtraVertex(vertex);
+        data.addExtraVarying(varying);
 
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
-        bufferSet.addExtraVertex(vertex);
+
 
         if (colorOffset != -1) {
             MemoryUtil.memPutInt(vertex + colorOffset + 0L, FastColor.ABGR32.fromArgb32(pColor));
@@ -352,6 +361,10 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         long vertex = bufferSet.reservePolygons(size);
         long varying = bufferSet.reserveVaryings(size);
         long length = (long) size * bufferSet.getVertexSize();
+        IExtraVertexData data = bufferSet.getExtraVertex(mode);
+
+        data.addExtraVertex(vertex);
+        data.addExtraVarying(varying);
 
         ByteUtils.putByteBuffer(
                 vertexBuffer,
@@ -371,7 +384,6 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             MemoryUtil.memPutInt(vertex + uv2Offset, light);
         }
 
-        bufferSet.addExtraVertex(vertex);
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
 
         for (int i = 0; i < size; i++) {
@@ -394,6 +406,10 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         long vertex = bufferSet.reservePolygons(size);
         long varying = bufferSet.reserveVaryings(size);
         long mesh = transform + 4L * 4L * 4L + 4L * 3L * 4L + 4L;
+        IExtraVertexData data = bufferSet.getExtraVertex(mode);
+
+        data.addExtraVertex(vertex);
+        data.addExtraVarying(varying);
 
         if (colorOffset != -1) {
             MemoryUtil.memPutInt(vertex + colorOffset, FastColor.ABGR32.fromArgb32(color));
@@ -407,7 +423,6 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             MemoryUtil.memPutInt(vertex + uv2Offset, light);
         }
 
-        bufferSet.addExtraVertex(vertex);
         MemoryUtil.memPutInt(mesh, offset / bufferSet.getVertexSize());
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
 

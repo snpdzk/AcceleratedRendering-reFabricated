@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 
-@Mixin(value = BakedGlyph.class, priority = Integer.MAX_VALUE)
+@Mixin(value = BakedGlyph.class, priority = Integer.MIN_VALUE)
 public class BakedGlyphMixin {
 
     @Unique private static final Matrix4f TRANSFORM = new Matrix4f();

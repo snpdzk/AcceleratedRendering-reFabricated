@@ -23,10 +23,6 @@ public class IrisPrograms {
     public static final ResourceLocation IRIS_ENTITY_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_entity_triangle_processing_iris");
     public static final ResourceLocation IRIS_GLYPH_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_glyph_quad_processing_iris");
 
-    public static final int ENTITY_ID_BIT = 0b1;
-    public static final int ENTITY_BIT = 0b10;
-    public static final int MID_BLOCK_BIT = 0b100;
-
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
         event.loadComputeShader(

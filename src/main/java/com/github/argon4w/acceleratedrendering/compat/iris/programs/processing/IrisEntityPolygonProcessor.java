@@ -1,8 +1,8 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs.processing;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
-import com.github.argon4w.acceleratedrendering.compat.iris.programs.IrisPrograms;
 import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
@@ -15,7 +15,7 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
     private final IPolygonProcessor parent;
     private final VertexFormat.Mode mode;
     private final IPolygonProgramDispatcher dispatcher;
-    private final int entityOffset;
+    private final IrisEntityExtraVertexData extraVertexData;
 
     public IrisEntityPolygonProcessor(
             IPolygonProcessor parent,
@@ -26,7 +26,7 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
         this.parent = parent;
         this.mode = mode;
         this.dispatcher = dispatcher;
-        this.entityOffset = vertexFormat.getOffset(IrisVertexFormats.ENTITY_ID_ELEMENT);
+        this.extraVertexData = new IrisEntityExtraVertexData(vertexFormat.getOffset(IrisVertexFormats.ENTITY_ID_ELEMENT));
     }
 
     public IrisEntityPolygonProcessor(
@@ -61,25 +61,19 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
     }
 
     @Override
-    public long addExtraVertex(long address) {
-        long result = parent.addExtraVertex(address);
-
+    public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
         if (!IrisCompatFeature.isEnabled()) {
-             return result;
+            return parent.getExtraVertex(mode);
         }
 
         if (!IrisCompatFeature.isPolygonProcessingEnabled()) {
-            return result;
+            return parent.getExtraVertex(mode);
         }
 
-        if ((result & IrisPrograms.ENTITY_ID_BIT) > 0) {
-            return result;
+        if (this.mode != mode) {
+            return parent.getExtraVertex(mode);
         }
 
-        MemoryUtil.memPutShort(address + entityOffset + 0L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedEntity());
-        MemoryUtil.memPutShort(address + entityOffset + 2L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedBlockEntity());
-        MemoryUtil.memPutShort(address + entityOffset + 4L, (short) CapturedRenderingState.INSTANCE.getCurrentRenderedItem());
-
-        return result | IrisPrograms.ENTITY_ID_BIT;
+        return extraVertexData;
     }
 }

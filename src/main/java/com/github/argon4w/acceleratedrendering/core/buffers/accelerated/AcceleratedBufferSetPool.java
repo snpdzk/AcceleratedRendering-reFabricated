@@ -8,6 +8,7 @@ import com.github.argon4w.acceleratedrendering.core.gl.Sync;
 import com.github.argon4w.acceleratedrendering.core.gl.VertexArray;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.MutableBuffer;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -172,8 +173,8 @@ public class AcceleratedBufferSetPool {
             return varyingBuffer.reserve(2L * 4L * count);
         }
 
-        public void addExtraVertex(long address) {
-            bufferEnvironment.addExtraVertex(address);
+        public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
+            return bufferEnvironment.getExtraVertex(mode);
         }
 
         public void bindVertexArray() {

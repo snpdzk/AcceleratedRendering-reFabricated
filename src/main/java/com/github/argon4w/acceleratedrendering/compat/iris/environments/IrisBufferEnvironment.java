@@ -6,6 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.ITransformProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.TransformProgramDispatcher;
@@ -46,8 +47,8 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public void addExtraVertex(long address) {
-        getSubSet().addExtraVertex(address);
+    public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
+        return getSubSet().getExtraVertex(mode);
     }
 
     @Override
@@ -124,14 +125,14 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
         }
 
         @Override
-        public void addExtraVertex(long address) {
-            polygonProcessor.addExtraVertex(address);
-        }
-
-        @Override
         public boolean isAccelerated(VertexFormat vertexFormat) {
             return this.vanillaVertexFormat == vertexFormat
                     || this.irisVertexFormat == vertexFormat;
+        }
+
+        @Override
+        public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
+            return polygonProcessor.getExtraVertex(mode);
         }
 
         @Override
