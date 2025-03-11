@@ -25,10 +25,7 @@ public class ComputeShaderProgramLoader extends SimplePreparableReloadListener<M
     static final ComputeShaderProgramLoader INSTANCE = new ComputeShaderProgramLoader();
 
     @Override
-    protected Map<ResourceLocation, ComputeShaderProgramLoader.ShaderSource> prepare(
-            ResourceManager resourceManager,
-            ProfilerFiller profiler
-    ) {
+    protected Map<ResourceLocation, ComputeShaderProgramLoader.ShaderSource> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         try {
             ImmutableMap.Builder<ResourceLocation, ShaderDefinition> builder = ImmutableMap.builder();
             ModLoader.postEvent(new LoadComputeShaderEvent(builder));
@@ -52,10 +49,7 @@ public class ComputeShaderProgramLoader extends SimplePreparableReloadListener<M
                 }
 
                 try (InputStream stream = resource.get().open()) {
-                    shaderSources.put(key, new ShaderSource(
-                            new String(stream.readAllBytes(), StandardCharsets.UTF_8),
-                            barrierFlags
-                    ));
+                    shaderSources.put(key, new ShaderSource(new String(stream.readAllBytes(), StandardCharsets.UTF_8), barrierFlags));
                 }
             }
 

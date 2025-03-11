@@ -118,7 +118,6 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
 
-
         long varying = bufferSet.reserveVarying();
 
         MemoryUtil.memPutInt(varying + 0 * 4L, 0);
@@ -284,7 +283,6 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
-
 
         if (colorOffset != -1) {
             MemoryUtil.memPutInt(vertex + colorOffset + 0L, FastColor.ABGR32.fromArgb32(pColor));
