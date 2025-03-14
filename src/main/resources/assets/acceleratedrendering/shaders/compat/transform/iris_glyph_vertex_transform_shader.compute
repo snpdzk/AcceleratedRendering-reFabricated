@@ -56,6 +56,7 @@ layout(location=0) uniform uint vertexCount;
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
+
     if (index >= vertexCount) {
         return;
     }
