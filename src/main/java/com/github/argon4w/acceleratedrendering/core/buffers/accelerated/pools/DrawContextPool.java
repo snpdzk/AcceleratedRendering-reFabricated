@@ -19,7 +19,7 @@ public class DrawContextPool extends SimpleResetPool<DrawContextPool.IndirectDra
     }
 
     @Override
-    protected IndirectDrawContext create(SegmentBuffer buffer) {
+    protected IndirectDrawContext create(SegmentBuffer buffer, int i) {
         return new IndirectDrawContext(buffer.getSegment(20L));
     }
 
@@ -57,8 +57,8 @@ public class DrawContextPool extends SimpleResetPool<DrawContextPool.IndirectDra
             this.cachedOffset = -1;
         }
 
-        public void bindComputeBuffers(ElementBufferPool.ElementBuffer elementBufferIn) {
-            IServerBufferSegment elementBufferOut = elementBufferIn.getSegmentOut();
+        public void bindComputeBuffers(ElementBufferPool.ElementSegment elementSegmentIn) {
+            IServerBufferSegment elementBufferOut = elementSegmentIn.getBuffer();
             int elementOffset = (int) elementBufferOut.getOffset();
 
             if (cachedOffset != elementOffset) {
@@ -68,8 +68,6 @@ public class DrawContextPool extends SimpleResetPool<DrawContextPool.IndirectDra
 
             commandBuffer.clearInteger(0, 0);
             commandBuffer.bindBase(GL_ATOMIC_COUNTER_BUFFER, 0);
-
-            elementBufferIn.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
             elementBufferOut.bindBase(GL_SHADER_STORAGE_BUFFER, 6);
         }
 

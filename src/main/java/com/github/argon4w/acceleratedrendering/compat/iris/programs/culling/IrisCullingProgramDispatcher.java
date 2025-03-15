@@ -15,26 +15,31 @@ public class IrisCullingProgramDispatcher implements IPolygonProgramDispatcher {
 
     private static final int GROUP_SIZE = 128;
 
+    private final VertexFormat.Mode mode;
     private final ComputeProgram program;
     private final Uniform viewMatrixUniform;
     private final Uniform polygonCountUniform;
+    private final Uniform vertexOffsetUniform;
 
-    private IrisCullingProgramDispatcher(ComputeProgram program) {
+    private IrisCullingProgramDispatcher(VertexFormat.Mode mode, ComputeProgram program) {
+        this.mode = mode;
         this.program = program;
         this.viewMatrixUniform = program.getUniform("viewMatrix");
         this.polygonCountUniform = program.getUniform("polygonCount");
+        this.vertexOffsetUniform = program.getUniform("vertexOffset");
     }
 
-    public IrisCullingProgramDispatcher(ResourceLocation key) {
-        this(ComputeShaderProgramLoader.getProgram(key));
+    public IrisCullingProgramDispatcher(VertexFormat.Mode mode, ResourceLocation key) {
+        this(mode, ComputeShaderProgramLoader.getProgram(key));
     }
 
     @Override
-    public int dispatch(VertexFormat.Mode mode, int vertexCount) {
-        int polygonCount = mode.indexCount(vertexCount) / 3;
+    public int dispatch(int vertexCount, int vertexOffset) {
+        int polygonCount = vertexCount / mode.primitiveLength;
 
         viewMatrixUniform.uploadMatrix4f(getModelViewMatrix());
         polygonCountUniform.uploadUnsignedInt(polygonCount);
+        vertexOffsetUniform.uploadUnsignedInt(vertexOffset);
 
         program.useProgram();
         program.dispatch((polygonCount + GROUP_SIZE - 1) / GROUP_SIZE);

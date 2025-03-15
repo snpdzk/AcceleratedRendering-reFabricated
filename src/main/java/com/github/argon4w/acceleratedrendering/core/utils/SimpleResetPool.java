@@ -16,11 +16,11 @@ public abstract class SimpleResetPool<T, C> {
         this.cursor = 0;
 
         for (int i = 0; i < this.size; i++) {
-            this.pool[i] = create(this.context);
+            this.pool[i] = create(this.context, i);
         }
     }
 
-    protected abstract T create(C context);
+    protected abstract T create(C context, int i);
     protected abstract void reset(T t);
     protected abstract void delete(T t);
 

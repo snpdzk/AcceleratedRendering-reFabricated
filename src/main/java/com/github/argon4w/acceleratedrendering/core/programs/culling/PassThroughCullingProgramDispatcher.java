@@ -6,28 +6,40 @@ import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgra
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderPrograms;
 import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.resources.ResourceLocation;
 
 public class PassThroughCullingProgramDispatcher implements IPolygonProgramDispatcher {
 
-    public static final PassThroughCullingProgramDispatcher INSTANCE = new PassThroughCullingProgramDispatcher();
+    public static final PassThroughCullingProgramDispatcher QUAD = new PassThroughCullingProgramDispatcher(VertexFormat.Mode.QUADS, ComputeShaderPrograms.CORE_PASS_THROUGH_QUAD_CULLING_KEY);
+    public static final PassThroughCullingProgramDispatcher TRIANGLE = new PassThroughCullingProgramDispatcher(VertexFormat.Mode.TRIANGLES, ComputeShaderPrograms.CORE_PASS_THROUGH_TRIANGLE_CULLING_KEY);
 
     private static final int GROUP_SIZE = 128;
 
+    private final VertexFormat.Mode mode;
     private final ComputeProgram program;
-    private final Uniform indexCountUniform;
+    private final Uniform polygonCountUniform;
+    private final Uniform vertexOffsetUniform;
 
-    public PassThroughCullingProgramDispatcher() {
-        this.program = ComputeShaderProgramLoader.getProgram(ComputeShaderPrograms.CORE_PASS_THROUGH_POLYGON_CULLING_KEY);
-        this.indexCountUniform = program.getUniform("indexCount");
+    public PassThroughCullingProgramDispatcher(VertexFormat.Mode mode, ComputeProgram program) {
+        this.mode = mode;
+        this.program = program;
+        this.polygonCountUniform = program.getUniform("polygonCount");
+        this.vertexOffsetUniform = program.getUniform("vertexOffset");
+    }
+
+    public PassThroughCullingProgramDispatcher(VertexFormat.Mode mode, ResourceLocation key) {
+        this(mode, ComputeShaderProgramLoader.getProgram(key));
     }
 
     @Override
-    public int dispatch(VertexFormat.Mode mode, int vertexCount) {
-        int indexCount = mode.indexCount(vertexCount);
+    public int dispatch(int vertexCount, int vertexOffset) {
+        int polygonCount = vertexCount / mode.primitiveLength;
 
-        indexCountUniform.uploadUnsignedInt(indexCount);
+        polygonCountUniform.uploadUnsignedInt(polygonCount);
+        vertexOffsetUniform.uploadUnsignedInt(vertexOffset);
+
         program.useProgram();
-        program.dispatch((indexCount + GROUP_SIZE - 1) / GROUP_SIZE);
+        program.dispatch((polygonCount + GROUP_SIZE - 1) / GROUP_SIZE);
         program.resetProgram();
 
         return program.getBarrierFlags();

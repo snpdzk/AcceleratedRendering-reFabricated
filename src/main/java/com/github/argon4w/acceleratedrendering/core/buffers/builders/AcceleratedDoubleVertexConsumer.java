@@ -45,7 +45,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IAcceler
     @Override
     public void addClientMesh(
             RenderType renderType,
-            ByteBuffer vertexBuffer,
+            ByteBuffer meshBuffer,
             int size,
             int color,
             int light,
@@ -54,7 +54,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IAcceler
         if (renderTypes1.contains(renderType)) {
             ((IAcceleratedVertexConsumer) vertexConsumer1).addClientMesh(
                     renderType,
-                    vertexBuffer,
+                    meshBuffer,
                     size,
                     color,
                     light,
@@ -63,7 +63,7 @@ public class AcceleratedDoubleVertexConsumer implements VertexConsumer, IAcceler
         } else if (renderTypes2.contains(renderType)) {
             ((IAcceleratedVertexConsumer) vertexConsumer2).addClientMesh(
                     renderType,
-                    vertexBuffer,
+                    meshBuffer,
                     size,
                     color,
                     light,

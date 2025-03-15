@@ -18,10 +18,12 @@ public class IrisPrograms {
 
     public static final ResourceLocation IRIS_ENTITY_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("compat_entity_vertex_transform_iris");
     public static final ResourceLocation IRIS_GLYPH_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("compat_glyph_vertex_transform_iris");
-    public static final ResourceLocation IRIS_ENTITY_POLYGON_CULLING_KEY = AcceleratedRenderingModEntry.location("compat_entity_polygon_cull_iris");
+    public static final ResourceLocation IRIS_ENTITY_QUAD_CULLING_KEY = AcceleratedRenderingModEntry.location("compat_entity_quad_cull_iris");
+    public static final ResourceLocation IRIS_ENTITY_TRIANGLE_CULLING_KEY = AcceleratedRenderingModEntry.location("compat_entity_triangle_cull_iris");
     public static final ResourceLocation IRIS_ENTITY_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_entity_quad_processing_iris");
     public static final ResourceLocation IRIS_ENTITY_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_entity_triangle_processing_iris");
     public static final ResourceLocation IRIS_GLYPH_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_glyph_quad_processing_iris");
+    public static final ResourceLocation IRIS_GLYPH_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("compat_glyph_triangle_processing_iris");
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
@@ -38,8 +40,15 @@ public class IrisPrograms {
         );
 
         event.loadComputeShader(
-                IRIS_ENTITY_POLYGON_CULLING_KEY,
-                AcceleratedRenderingModEntry.location("shaders/compat/culling/iris_entity_polygon_culling_shader.compute"),
+                IRIS_ENTITY_QUAD_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/culling/iris_entity_quad_culling_shader.compute"),
+                BarrierFlags.SHADER_STORAGE,
+                BarrierFlags.ATOMIC_COUNTER
+        );
+
+        event.loadComputeShader(
+                IRIS_ENTITY_TRIANGLE_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/culling/iris_entity_triangle_culling_shader.compute"),
                 BarrierFlags.SHADER_STORAGE,
                 BarrierFlags.ATOMIC_COUNTER
         );
@@ -61,6 +70,12 @@ public class IrisPrograms {
                 AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_glyph_quad_processing_shader.compute"),
                 BarrierFlags.SHADER_STORAGE
         );
+
+        event.loadComputeShader(
+                IRIS_GLYPH_TRIANGLE_PROCESSING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/compat/processing/iris_glyph_triangle_processing_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
     }
 
     @SubscribeEvent
@@ -80,7 +95,14 @@ public class IrisPrograms {
     public static void onLoadCullingPrograms(LoadCullingProgramSelectorEvent event) {
         event.loadFor(IrisVertexFormats.ENTITY, parent -> new IrisCullingProgramSelector(
                 parent,
-                IRIS_ENTITY_POLYGON_CULLING_KEY
+                VertexFormat.Mode.TRIANGLES,
+                IRIS_ENTITY_TRIANGLE_CULLING_KEY
+        ));
+
+        event.loadFor(IrisVertexFormats.ENTITY, parent -> new IrisCullingProgramSelector(
+                parent,
+                VertexFormat.Mode.QUADS,
+                IRIS_ENTITY_QUAD_CULLING_KEY
         ));
     }
 
@@ -105,6 +127,13 @@ public class IrisPrograms {
                 IrisVertexFormats.GLYPH,
                 VertexFormat.Mode.QUADS,
                 IRIS_GLYPH_QUAD_PROCESSING_KEY
+        ));
+
+        event.loadFor( IrisVertexFormats.GLYPH, parent -> new IrisEntityPolygonProcessor(
+                parent,
+                IrisVertexFormats.GLYPH,
+                VertexFormat.Mode.TRIANGLES,
+                IRIS_GLYPH_TRIANGLE_PROCESSING_KEY
         ));
     }
 }

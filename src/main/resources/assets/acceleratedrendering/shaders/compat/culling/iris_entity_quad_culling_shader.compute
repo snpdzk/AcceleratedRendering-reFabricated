@@ -32,9 +32,9 @@ struct SharingData {
 };
 
 struct Polygon {
-    int vertex1;
-    int vertex2;
-    int vertex3;
+    uint vertex1;
+    uint vertex2;
+    uint vertex3;
 };
 
 layout(local_size_x = 128) in;
@@ -51,10 +51,6 @@ layout(binding=3, std430) readonly buffer Varyings {
     VaryingData varyings[];
 };
 
-layout(binding=5, std430) readonly buffer PolygonsIn {
-    Polygon polygonsIn[];
-};
-
 layout(binding=6, std430) writeonly buffer PolygonsOut {
     Polygon polygonsOut[];
 };
@@ -63,32 +59,42 @@ layout(binding=0, offset=0) uniform atomic_uint indexCounter;
 
 layout(location=0) uniform mat4 viewMatrix;
 layout(location=1) uniform uint polygonCount;
+layout(location=2) uniform uint vertexOffset;
 
 bool isNormalVisable(Vertex vertex);
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
+    uint base = index * 4u;
 
     if (index >= polygonCount) {
         return;
     }
 
-    Polygon polygon = polygonsIn[index];
+    uint index1 = vertexOffset + base + 0u;
+    uint index2 = vertexOffset + base + 1u;
+    uint index3 = vertexOffset + base + 2u;
+    uint index4 = vertexOffset + base + 3u;
 
-    int sharing = varyings[index - varyings[polygon.vertex1].offset].sharing;
+    int sharing = varyings[index - varyings[index1].offset].sharing;
     uint flags = sharing != -1 ? sharings[sharing].flags : 0u;
     uint noCull = flags & 0x1u;
 
     if (noCull > 0u
-            || isNormalVisable(vertices[polygon.vertex1])
-            || isNormalVisable(vertices[polygon.vertex2])
-            || isNormalVisable(vertices[polygon.vertex3])
+    || isNormalVisable(vertices[index1])
+    || isNormalVisable(vertices[index2])
+    || isNormalVisable(vertices[index3])
+    || isNormalVisable(vertices[index4])
     ) {
-        uint indexOut = atomicCounterAdd(indexCounter, 3u) / 3u;
+        uint indexOut = atomicCounterAdd(indexCounter, 6u) / 3u;
 
-        polygonsOut[indexOut].vertex1 = polygon.vertex1;
-        polygonsOut[indexOut].vertex2 = polygon.vertex2;
-        polygonsOut[indexOut].vertex3 = polygon.vertex3;
+        polygonsOut[indexOut + 0].vertex1 = index1;
+        polygonsOut[indexOut + 0].vertex2 = index2;
+        polygonsOut[indexOut + 0].vertex3 = index3;
+
+        polygonsOut[indexOut + 1].vertex1 = index3;
+        polygonsOut[indexOut + 1].vertex2 = index4;
+        polygonsOut[indexOut + 1].vertex3 = index1;
     }
 }
 

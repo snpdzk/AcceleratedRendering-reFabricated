@@ -3,9 +3,10 @@ package com.github.argon4w.acceleratedrendering.core.buffers.builders;
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSetPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.MappedBufferPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.IntElementUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -21,11 +22,16 @@ import java.util.Set;
 
 public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVertexConsumer {
 
-    private final ElementBufferPool.ElementBuffer elementBuffer;
+    private final VertexBufferPool.VertexBuffer vertexBuffer;
+    private final MappedBufferPool.Pooled varyingBuffer;
+    private final ElementBufferPool.ElementSegment elementSegment;
+
     private final AcceleratedBufferSetPool.BufferSet bufferSet;
     private final RenderType renderType;
     private final VertexFormat.Mode mode;
+    private final int vertexSize;
     private final int polygonSize;
+    private final int polygonElementCount;
 
     private final long posOffset;
     private final long colorOffset;
@@ -45,16 +51,22 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     private Matrix3f cachedNormal;
 
     public AcceleratedBufferBuilder(
-            ElementBufferPool.ElementBuffer elementBuffer,
+            VertexBufferPool.VertexBuffer vertexBuffer,
+            MappedBufferPool.Pooled varyingBuffer,
+            ElementBufferPool.ElementSegment elementSegment,
             AcceleratedBufferSetPool.BufferSet bufferSet,
             RenderType renderType
-
     ) {
-        this.elementBuffer = elementBuffer;
+        this.vertexBuffer = vertexBuffer;
+        this.varyingBuffer = varyingBuffer;
+        this.elementSegment = elementSegment;
+
         this.bufferSet = bufferSet;
         this.renderType = renderType;
         this.mode = this.renderType.mode;
+        this.vertexSize = this.bufferSet.getVertexSize();
         this.polygonSize = this.mode.primitiveLength;
+        this.polygonElementCount = this.mode.indexCount(this.polygonSize);
 
         this.posOffset = bufferSet.getOffset(VertexFormatElement.POSITION);
         this.colorOffset = bufferSet.getOffset(VertexFormatElement.COLOR);
@@ -72,15 +84,6 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
         this.cachedTransform = null;
         this.cachedNormal = null;
-    }
-
-    private void putElements(int size) {
-        IntElementUtils.putElements(
-                mode,
-                elementBuffer,
-                bufferSet.getElement(size),
-                size
-        );
     }
 
     @Override
@@ -108,17 +111,18 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         elementCount ++;
 
         if (elementCount >= polygonSize) {
-            putElements(polygonSize);
+            elementSegment.countPolygons(polygonElementCount);
             elementCount = 0;
         }
 
-        vertex = bufferSet.reserveVertex();
+        long vertex = vertexBuffer.reserve(vertexSize);
+        long varying = varyingBuffer.reserve(2L * 4L);
+
+        this.vertex = vertex;
 
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
-
-        long varying = bufferSet.reserveVarying();
 
         MemoryUtil.memPutInt(varying + 0 * 4L, 0);
         MemoryUtil.memPutInt(varying + 1 * 4L, sharing);
@@ -269,12 +273,12 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         elementCount ++;
 
         if (elementCount >= polygonSize) {
-            putElements(polygonSize);
+            elementSegment.countPolygons(polygonElementCount);
             elementCount = 0;
         }
 
-        long vertex = bufferSet.reserveVertex();
-        long varying = bufferSet.reserveVarying();
+        long vertex = vertexBuffer.reserve(vertexSize);
+        long varying = varyingBuffer.reserve(2L * 4L);
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
         data.addExtraVertex(vertex);
@@ -332,7 +336,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
         ByteUtils.putMatrix4f(transform, transformMatrix);
         ByteUtils.putMatrix3x4f(normal, normalMatrix);
-        MemoryUtil.memPutInt(flags, bufferSet.getSharingFlags());
+        MemoryUtil.memPutInt(flags, bufferSet.getSharingFlags(mode));
         MemoryUtil.memPutInt(mesh, -1);
     }
 
@@ -347,17 +351,17 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     @Override
     public void addClientMesh(
             RenderType renderType,
-            ByteBuffer vertexBuffer,
+            ByteBuffer meshBuffer,
             int size,
             int color,
             int light,
             int overlay
     ) {
-        putElements(size);
+        elementSegment.countPolygons(mode.indexCount(size));
         vertexCount += size;
 
-        long vertex = bufferSet.reservePolygons(size);
-        long varying = bufferSet.reserveVaryings(size);
+        long vertex = vertexBuffer.reserve(vertexSize * (long) size);
+        long varying = varyingBuffer.reserve(2L * 4L * size);
         long length = (long) size * bufferSet.getVertexSize();
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
@@ -365,7 +369,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         data.addExtraVarying(varying);
 
         ByteUtils.putByteBuffer(
-                vertexBuffer,
+                meshBuffer,
                 vertex,
                 length
         );
@@ -398,11 +402,11 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             int light,
             int overlay
     ) {
-        putElements(size);
+        elementSegment.countPolygons(mode.indexCount(size));
         vertexCount += size;
 
-        long vertex = bufferSet.reservePolygons(size);
-        long varying = bufferSet.reserveVaryings(size);
+        long vertex = vertexBuffer.reserve(vertexSize * (long) size);
+        long varying = varyingBuffer.reserve(2L * 4L * size);
         long mesh = transform + 4L * 4L * 4L + 4L * 3L * 4L + 4L;
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
@@ -443,7 +447,19 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         return vertexCount;
     }
 
-    public ElementBufferPool.ElementBuffer getElementBuffer() {
-        return elementBuffer;
+    public long getVertexOffset() {
+        return vertexBuffer.getOffset();
+    }
+
+    public VertexBufferPool.VertexBuffer getVertexBuffer() {
+        return vertexBuffer;
+    }
+
+    public MappedBufferPool.Pooled getVaryingBuffer() {
+        return varyingBuffer;
+    }
+
+    public ElementBufferPool.ElementSegment getElementSegment() {
+        return elementSegment;
     }
 }

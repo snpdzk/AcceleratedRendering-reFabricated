@@ -30,7 +30,7 @@ public interface VertexConsumerMixin extends IAcceleratedVertexConsumer {
     @Override
     default void addClientMesh(
             RenderType renderType,
-            ByteBuffer vertexBuffer,
+            ByteBuffer meshBuffer,
             int size,
             int color,
             int light,

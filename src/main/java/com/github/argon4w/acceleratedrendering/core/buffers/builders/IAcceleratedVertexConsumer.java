@@ -11,7 +11,7 @@ public interface IAcceleratedVertexConsumer {
 
     void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix);
     void endTransform();
-    void addClientMesh(RenderType renderType, ByteBuffer vertexBuffer, int size, int color, int light, int overlay);
+    void addClientMesh(RenderType renderType, ByteBuffer meshBuffer, int size, int color, int light, int overlay);
     void addServerMesh(RenderType renderType, int offset, int size, int color, int light, int overlay);
     boolean isAccelerated();
     Set<RenderType> getRenderTypes();

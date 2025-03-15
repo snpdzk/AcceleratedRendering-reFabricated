@@ -78,8 +78,8 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
     }
 
     @Override
-    public int getSharingFlags() {
-        return cullingProgramSelector.getSharingFlags();
+    public int getSharingFlags(VertexFormat.Mode mode) {
+        return cullingProgramSelector.getSharingFlags(mode);
     }
 
     @Override

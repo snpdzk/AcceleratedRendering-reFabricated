@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDisp
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.github.argon4w.acceleratedrendering.features.culling.NormalCullingFeature;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.shadows.ShadowRenderingState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -12,15 +13,29 @@ import net.minecraft.resources.ResourceLocation;
 public class IrisCullingProgramSelector implements ICullingProgramSelector {
 
     private final ICullingProgramSelector parent;
+    private final VertexFormat.Mode mode;
     private final IPolygonProgramDispatcher dispatcher;
 
-    public IrisCullingProgramSelector(ICullingProgramSelector parent, IPolygonProgramDispatcher dispatcher) {
+    public IrisCullingProgramSelector(
+            ICullingProgramSelector parent,
+            VertexFormat.Mode mode,
+            IPolygonProgramDispatcher dispatcher
+    ) {
         this.parent = parent;
+        this.mode = mode;
         this.dispatcher = dispatcher;
     }
 
-    public IrisCullingProgramSelector(ICullingProgramSelector parent, ResourceLocation key) {
-        this(parent, new IrisCullingProgramDispatcher(key));
+    public IrisCullingProgramSelector(
+            ICullingProgramSelector parent,
+            VertexFormat.Mode mode,
+            ResourceLocation key
+    ) {
+        this(
+                parent,
+                mode,
+                new IrisCullingProgramDispatcher(mode, key)
+        );
     }
 
     @Override
@@ -41,6 +56,10 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
             return parent.select(renderType);
         }
 
+        if (this.mode != renderType.mode) {
+            return parent.select(renderType);
+        }
+
         if (NormalCullingFeature.shouldIgnoreCullState()) {
             return dispatcher;
         }
@@ -53,17 +72,21 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
     }
 
     @Override
-    public int getSharingFlags() {
+    public int getSharingFlags(VertexFormat.Mode mode) {
         if (!IrisCompatFeature.isEnabled()) {
-            return parent.getSharingFlags();
+            return parent.getSharingFlags(mode);
         }
 
         if (!IrisCompatFeature.isIrisCompatCullingEnabled()) {
-            return parent.getSharingFlags();
+            return parent.getSharingFlags(mode);
         }
 
         if (!NormalCullingFeature.isEnabled()) {
-            return parent.getSharingFlags();
+            return parent.getSharingFlags(mode);
+        }
+
+        if (this.mode != mode) {
+            return parent.getSharingFlags(mode);
         }
 
         if (!IrisCompatFeature.isShadowCullingEnabled() && ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {

@@ -32,6 +32,10 @@ public class SegmentBuffer extends MutableBuffer {
         return segmentPool.get(size);
     }
 
+    public long getSegmentOffset(long size) {
+        return segmentOffset.getAndAdd(size);
+    }
+
     public class SegmentPool extends SimpleResetPool<Segment, Void> {
 
         public SegmentPool(int size) {
@@ -43,7 +47,7 @@ public class SegmentBuffer extends MutableBuffer {
         }
 
         @Override
-        protected Segment create(Void context) {
+        protected Segment create(Void context, int i) {
             return new Segment();
         }
 

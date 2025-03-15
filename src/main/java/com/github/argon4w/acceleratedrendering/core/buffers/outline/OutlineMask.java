@@ -33,7 +33,7 @@ public class OutlineMask implements VertexConsumer, IAcceleratedVertexConsumer {
     @Override
     public void addClientMesh(
             RenderType renderType,
-            ByteBuffer vertexBuffer,
+            ByteBuffer meshBuffer,
             int size,
             int color,
             int light,
@@ -41,7 +41,7 @@ public class OutlineMask implements VertexConsumer, IAcceleratedVertexConsumer {
     ) {
         ((IAcceleratedVertexConsumer) vertexConsumer).addClientMesh(
                 renderType,
-                vertexBuffer,
+                meshBuffer,
                 size,
                 teamColor,
                 -1,

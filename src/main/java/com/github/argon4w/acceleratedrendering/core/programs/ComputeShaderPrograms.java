@@ -23,7 +23,8 @@ public class ComputeShaderPrograms {
     public static final ResourceLocation CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_color_vertex_transform");
     public static final ResourceLocation CORE_POS_TEX_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_vertex_transform");
     public static final ResourceLocation CORE_POS_COLOR_TEX_LIGHT_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("core_pos_color_tex_light_vertex_transform");
-    public static final ResourceLocation CORE_PASS_THROUGH_POLYGON_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_polygon_culling");
+    public static final ResourceLocation CORE_PASS_THROUGH_QUAD_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_quad_culling");
+    public static final ResourceLocation CORE_PASS_THROUGH_TRIANGLE_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_triangle_culling");
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
@@ -52,8 +53,15 @@ public class ComputeShaderPrograms {
         );
 
         event.loadComputeShader(
-                CORE_PASS_THROUGH_POLYGON_CULLING_KEY,
-                AcceleratedRenderingModEntry.location("shaders/core/culling/pass_through_polygon_culling_shader.compute"),
+                CORE_PASS_THROUGH_QUAD_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/culling/pass_through_quad_culling_shader.compute"),
+                BarrierFlags.SHADER_STORAGE,
+                BarrierFlags.ATOMIC_COUNTER
+        );
+
+        event.loadComputeShader(
+                CORE_PASS_THROUGH_TRIANGLE_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/culling/pass_through_triangle_culling_shader.compute"),
                 BarrierFlags.SHADER_STORAGE,
                 BarrierFlags.ATOMIC_COUNTER
         );

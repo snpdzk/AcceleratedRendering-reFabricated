@@ -8,8 +8,8 @@ import static org.lwjgl.opengl.GL46.*;
 
 public class MappedBuffer extends MutableBuffer implements IClientBuffer {
 
-    private long address;
-    private long position;
+    protected long address;
+    protected long position;
 
     public MappedBuffer(long initialSize) {
         super(initialSize, GL_DYNAMIC_STORAGE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT);
@@ -21,7 +21,7 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
         long position = this.position;
         this.position += bytes;
 
-        if (this.position <= bufferSize) {
+        if (this.position <= size) {
             return address + position;
         }
 
@@ -31,7 +31,7 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
 
     @Override
     public ByteBuffer byteBuffer() {
-        return ByteUtils.toBuffer(address, bufferSize);
+        return ByteUtils.toBuffer(address, size);
     }
 
     @Override

@@ -27,14 +27,13 @@ public class ShadowRendererMixin implements IShadowBufferSourceGetter {
     @Shadow @Final private RenderBuffers buffers;
 
     @Unique
-    private Supplier<MultiBufferSource.BufferSource> SHADOW = Suppliers.memoize(() -> RedirectingBufferSource.builder()
+    private final Supplier<MultiBufferSource.BufferSource> SHADOW = Suppliers.memoize(() -> RedirectingBufferSource.builder()
             .fallback(buffers.bufferSource())
             .bufferSource(IrisCompatBuffers.ENTITY_SHADOW)
             .bufferSource(IrisCompatBuffers.GLYPH_SHADOW)
             .bufferSource(IrisCompatBuffers.POS_TEX_SHADOW)
             .mode(VertexFormat.Mode.QUADS)
             .mode(VertexFormat.Mode.TRIANGLES)
-            .mode(VertexFormat.Mode.LINES)
             .fallbackName("breeze_wind")
             .fallbackName("energy_swirl")
             .build());

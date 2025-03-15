@@ -1,0 +1,108 @@
+#version 460 core
+
+struct Vertex {
+    float x;
+    float y;
+    float z;
+    float u0;
+    float v0;
+    int color;
+};
+
+struct VaryingData {
+    int offset;
+    int sharing;
+};
+
+struct SharingData {
+    mat4 transform;
+    mat3 normal;
+    uint flags;
+    int mesh;
+    uint extra_data_1;
+    uint extra_data_2;
+};
+
+struct Polygon {
+    uint vertex1;
+    uint vertex2;
+    uint vertex3;
+};
+
+layout(local_size_x = 128) in;
+
+layout(binding=1, std430) readonly buffer Vertices {
+    Vertex vertices[];
+};
+
+layout(binding=2, std430) readonly buffer Sharings {
+    SharingData sharings[];
+};
+
+layout(binding=3, std430) readonly buffer Varyings {
+    VaryingData varyings[];
+};
+
+layout(binding=6, std430) writeonly buffer PolygonsOut {
+    Polygon polygonsOut[];
+};
+
+layout(binding=0, offset=0) uniform atomic_uint indexCounter;
+
+layout(location=0) uniform mat4 viewMatrix;
+layout(location=1) uniform uint polygonCount;
+layout(location=2) uniform uint vertexOffset;
+
+bool isNormalVisable(vec3 pos, vec3 normal);
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+    uint base = index * 3u;
+
+    if (index >= polygonCount) {
+        return;
+    }
+
+    uint index1 = vertexOffset + base + 0u;
+    uint index2 = vertexOffset + base + 1u;
+    uint index3 = vertexOffset + base + 2u;
+
+    int sharing = varyings[index - varyings[index1].offset].sharing;
+    uint flags = sharing != -1 ? sharings[sharing].flags : 0u;
+    uint noCull = flags & 0x1u;
+
+    Vertex vertex1 = vertices[index1];
+    Vertex vertex2 = vertices[index2];
+    Vertex vertex3 = vertices[index3];
+
+    vec3 pos1 = vec3(vertex1.x, vertex1.y, vertex1.z);
+    vec3 pos2 = vec3(vertex2.x, vertex2.y, vertex2.z);
+    vec3 pos3 = vec3(vertex3.x, vertex3.y, vertex3.z);
+    vec3 normal = cross(pos2 - pos1, pos3 - pos1);
+
+    if (noCull > 0u
+            || isNormalVisable(pos1, normal)
+            || isNormalVisable(pos2, normal)
+            || isNormalVisable(pos3, normal)
+    ) {
+        uint indexOut = atomicCounterAdd(indexCounter, 3u) / 3u;
+
+        polygonsOut[indexOut].vertex1 = index1;
+        polygonsOut[indexOut].vertex2 = index2;
+        polygonsOut[indexOut].vertex3 = index3;
+    }
+}
+
+bool isNormalVisable(vec3 pos, vec3 normal) {
+    vec4 posStart = vec4(pos, 1.0);
+    vec4 posEnd = posStart + vec4(normal, 0.0);
+
+    posStart = viewMatrix * posStart;
+    posEnd = viewMatrix * posEnd;
+    normal = normalize((posEnd - posStart).xyz);
+
+    vec3 ref = normalize(-posStart.xyz);
+    float result = dot(ref, normal);
+
+    return result >= 0;
+}

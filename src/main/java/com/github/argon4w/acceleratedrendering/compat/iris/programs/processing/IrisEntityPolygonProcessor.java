@@ -39,7 +39,7 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
                 parent,
                 vertexFormat,
                 mode,
-                new IrisProcessingProgramDispatcher(key)
+                new IrisProcessingProgramDispatcher(mode, key)
         );
     }
 

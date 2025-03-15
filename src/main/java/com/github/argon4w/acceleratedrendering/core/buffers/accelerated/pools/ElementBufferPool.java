@@ -1,14 +1,14 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools;
 
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBufferSegment;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.SegmentBuffer;
+import com.github.argon4w.acceleratedrendering.core.utils.MutableSize;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import org.apache.commons.lang3.mutable.MutableLong;
 
 import static org.lwjgl.opengl.GL46.GL_ELEMENT_ARRAY_BUFFER;
 
-public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.ElementBuffer, Void> {
+public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.ElementSegment, Void> {
 
     private final SegmentBuffer elementBufferOut;
     private final MutableLong elementBufferOutSize;
@@ -44,24 +44,27 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
     }
 
     @Override
-    protected ElementBuffer create(Void value) {
-        return new ElementBuffer();
+    protected ElementSegment create(Void value, int i) {
+        return new ElementSegment();
     }
 
     @Override
-    protected void reset(ElementBuffer elementBuffer) {
-        elementBuffer.reset();
+    protected void reset(ElementSegment elementSegment) {
+        elementSegment.reset();
     }
 
     @Override
-    protected void delete(ElementBuffer elementBuffer) {
-        elementBuffer.poolDelete();
+    protected void delete(ElementSegment elementSegment) {
+
     }
 
-    public class ElementBuffer extends MappedBuffer {
+    public class ElementSegment extends MutableSize {
 
-        public ElementBuffer() {
+        private long elementBytes;
+
+        public ElementSegment() {
             super(64L);
+            this.elementBytes = 0L;
         }
 
         @Override
@@ -69,17 +72,20 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
             elementBufferOutSize.add(bytes);
         }
 
-        @Override
-        public void delete() {
-            throw new IllegalStateException("Pooled buffer cannot be deleted directly.");
+        public IServerBufferSegment getBuffer() {
+            return elementBufferOut.getSegment(size);
         }
 
-        public IServerBufferSegment getSegmentOut() {
-            return elementBufferOut.getSegment(bufferSize);
+        private void reset() {
+            elementBytes = 0L;
         }
 
-        private void poolDelete() {
-            super.delete();
+        public void countPolygons(int count) {
+            elementBytes = elementBytes + count * 4L;
+
+            if (elementBytes > size) {
+                resize(elementBytes);
+            }
         }
     }
 }

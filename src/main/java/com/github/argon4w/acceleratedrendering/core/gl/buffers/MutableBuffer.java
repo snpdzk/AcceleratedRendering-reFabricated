@@ -1,66 +1,34 @@
 package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
-public class MutableBuffer implements IServerBuffer {
+import com.github.argon4w.acceleratedrendering.core.utils.MutableSize;
+
+public class MutableBuffer extends MutableSize implements IServerBuffer {
 
     private final int bits;
 
-    protected boolean resized;
-    protected long bufferSize;
     protected ImmutableBuffer glBuffer;
 
     public MutableBuffer(long initialSize, int bits) {
+        super(initialSize);
         this.bits = bits;
-        this.resized = false;
-        this.bufferSize = initialSize;
-        this.glBuffer = new ImmutableBuffer(initialSize, bits);
-        this.glBuffer.clearBytes(0L, this.bufferSize);
+        this.glBuffer = new ImmutableBuffer(this.size, bits);
+        this.glBuffer.clearBytes(0L, this.size);
     }
 
-    public void expand(long bytes) {
-        if (bytes <= 0) {
-            return;
-        }
+    @Override
+    public void doExpand(long size, long bytes) {
+        long newSize = size + bytes;
 
-        beforeExpand();
-
-        long newSize = bufferSize + bytes;
         ImmutableBuffer newBuffer = new ImmutableBuffer(newSize, bits);
-
         newBuffer.clearBytes(0L, newSize);
-        glBuffer.copyTo(newBuffer, bufferSize);
+
+        glBuffer.copyTo(newBuffer, size);
         glBuffer.delete();
-
-        onExpand(bytes);
-
-        resized = true;
         glBuffer = newBuffer;
-        bufferSize = newSize;
-
-        afterExpand();
-    }
-
-    public void beforeExpand() {
-
-    }
-
-    public void onExpand(long bytes) {
-
-    }
-
-    public void afterExpand() {
-
-    }
-
-    public void resize(long atLeast) {
-        resizeTo(Long.highestOneBit(atLeast) << 1);
-    }
-
-    public void resizeTo(long newBufferSize) {
-        expand(newBufferSize - bufferSize);
     }
 
     public long map(int flags) {
-        return glBuffer.map(bufferSize, flags);
+        return glBuffer.map(size, flags);
     }
 
     public void unmap() {
@@ -69,18 +37,6 @@ public class MutableBuffer implements IServerBuffer {
 
     public void delete() {
         glBuffer.delete();
-    }
-
-    public long getBufferSize() {
-        return bufferSize;
-    }
-
-    public boolean isResized() {
-        return resized;
-    }
-
-    public void resetResized() {
-        resized = false;
     }
 
     @Override
