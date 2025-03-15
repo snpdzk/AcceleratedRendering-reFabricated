@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.core.gl.buffers;
 
 public interface IServerBuffer {
 
+    int getOffset();
     int getBufferHandle();
     void bind(int target);
     void clearInteger(long offset, int value);

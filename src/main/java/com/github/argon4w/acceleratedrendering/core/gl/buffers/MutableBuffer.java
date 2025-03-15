@@ -40,6 +40,11 @@ public class MutableBuffer extends MutableSize implements IServerBuffer {
     }
 
     @Override
+    public int getOffset() {
+        return 0;
+    }
+
+    @Override
     public int getBufferHandle() {
         return glBuffer.getBufferHandle();
     }

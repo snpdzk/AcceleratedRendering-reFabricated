@@ -95,12 +95,13 @@ public class VertexBufferPool extends SimpleResetPool<VertexBufferPool.VertexBuf
             this.offset = -1;
         }
 
-        public long getOffset() {
+        @Override
+        public int getOffset() {
             if (offset == -1) {
                 offset = vertexBufferOut.getSegmentOffset(position / bufferSet.getVertexSize());
             }
 
-            return offset;
+            return (int) offset;
         }
     }
 }

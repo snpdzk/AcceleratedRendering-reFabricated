@@ -67,7 +67,7 @@ public class SegmentBuffer extends MutableBuffer {
         }
     }
 
-    public class Segment implements IServerBufferSegment {
+    public class Segment implements IServerBuffer {
 
         private long offset;
         private long size;
@@ -90,13 +90,8 @@ public class SegmentBuffer extends MutableBuffer {
         }
 
         @Override
-        public long getOffset() {
-            return offset;
-        }
-
-        @Override
-        public IServerBuffer getParent() {
-            return SegmentBuffer.this;
+        public int getOffset() {
+            return (int) offset;
         }
 
         @Override

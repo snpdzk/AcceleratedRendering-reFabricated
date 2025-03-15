@@ -56,6 +56,11 @@ public class ImmutableBuffer implements IServerBuffer {
     }
 
     @Override
+    public int getOffset() {
+        return 0;
+    }
+
+    @Override
     public int getBufferHandle() {
         return bufferHandle;
     }

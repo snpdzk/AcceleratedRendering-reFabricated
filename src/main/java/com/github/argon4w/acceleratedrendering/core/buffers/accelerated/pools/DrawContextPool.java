@@ -1,7 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools;
 
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBufferSegment;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.SegmentBuffer;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -49,7 +48,7 @@ public class DrawContextPool extends SimpleResetPool<DrawContextPool.IndirectDra
 
         private int cachedOffset;
 
-        public IndirectDrawContext(IServerBufferSegment commandBuffer) {
+        public IndirectDrawContext(IServerBuffer commandBuffer) {
             this.commandOffset = commandBuffer.getOffset();
             this.commandBuffer = commandBuffer;
             this.commandBuffer.subData(0, new int[] {0, 1, 0, 0, 0});
@@ -58,8 +57,8 @@ public class DrawContextPool extends SimpleResetPool<DrawContextPool.IndirectDra
         }
 
         public void bindComputeBuffers(ElementBufferPool.ElementSegment elementSegmentIn) {
-            IServerBufferSegment elementBufferOut = elementSegmentIn.getBuffer();
-            int elementOffset = (int) elementBufferOut.getOffset();
+            IServerBuffer elementBufferOut = elementSegmentIn.getBuffer();
+            int elementOffset = elementBufferOut.getOffset();
 
             if (cachedOffset != elementOffset) {
                 cachedOffset = elementOffset;

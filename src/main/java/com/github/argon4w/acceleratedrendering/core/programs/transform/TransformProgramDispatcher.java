@@ -38,7 +38,7 @@ public class TransformProgramDispatcher {
             builder.getVaryingBuffer().bindBase(GL_SHADER_STORAGE_BUFFER, 3);
 
             vertexCountUniform.uploadUnsignedInt(vertexCount);
-            vertexOffsetUniform.uploadUnsignedInt((int) builder.getVertexOffset());
+            vertexOffsetUniform.uploadUnsignedInt(builder.getVertexOffset());
 
             program.dispatch((vertexCount + GROUP_SIZE - 1) / GROUP_SIZE);
         }

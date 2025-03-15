@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools;
 
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBufferSegment;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.buffers.SegmentBuffer;
 import com.github.argon4w.acceleratedrendering.core.utils.MutableSize;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
@@ -72,7 +72,7 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
             elementBufferOutSize.add(bytes);
         }
 
-        public IServerBufferSegment getBuffer() {
+        public IServerBuffer getBuffer() {
             return elementBufferOut.getSegment(size);
         }
 
@@ -81,7 +81,7 @@ public class ElementBufferPool extends SimpleResetPool<ElementBufferPool.Element
         }
 
         public void countPolygons(int count) {
-            elementBytes = elementBytes + count * 4L;
+            elementBytes += count * 4L;
 
             if (elementBytes > size) {
                 resize(elementBytes);

@@ -111,7 +111,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             ElementBufferPool.ElementSegment elementSegment = builder.getElementSegment();
 
             int vertexCount = builder.getVertexCount();
-            int vertexOffset = (int) builder.getVertexOffset();
+            int vertexOffset = builder.getVertexOffset();
 
             if (vertexCount == 0) {
                 continue;

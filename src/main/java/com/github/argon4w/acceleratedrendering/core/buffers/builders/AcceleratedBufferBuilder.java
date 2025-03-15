@@ -447,7 +447,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         return vertexCount;
     }
 
-    public long getVertexOffset() {
+    public int getVertexOffset() {
         return vertexBuffer.getOffset();
     }
 

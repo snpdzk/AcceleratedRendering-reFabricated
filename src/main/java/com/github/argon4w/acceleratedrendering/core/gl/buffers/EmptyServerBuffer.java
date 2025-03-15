@@ -5,6 +5,11 @@ public class EmptyServerBuffer implements IServerBuffer {
     public static final EmptyServerBuffer INSTANCE = new EmptyServerBuffer();
 
     @Override
+    public int getOffset() {
+        return 0;
+    }
+
+    @Override
     public int getBufferHandle() {
         return 0;
     }
