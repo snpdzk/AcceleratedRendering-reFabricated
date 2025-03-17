@@ -27,17 +27,17 @@ public class EntityRenderDispatcherMixin {
 
     @Inject(method = "renderBlockShadow", at = @At("HEAD"), cancellable = true)
     private static void fastBlockShadow(
-            PoseStack.Pose pPose,
-            VertexConsumer pVertexConsumer,
-            ChunkAccess pChunk,
-            LevelReader pLevel,
-            BlockPos pPos,
-            double pX,
-            double pY,
-            double pZ,
-            float pSize,
-            float pWeight,
-            CallbackInfo ci
+        PoseStack.Pose pPose,
+        VertexConsumer pVertexConsumer,
+        ChunkAccess pChunk,
+        LevelReader pLevel,
+        BlockPos pPos,
+        double pX,
+        double pY,
+        double pZ,
+        float pSize,
+        float pWeight,
+        CallbackInfo ci
     ) {
         IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) pVertexConsumer;
 
@@ -55,20 +55,20 @@ public class EntityRenderDispatcherMixin {
 
         ci.cancel();
         extension.doRender(
-                SHADOW_RENDERER,
-                new AcceleratedEntityShadowRenderer.Context(
-                        pLevel,
-                        pChunk,
-                        pPos,
-                        new Vector3f((float) pX, (float) pY, (float) pZ),
-                        pSize,
-                        pWeight
-                ),
-                pPose.pose(),
-                SHADOW_NORMAL_MATRIX,
-                LightTexture.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY,
-                -1
+            SHADOW_RENDERER,
+            new AcceleratedEntityShadowRenderer.Context(
+                pLevel,
+                pChunk,
+                pPos,
+                new Vector3f((float) pX, (float) pY, (float) pZ),
+                pSize,
+                pWeight
+            ),
+            pPose.pose(),
+            SHADOW_NORMAL_MATRIX,
+            LightTexture.FULL_BRIGHT,
+            OverlayTexture.NO_OVERLAY,
+            -1
         );
     }
 }
