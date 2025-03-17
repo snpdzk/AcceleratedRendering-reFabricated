@@ -18,6 +18,10 @@ public class CoreFeature {
         return FeatureConfig.CONFIG.corePooledElementBufferSize.getAsInt();
     }
 
+    public static int getCachedImageSize() {
+        return FeatureConfig.CONFIG.coreCachedImageSize.getAsInt();
+    }
+
     public static boolean shouldForceAccelerateTranslucent() {
         return getForceTranslucentAccelerationSetting() == FeatureStatus.ENABLED;
     }

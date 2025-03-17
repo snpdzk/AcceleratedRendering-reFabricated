@@ -105,10 +105,61 @@ public class BakedGlyphMixin {
             float w1 = pItalic ? 1.0F - 0.25F * this.up : 0.0F;
             float w2 = pItalic ? 1.0F - 0.25F * this.down : 0.0F;
 
-            meshCollector.addVertex(this.left + w1, this.up, 0.0F, color, this.u0, this.v0, -1, pPackedLight, -1, -1, -1);
-            meshCollector.addVertex(this.left + w2, this.down, 0.0F, color, this.u0, this.v1, -1, pPackedLight, -1, -1, -1);
-            meshCollector.addVertex(this.right + w2, this.down, 0.0F, color, this.u1, this.v1, -1, pPackedLight, -1, -1, -1);
-            meshCollector.addVertex(this.right + w1, this.up, 0.0F, color, this.u1, this.v0, -1, pPackedLight, -1, -1, -1);
+            meshCollector.addVertex(
+                    this.left + w1,
+                    this.up,
+                    0.0F,
+                    -1,
+                    this.u0,
+                    this.v0,
+                    -1,
+                    pPackedLight,
+                    -1,
+                    -1,
+                    -1
+            );
+
+            meshCollector.addVertex(
+                    this.left + w2,
+                    this.down,
+                    0.0F,
+                    -1,
+                    this.u0,
+                    this.v1,
+                    -1,
+                    pPackedLight,
+                    -1,
+                    -1,
+                    -1
+            );
+
+            meshCollector.addVertex(
+                    this.right + w2,
+                    this.down,
+                    0.0F,
+                    -1,
+                    this.u1,
+                    this.v1,
+                    -1,
+                    pPackedLight,
+                    -1,
+                    -1,
+                    -1
+            );
+
+            meshCollector.addVertex(
+                    this.right + w1,
+                    this.up,
+                    0.0F,
+                    -1,
+                    this.u1,
+                    this.v0,
+                    -1,
+                    pPackedLight,
+                    -1,
+                    -1,
+                    -1
+            );
 
             mesh = builder.build(meshCollector);
 

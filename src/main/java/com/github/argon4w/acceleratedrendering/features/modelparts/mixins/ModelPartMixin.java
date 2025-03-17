@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.features.modelpart.mixins;
+package com.github.argon4w.acceleratedrendering.features.modelparts.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
@@ -87,7 +87,7 @@ public class ModelPartMixin {
                                 vertex.pos.x / 16.0f,
                                 vertex.pos.y / 16.0f,
                                 vertex.pos.z / 16.0f,
-                                pColor,
+                                -1,
                                 vertex.u,
                                 vertex.v,
                                 pPackedOverlay,
@@ -109,10 +109,6 @@ public class ModelPartMixin {
                     pPackedLight,
                     pPackedOverlay
             );
-
-            if (image != null) {
-                image.close();
-            }
         }
 
         extension.endTransform();

@@ -6,7 +6,8 @@
   "client": [
     "LevelRendererMixin",
     "ShadowRendererMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "EntityRenderDispatcherMixin"
   ],
   "injectors": {
     "defaultRequire": 1

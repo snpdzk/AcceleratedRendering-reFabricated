@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.programs.transform;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
+import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.gl.programs.Uniform;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
@@ -33,9 +34,14 @@ public class TransformProgramDispatcher {
 
         for (AcceleratedBufferBuilder builder : builders) {
             int vertexCount = builder.getVertexCount();
+            MappedBuffer vertexBuffer = builder.getVertexBuffer();
+            MappedBuffer varyingBuffer = builder.getVaryingBuffer();
 
-            builder.getVertexBuffer().bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-            builder.getVaryingBuffer().bindBase(GL_SHADER_STORAGE_BUFFER, 3);
+            vertexBuffer.flush();
+            varyingBuffer.flush();
+
+            vertexBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+            varyingBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 3);
 
             vertexCountUniform.uploadUnsignedInt(vertexCount);
             vertexOffsetUniform.uploadUnsignedInt(builder.getVertexOffset());

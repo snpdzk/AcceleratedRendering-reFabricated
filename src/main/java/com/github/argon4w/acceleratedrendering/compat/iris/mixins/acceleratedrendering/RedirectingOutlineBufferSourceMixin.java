@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedrendering;
 
-import com.github.argon4w.acceleratedrendering.compat.iris.IFastUnwrap;
+import com.github.argon4w.acceleratedrendering.compat.iris.IAcceleratedUnwrap;
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingOutlineBufferSource;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -15,7 +15,7 @@ public class RedirectingOutlineBufferSourceMixin {
 
     @WrapOperation(method = "getBuffer", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/RenderType;name:Ljava/lang/String;"))
     public String unwrapIrisRenderType(RenderType instance, Operation<String> original) {
-        IFastUnwrap fast = (IFastUnwrap) instance;
+        IAcceleratedUnwrap fast = (IAcceleratedUnwrap) instance;
 
         if (IrisCompatFeature.isFastRenderTypeCheckEnabled()) {
             return original.call(fast.unwrapFast());
@@ -25,7 +25,7 @@ public class RedirectingOutlineBufferSourceMixin {
             return original.call(wrapped.unwrap());
         }
 
-        if (fast.supportFastUnwrap()) {
+        if (fast.isAccelerated()) {
             return original.call(fast.unwrapFast());
         }
 

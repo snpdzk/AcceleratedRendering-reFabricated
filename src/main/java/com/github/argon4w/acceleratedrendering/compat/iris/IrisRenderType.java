@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.RenderType;
 
 import java.util.Optional;
 
-public class IrisRenderType extends RenderType implements WrappableRenderType, IFastUnwrap {
+public class IrisRenderType extends RenderType implements WrappableRenderType, IAcceleratedUnwrap {
 
     private final RenderType renderType;
     private final VertexFormat vertexFormat;
@@ -52,7 +52,7 @@ public class IrisRenderType extends RenderType implements WrappableRenderType, I
     }
 
     @Override
-    public boolean supportFastUnwrap() {
+    public boolean isAccelerated() {
         return true;
     }
 

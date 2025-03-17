@@ -74,7 +74,7 @@ public class ServerMesh implements IMesh {
             MappedBuffer buffer = storageBuffers.get(vertexFormat);
 
             if (buffer == null) {
-                buffer = new MappedBuffer(1024L);
+                buffer = new MappedBuffer(1024L, true);
                 storageBuffers.put(vertexFormat, buffer);
             }
 

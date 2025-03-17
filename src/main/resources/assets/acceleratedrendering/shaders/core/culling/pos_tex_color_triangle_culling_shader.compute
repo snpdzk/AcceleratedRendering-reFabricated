@@ -12,15 +12,13 @@ struct Vertex {
 struct VaryingData {
     int offset;
     int sharing;
+    int mesh;
+    int flags;
 };
 
 struct SharingData {
     mat4 transform;
     mat3 normal;
-    uint flags;
-    int mesh;
-    uint extra_data_1;
-    uint extra_data_2;
 };
 
 struct Polygon {
@@ -67,8 +65,7 @@ void main() {
     uint index2 = vertexOffset + base + 1u;
     uint index3 = vertexOffset + base + 2u;
 
-    int sharing = varyings[index - varyings[index1].offset].sharing;
-    uint flags = sharing != -1 ? sharings[sharing].flags : 0u;
+    uint flags = varyings[index - varyings[index1].offset].flags;
     uint noCull = flags & 0x1u;
 
     Vertex vertex1 = vertices[index1];

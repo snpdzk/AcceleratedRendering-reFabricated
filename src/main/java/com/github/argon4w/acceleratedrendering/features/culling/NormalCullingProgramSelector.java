@@ -57,13 +57,13 @@ public class NormalCullingProgramSelector implements ICullingProgramSelector {
     }
 
     @Override
-    public int getSharingFlags(VertexFormat.Mode mode) {
+    public int getFlags(VertexFormat.Mode mode) {
         if (!NormalCullingFeature.isEnabled()) {
-            return parent.getSharingFlags(mode);
+            return parent.getFlags(mode);
         }
 
         if (this.mode != mode) {
-            return parent.getSharingFlags(mode);
+            return parent.getFlags(mode);
         }
 
         if (!NormalCullingFeature.shouldCull()) {

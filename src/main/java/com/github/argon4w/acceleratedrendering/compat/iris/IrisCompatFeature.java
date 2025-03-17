@@ -47,7 +47,7 @@ public class IrisCompatFeature {
         SHADOW_CULLING_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
     }
 
-    public static void enablePolygonProcessing() {
+    public static void forceEnablePolygonProcessing() {
         POLYGON_PROCESSING_CONTROLLER_STACK.push(FeatureStatus.ENABLED);
     }
 

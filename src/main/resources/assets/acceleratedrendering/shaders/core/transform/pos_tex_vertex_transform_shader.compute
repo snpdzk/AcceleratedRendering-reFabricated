@@ -11,15 +11,13 @@ struct Vertex {
 struct VaryingData {
     int offset;
     int sharing;
+    int mesh;
+    int flags;
 };
 
 struct SharingData {
     mat4 transform;
     mat3 normal;
-    uint flags;
-    int mesh;
-    uint extra_data_1;
-    uint extra_data_2;
 };
 
 layout(local_size_x = 128) in;
@@ -58,27 +56,36 @@ void main() {
     int offset = varyings[indexIn].offset;
     uint reference = indexIn - offset;
     int sharing = varyings[reference].sharing;
+    int mesh = varyings[reference].mesh;
 
-    int mesh;
     mat4 transformMatrix;
     // mat3 normalMatrix;
 
+    Vertex vertex;
+    vec4 blendColor;
+
     if (sharing != -1) {
-        mesh = sharings[sharing].mesh;
         transformMatrix = sharings[sharing].transform;
         // normalMatrix = sharings[sharing].normal;
     } else {
-        mesh = -1;
         transformMatrix = mat4(1.0);
         // normalMatrix = mat3(1.0);
     }
 
-    Vertex vertex = mesh != -1 ? meshVertices[mesh + offset] : verticesIn[indexIn];
+    if (mesh != -1) {
+        vertex = meshVertices[mesh + offset];
+        // blendColor = unpackUnorm4x8(verticesIn[reference].color);
+    } else {
+        vertex = verticesIn[indexIn];
+        // blendColor = vec4(1.0);
+    }
 
     vec4 pos = vec4(vertex.x, vertex.y, vertex.z, 1.0);
+    // vec4 color = unpackUnorm4x8(vertex.color);
     // vec3 normal = unpackSnorm4x8(vertex.normal).xyz;
 
     pos = transformMatrix * pos;
+    // color = blendColor * color;
     // normal = normalize(normalMatrix * normal);
 
     verticesOut[indexOut].x = pos.x;
@@ -88,7 +95,7 @@ void main() {
     verticesOut[indexOut].u0 = vertex.u0;
     verticesOut[indexOut].v0 = vertex.v0;
 
-    // verticesOut[indexOut].color = verticesIn[reference].color;
+    // verticesOut[indexOut].color = packUnorm4x8(color);
     // verticesOut[indexOut].uv1 = verticesIn[reference].uv1;
     // verticesOut[indexOut].uv2 = verticesIn[reference].uv2;
 

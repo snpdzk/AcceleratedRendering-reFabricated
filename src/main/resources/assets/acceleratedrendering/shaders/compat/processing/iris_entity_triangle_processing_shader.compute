@@ -4,7 +4,7 @@ struct Vertex {
     float x;
     float y;
     float z;
-    int color;
+    uint color;
     float u0;
     float v0;
     int uv1;

@@ -11,6 +11,7 @@ public class FeatureConfig {
 
     public final ModConfigSpec.IntValue corePooledBufferSetSize;
     public final ModConfigSpec.IntValue corePooledElementBufferSize;
+    public final ModConfigSpec.IntValue coreCachedImageSize;
     public final ModConfigSpec.ConfigValue<FeatureStatus> coreForceTranslucentAcceleration;
     public final ModConfigSpec.ConfigValue<FeatureStatus> coreCacheSamePose;
 
@@ -21,6 +22,11 @@ public class FeatureConfig {
     public final ModConfigSpec.ConfigValue<FeatureStatus> acceleratedTextRenderingFeatureStatus;
     public final ModConfigSpec.ConfigValue<PipelineSetting> acceleratedTextRenderingDefaultPipeline;
     public final ModConfigSpec.ConfigValue<MeshType> acceleratedTextRenderingMeshType;
+
+    public final ModConfigSpec.ConfigValue<FeatureStatus> acceleratedItemRenderingFeatureStatus;
+    public final ModConfigSpec.ConfigValue<FeatureStatus> acceleratedItemRenderingBakeMeshForQuads;
+    public final ModConfigSpec.ConfigValue<PipelineSetting> acceleratedItemRenderingDefaultPipeline;
+    public final ModConfigSpec.ConfigValue<MeshType> acceleratedItemRenderingMeshType;
 
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingFeatureStatus;
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingDefaultCulling;
@@ -61,6 +67,12 @@ public class FeatureConfig {
                 .translation("acceleratedrendering.configuration.core_settings.pooled_element_buffer_size")
                 .defineInRange("pooled_element_buffer_size", 32, 0, Integer.MAX_VALUE);
 
+        coreCachedImageSize = builder
+                .comment("Count of images that cached for static mesh culling.")
+                .comment("Changing this value may affects your FPS. Smaller value means less images allowed to be cached, while larger means more cached images. More cached images means more FPS but more RAM pressure.")
+                .translation("acceleratedrendering.configuration.core_settings.cached_image_size")
+                .defineInRange("cached_image_size", 32, 1, Integer.MAX_VALUE);
+
         coreForceTranslucentAcceleration = builder
                 .comment("- DISABLED: Translucent RenderType will fallback to vanilla rendering pipeline if the accelerated pipeline does not support translucent sorting unless mods explicitly enable force translucent acceleration temporarily when rendering their own faces.")
                 .comment("- ENABLED: Translucent RenderType will still be rendered in accelerated pipeline even if the pipeline does not support translucent sorting unless mods explicitly disable force translucent acceleration temporarily when rendering their own faces.")
@@ -77,7 +89,7 @@ public class FeatureConfig {
 
         builder
                 .comment("Accelerated Entity Rendering Settings")
-                .comment("Accelerated Entity Rendering uses GPU to cache and transform vertices whiling rendering model parts of entities, instead of generating and transforming vertices every time the model parts are rendered in CPU.")
+                .comment("Accelerated Entity Rendering uses GPU to cache and transform vertices while rendering model parts of entities, instead of generating and transforming vertices every time the model parts are rendered in CPU.")
                 .translation("acceleratedrendering.configuration.accelerated_entity_rendering")
                 .push("accelerated_entity_rendering");
 
@@ -104,7 +116,7 @@ public class FeatureConfig {
 
         builder
                 .comment("Accelerated Text Rendering Settings")
-                .comment("Accelerated Text Rendering uses GPU to cache and transform vertices whiling rendering text through BakedGlyph, instead of generating and transforming vertices every time the text are rendered in CPU.")
+                .comment("Accelerated Text Rendering uses GPU to cache and transform vertices while rendering text through BakedGlyph, instead of generating and transforming vertices every time the text are rendered in CPU.")
                 .translation("acceleratedrendering.configuration.accelerated_text_rendering")
                 .push("accelerated_text_rendering");
 
@@ -125,6 +137,39 @@ public class FeatureConfig {
                 .comment("- CLIENT: Cached mesh will be stored on the client side (CPU), which will use less VRAM but take more time to upload to the server side (GPU) during rendering.")
                 .comment("- SERVER: Cached mesh will be stored on the server side (GPU), which may speed up rendering but will use more VRAM to store the mesh.")
                 .translation("acceleratedrendering.configuration.accelerated_text_rendering.mesh_type")
+                .defineEnum("mesh_type", MeshType.SERVER);
+
+        builder.pop();
+
+        builder
+                .comment("Accelerated Item Rendering Settings")
+                .comment("Accelerated Item Rendering uses GPU to cache and transform vertices while rendering item models, instead of generating and transforming vertices every time the item models are rendered in CPU.")
+                .translation("acceleratedrendering.configuration.accelerated_item_rendering")
+                .push("accelerated_item_rendering");
+
+        acceleratedItemRenderingFeatureStatus = builder
+                .comment("- DISABLED: Disable accelerated item rendering.")
+                .comment("- ENABLED: Enable accelerated item rendering.")
+                .translation("acceleratedrendering.configuration.accelerated_item_rendering.feature_status")
+                .defineEnum("feature_status", FeatureStatus.ENABLED);
+
+        acceleratedItemRenderingBakeMeshForQuads = builder
+                .comment("- DISABLED: Accelerated Rendering will not bake mesh for quads provided by dynamic item models (something that is not SimpleBakedModel) unless mods explicitly enable it temporarily when rendering their own item models.")
+                .comment("- ENABLED: Accelerated Rendering will bake mesh for all quads provided by dynamic item models (something that is not SimpleBakedModel) unless mods explicitly disable it temporarily when rendering their own item models, which will accelerate the rendering of these models but will crash if they keep allocating new quad data. (but who will?)")
+                .translation("acceleratedrendering.configuration.accelerated_item_rendering.bake_mesh_for_quads")
+                .defineEnum("bake_mesh_for_quads", FeatureStatus.ENABLED);
+
+        acceleratedItemRenderingDefaultPipeline = builder
+                .comment("- VANILLA: Item models will not be rendered into the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own item models.")
+                .comment("- ACCELERATED: All item models will be rendered in the accelerated pipeline unless mods explicitly disable it temporarily when rendering their own item models.")
+                .translation("acceleratedrendering.configuration.accelerated_item_rendering.default_pipeline")
+                .defineEnum("default_pipeline", PipelineSetting.ACCELERATED);
+
+        acceleratedItemRenderingMeshType = builder
+                .gameRestart()
+                .comment("- CLIENT: Cached mesh will be stored on the client side (CPU), which will use less VRAM but take more time to upload to the server side (GPU) during rendering.")
+                .comment("- SERVER: Cached mesh will be stored on the server side (GPU), which may speed up rendering but will use more VRAM to store the mesh.")
+                .translation("acceleratedrendering.configuration.accelerated_item_rendering.mesh_type")
                 .defineEnum("mesh_type", MeshType.SERVER);
 
         builder.pop();
@@ -174,8 +219,8 @@ public class FeatureConfig {
                 .defineEnum("normal_culling_compatibility", FeatureStatus.ENABLED);
 
         irisCompatShadowCulling = builder
-                .comment("- DISABLED: Entities will not be culled when they are rendered as shadows. Which reduce FPS due to redundant faces.")
-                .comment("- ENABLED: Entities will be culled when they are rendered as shadows. Redundant faces will be culled and improve FPS, but it may cause incorrect shadows.")
+                .comment("- DISABLED: Entities will not be culled when they are rendered as shadows unless mods explicitly enable it temporarily when rendering their own shadows. Which reduce FPS due to redundant faces.")
+                .comment("- ENABLED: Entities will be culled when they are rendered as shadows unless mods explicitly disable it temporarily when rendering their own shadows. Redundant faces will be culled and improve FPS, but it may cause incorrect shadows.")
                 .translation("acceleratedrendering.configuration.iris_compatibility.shadow_culling")
                 .defineEnum("shadow_culling", FeatureStatus.ENABLED);
 
@@ -186,14 +231,14 @@ public class FeatureConfig {
                 .defineEnum("entities_compatibility", FeatureStatus.ENABLED);
 
         irisCompatPolygonProcessing = builder
-                .comment("- DISABLED: Extra information in vertices provided by Iris will not be included or calculated in the accelerated pipeline, which may cause visual glitches or incorrect rendering.")
-                .comment("- ENABLED: Extra information in vertices provided by Iris will be included and calculated in the accelerated pipeline by a compute shader.")
+                .comment("- DISABLED: Extra information in vertices provided by Iris will not be included or calculated in the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own faces, which may cause visual glitches or incorrect rendering.")
+                .comment("- ENABLED: Extra information in vertices provided by Iris will be included and calculated in the accelerated pipeline by a compute shader unless mods explicitly disable it temporarily when rendering their own faces.")
                 .translation("acceleratedrendering.configuration.iris_compatibility.polygon_processing")
                 .defineEnum("polygon_processing", FeatureStatus.ENABLED);
 
         irisCompatFastRenderTypeCheck = builder
                 .comment("- DISABLED: Accelerated Rendering will use slow but safe \"instanceof\" operation in checking wrapped RenderType created by Iris.")
-                .comment("- ENABlED: Accelerated Rendering will use extension interface in checking wrapped RenderType created by Iris, which is faster but unsafe if other mods also implemented \"WrappableRenderType\".")
+                .comment("- ENABlED: Accelerated Rendering will use extension interface in checking wrapped RenderType created by Iris, which is faster but unsafe if other mods also implemented \"WrappableRenderType\". (but who will?)")
                 .translation("acceleratedrendering.configuration.iris_compatability.fast_render_type_check")
                 .defineEnum("fast_render_type_check", FeatureStatus.ENABLED);
 

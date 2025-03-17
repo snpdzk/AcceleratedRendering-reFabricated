@@ -8,7 +8,7 @@ import net.neoforged.fml.ModLoader;
 public interface ICullingProgramSelector {
 
     IPolygonProgramDispatcher select(RenderType renderType);
-    int getSharingFlags(VertexFormat.Mode mode);
+    int getFlags(VertexFormat.Mode mode);
 
     static ICullingProgramSelector passThrough() {
         return PassThroughCullingProgramSelector.INSTANCE;

@@ -72,21 +72,21 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
     }
 
     @Override
-    public int getSharingFlags(VertexFormat.Mode mode) {
+    public int getFlags(VertexFormat.Mode mode) {
         if (!IrisCompatFeature.isEnabled()) {
-            return parent.getSharingFlags(mode);
+            return parent.getFlags(mode);
         }
 
         if (!IrisCompatFeature.isIrisCompatCullingEnabled()) {
-            return parent.getSharingFlags(mode);
+            return parent.getFlags(mode);
         }
 
         if (!NormalCullingFeature.isEnabled()) {
-            return parent.getSharingFlags(mode);
+            return parent.getFlags(mode);
         }
 
         if (this.mode != mode) {
-            return parent.getSharingFlags(mode);
+            return parent.getFlags(mode);
         }
 
         if (!IrisCompatFeature.isShadowCullingEnabled() && ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {

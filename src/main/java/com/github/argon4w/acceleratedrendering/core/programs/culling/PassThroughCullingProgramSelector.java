@@ -24,7 +24,7 @@ public class PassThroughCullingProgramSelector implements ICullingProgramSelecto
     }
 
     @Override
-    public int getSharingFlags(VertexFormat.Mode mode) {
+    public int getFlags(VertexFormat.Mode mode) {
         return 0;
     }
 }

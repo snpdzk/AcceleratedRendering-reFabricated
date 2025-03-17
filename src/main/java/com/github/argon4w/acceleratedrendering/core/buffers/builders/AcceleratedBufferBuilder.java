@@ -116,7 +116,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         }
 
         long vertex = vertexBuffer.reserve(vertexSize);
-        long varying = varyingBuffer.reserve(2L * 4L);
+        long varying = varyingBuffer.reserve(4L * 4L);
 
         this.vertex = vertex;
 
@@ -126,6 +126,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
         MemoryUtil.memPutInt(varying + 0 * 4L, 0);
         MemoryUtil.memPutInt(varying + 1 * 4L, sharing);
+        MemoryUtil.memPutInt(varying + 2 * 4L, -1);
+        MemoryUtil.memPutInt(varying + 3 * 4L, bufferSet.getFlags(mode));
 
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
         data.addExtraVertex(vertex);
@@ -278,7 +280,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         }
 
         long vertex = vertexBuffer.reserve(vertexSize);
-        long varying = varyingBuffer.reserve(2L * 4L);
+        long varying = varyingBuffer.reserve(4L * 4L);
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
         data.addExtraVertex(vertex);
@@ -312,7 +314,9 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         }
 
         MemoryUtil.memPutInt(varying + 0L * 4L, 0);
-        MemoryUtil.memPutInt(varying + 1L * 4L, -1);
+        MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
+        MemoryUtil.memPutInt(varying + 2L * 4L, -1);
+        MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
     }
 
     @Override
@@ -331,13 +335,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         transform = bufferSet.reserveSharing();
         normal = transform + 4L * 4L * 4L;
 
-        long flags = normal + 4L * 3L * 4L;
-        long mesh = flags + 4L;
-
         ByteUtils.putMatrix4f(transform, transformMatrix);
         ByteUtils.putMatrix3x4f(normal, normalMatrix);
-        MemoryUtil.memPutInt(flags, bufferSet.getSharingFlags(mode));
-        MemoryUtil.memPutInt(mesh, -1);
     }
 
     @Override
@@ -389,7 +388,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
 
         for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 2L * 4L, i);
+            MemoryUtil.memPutInt(varying + i * 4L * 4L, i);
         }
     }
 
@@ -405,9 +404,9 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         elementSegment.countPolygons(mode.indexCount(size));
         vertexCount += size;
 
+        int mesh = offset / bufferSet.getVertexSize();
         long vertex = vertexBuffer.reserve(vertexSize * (long) size);
-        long varying = varyingBuffer.reserve(2L * 4L * size);
-        long mesh = transform + 4L * 4L * 4L + 4L * 3L * 4L + 4L;
+        long varying = varyingBuffer.reserve(4L * 4L * size);
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
         data.addExtraVertex(vertex);
@@ -425,11 +424,11 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             MemoryUtil.memPutInt(vertex + uv2Offset, light);
         }
 
-        MemoryUtil.memPutInt(mesh, offset / bufferSet.getVertexSize());
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
+        MemoryUtil.memPutInt(varying + 2L * 4L, mesh);
 
         for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 2L * 4L, i);
+            MemoryUtil.memPutInt(varying + i * 4L * 4L, i);
         }
     }
 

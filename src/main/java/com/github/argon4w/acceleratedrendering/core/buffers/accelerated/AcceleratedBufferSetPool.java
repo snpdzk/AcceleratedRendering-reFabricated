@@ -111,6 +111,7 @@ public class AcceleratedBufferSetPool {
         }
 
         public void prepare() {
+            sharingBuffer.flush();
             vertexBuffer.prepare();
             elementBufferPool.prepare();
         }
@@ -139,8 +140,8 @@ public class AcceleratedBufferSetPool {
             return bufferEnvironment.getVertexSize();
         }
 
-        public int getSharingFlags(VertexFormat.Mode mode) {
-            return bufferEnvironment.getSharingFlags(mode);
+        public int getFlags(VertexFormat.Mode mode) {
+            return bufferEnvironment.getFlags(mode);
         }
 
         public int getSharing() {
@@ -148,7 +149,7 @@ public class AcceleratedBufferSetPool {
         }
 
         public long reserveSharing() {
-            return sharingBuffer.reserve(4L * 4L * 4L + 4L * 4L * 3L + 4L * 4L);
+            return sharingBuffer.reserve(4L * 4L * 4L + 4L * 4L * 3L);
         }
 
         public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
