@@ -91,7 +91,7 @@ public class ModelPartMixin {
                                 vertex.u,
                                 vertex.v,
                                 pPackedOverlay,
-                                pPackedLight,
+                                0,
                                 normal.x,
                                 normal.y,
                                 normal.z

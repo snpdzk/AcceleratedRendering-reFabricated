@@ -7,7 +7,7 @@ struct Vertex {
     uint color;
     float u0;
     float v0;
-    int uv2;
+    uint uv2;
 };
 
 struct VaryingData {
@@ -63,8 +63,13 @@ void main() {
     mat4 transformMatrix;
     // mat3 normalMatrix;
 
-    Vertex vertex;
-    vec4 blendColor;
+    vec4 pos;
+    vec4 color;
+    vec4 refColor;
+    vec2 uv0;
+    uvec2 uv2;
+    uvec2 refUv2;
+    vec3 normal;
 
     if (sharing != -1) {
         transformMatrix = sharings[sharing].transform;
@@ -75,31 +80,37 @@ void main() {
     }
 
     if (mesh != -1) {
-        vertex = meshVertices[mesh + offset];
-        blendColor = unpackUnorm4x8(verticesIn[reference].color);
+        pos = vec4(meshVertices[mesh + offset].x, meshVertices[mesh + offset].y, meshVertices[mesh + offset].z, 1.0);
+        color = unpackUnorm4x8(meshVertices[mesh + offset].color);
+        refColor = unpackUnorm4x8(verticesIn[reference].color);
+        uv0 = vec2(meshVertices[mesh + offset].u0, meshVertices[mesh + offset].v0);
+        uv2 = floatBitsToUint(unpackSnorm2x16(meshVertices[mesh + offset].uv2));
+        refUv2 = floatBitsToUint(unpackSnorm2x16(verticesIn[reference].uv2));
+        // normal = unpackSnorm4x8(meshVertices[mesh + offset].normal).xyz;
     } else {
-        vertex = verticesIn[indexIn];
-        blendColor = vec4(1.0);
+        pos = vec4(verticesIn[indexIn].x, verticesIn[indexIn].y, verticesIn[indexIn].z, 1.0);
+        color = unpackUnorm4x8(verticesIn[indexIn].color);
+        refColor = vec4(1.0);
+        uv0 = vec2(verticesIn[indexIn].u0, verticesIn[indexIn].v0);
+        uv2 = floatBitsToUint(unpackSnorm2x16(verticesIn[indexIn].uv2));
+        refUv2 = uvec2(0u);
+        // normal = unpackSnorm4x8(verticesIn[indexIn].normal).xyz;
     }
 
-    vec4 pos = vec4(vertex.x, vertex.y, vertex.z, 1.0);
-    vec4 color = unpackUnorm4x8(vertex.color);
-    // vec3 normal = unpackSnorm4x8(vertex.normal).xyz;
-
     pos = transformMatrix * pos;
-    color = blendColor * color;
+    color = refColor * color;
     // normal = normalize(normalMatrix * normal);
 
     verticesOut[indexOut].x = pos.x;
     verticesOut[indexOut].y = pos.y;
     verticesOut[indexOut].z = pos.z;
 
-    verticesOut[indexOut].u0 = vertex.u0;
-    verticesOut[indexOut].v0 = vertex.v0;
+    verticesOut[indexOut].u0 = uv0.x;
+    verticesOut[indexOut].v0 = uv0.y;
 
     verticesOut[indexOut].color = packUnorm4x8(color);
     // verticesOut[indexOut].uv1 = verticesIn[reference].uv1;
-    verticesOut[indexOut].uv2 = verticesIn[reference].uv2;
+    verticesOut[indexOut].uv2 = packSnorm2x16(uintBitsToFloat(max(uv2, refUv2)));
 
     // verticesOut[indexOut].normal = packSnorm4x8(vec4(normal, 0.0));
 }

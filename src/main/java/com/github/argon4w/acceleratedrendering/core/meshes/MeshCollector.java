@@ -18,6 +18,7 @@ public class MeshCollector {
     private final long posOffset;
     private final long colorOffset;
     private final long uv0Offset;
+    private final long uv2Offset;
     private final long normalOffset;
 
     private int vertexCount;
@@ -38,6 +39,7 @@ public class MeshCollector {
         this.colorOffset = format.getOffset(VertexFormatElement.COLOR);
         this.posOffset = format.getOffset(VertexFormatElement.POSITION);
         this.uv0Offset = format.getOffset(VertexFormatElement.UV);
+        this.uv2Offset = format.getOffset(VertexFormatElement.UV2);
         this.normalOffset = format.getOffset(VertexFormatElement.NORMAL);
     }
 
@@ -69,6 +71,10 @@ public class MeshCollector {
         if (uv0Offset != -1L) {
             MemoryUtil.memPutFloat(vertex + uv0Offset + 0L, pU);
             MemoryUtil.memPutFloat(vertex + uv0Offset + 4L, pV);
+        }
+
+        if (uv2Offset != -1L) {
+            MemoryUtil.memPutInt(vertex + uv2Offset + 0L, pPackedLight);
         }
 
         if (normalOffset != -1L) {

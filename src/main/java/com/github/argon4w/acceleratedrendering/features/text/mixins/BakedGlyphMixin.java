@@ -113,7 +113,7 @@ public class BakedGlyphMixin {
                     this.u0,
                     this.v0,
                     -1,
-                    pPackedLight,
+                    0,
                     -1,
                     -1,
                     -1
@@ -127,7 +127,7 @@ public class BakedGlyphMixin {
                     this.u0,
                     this.v1,
                     -1,
-                    pPackedLight,
+                    0,
                     -1,
                     -1,
                     -1
@@ -141,7 +141,7 @@ public class BakedGlyphMixin {
                     this.u1,
                     this.v1,
                     -1,
-                    pPackedLight,
+                    0,
                     -1,
                     -1,
                     -1
@@ -155,7 +155,7 @@ public class BakedGlyphMixin {
                     this.u1,
                     this.v0,
                     -1,
-                    pPackedLight,
+                    0,
                     -1,
                     -1,
                     -1
