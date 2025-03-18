@@ -6,9 +6,9 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.El
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.MappedBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.gl.Sync;
-import com.github.argon4w.acceleratedrendering.core.gl.VertexArray;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.backends.Sync;
+import com.github.argon4w.acceleratedrendering.core.backends.VertexArray;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;

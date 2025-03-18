@@ -9,7 +9,6 @@
     "acceleratedrendering.AcceleratedRenderingModEntryMixin",
     "acceleratedrendering.IBufferEnvironmentPresetsMixin",
     "acceleratedrendering.RedirectingBufferSourceMixin",
-    "acceleratedrendering.RedirectingOutlineBufferSourceMixin",
     "acceleratedrendering.RenderTypeUtilsMixin",
     "iris.IrisVertexFormatsMixin",
     "iris.ModelToEntityVertexSerializerMixin",

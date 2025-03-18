@@ -40,7 +40,7 @@ layout(binding=3, std430) readonly buffer Varyings {
     VaryingData varyings[];
 };
 
-layout(binding=4, std430) readonly buffer Mesh {
+layout(binding=4, std430) readonly buffer Meshes {
     Vertex meshVertices[];
 };
 
@@ -80,13 +80,14 @@ void main() {
     }
 
     if (mesh != -1) {
-        pos = vec4(meshVertices[mesh + offset].x, meshVertices[mesh + offset].y, meshVertices[mesh + offset].z, 1.0);
-        color = unpackUnorm4x8(meshVertices[mesh + offset].color);
+        uint meshIndex = mesh + offset;
+        pos = vec4(meshVertices[meshIndex].x, meshVertices[meshIndex].y, meshVertices[meshIndex].z, 1.0);
+        color = unpackUnorm4x8(meshVertices[meshIndex].color);
         refColor = unpackUnorm4x8(verticesIn[reference].color);
-        uv0 = vec2(meshVertices[mesh + offset].u0, meshVertices[mesh + offset].v0);
-        uv2 = floatBitsToUint(unpackSnorm2x16(meshVertices[mesh + offset].uv2));
+        uv0 = vec2(meshVertices[meshIndex].u0, meshVertices[meshIndex].v0);
+        uv2 = floatBitsToUint(unpackSnorm2x16(meshVertices[meshIndex].uv2));
         refUv2 = floatBitsToUint(unpackSnorm2x16(verticesIn[reference].uv2));
-        // normal = unpackSnorm4x8(meshVertices[mesh + offset].normal).xyz;
+        // normal = unpackSnorm4x8(meshVertices[meshIndex].normal).xyz;
     } else {
         pos = vec4(verticesIn[indexIn].x, verticesIn[indexIn].y, verticesIn[indexIn].z, 1.0);
         color = unpackUnorm4x8(verticesIn[indexIn].color);

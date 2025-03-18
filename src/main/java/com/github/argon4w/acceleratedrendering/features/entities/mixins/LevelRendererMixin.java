@@ -65,10 +65,7 @@ public abstract class LevelRendererMixin {
         }
 
         if (minecraft.shouldEntityAppearGlowing(pEntity)) {
-            CoreBuffers
-                    .CORE_OUTLINE
-                    .getOutlineBufferSource()
-                    .setColor(pEntity.getTeamColor());
+            CoreBuffers.CORE_OUTLINE.setColor(pEntity.getTeamColor());
 
             original.call(
                     instance,

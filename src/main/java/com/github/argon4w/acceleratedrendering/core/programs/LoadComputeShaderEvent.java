@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.programs;
 
-import com.github.argon4w.acceleratedrendering.core.gl.programs.BarrierFlags;
+import com.github.argon4w.acceleratedrendering.core.backends.programs.BarrierFlags;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.Event;

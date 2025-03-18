@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.environments;
 
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.meshes.ServerMesh;
 import com.github.argon4w.acceleratedrendering.core.programs.EmptyProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;

@@ -1,17 +1,12 @@
 package com.github.argon4w.acceleratedrendering.features.entities.mixins;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.LevelReader;
-import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,62 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
-
-    @Inject(method = "renderShadow", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos$MutableBlockPos;<init>()V"))
-    private static void beginShadowTransform(
-            PoseStack pPoseStack,
-            MultiBufferSource pBuffer,
-            Entity pEntity,
-            float pWeight,
-            float pPartialTicks,
-            LevelReader pLevel,
-            float pSize,
-            CallbackInfo ci,
-            @Local(name = "posestack$pose") PoseStack.Pose pose,
-            @Local(name = "vertexconsumer") VertexConsumer vertexConsumer
-    ) {
-        ((IAcceleratedVertexConsumer) vertexConsumer).beginTransform(pose.pose(), pose.normal());
-    }
-
-    @Inject(method = "renderShadow", at = @At("TAIL"))
-    private static void endShadowTransform(
-            PoseStack pPoseStack,
-            MultiBufferSource pBuffer,
-            Entity pEntity,
-            float pWeight,
-            float pPartialTicks,
-            LevelReader pLevel,
-            float pSize,
-            CallbackInfo ci,
-            @Local(name = "vertexconsumer") VertexConsumer vertexConsumer
-    ) {
-        ((IAcceleratedVertexConsumer) vertexConsumer).endTransform();
-    }
-
-    @Inject(method = "renderFlame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;getU0()F"))
-    public void beginFlameTransform(
-            PoseStack pPoseStack,
-            MultiBufferSource pBuffer,
-            Entity pEntity,
-            Quaternionf pQuaternion,
-            CallbackInfo ci,
-            @Local(name = "posestack$pose") PoseStack.Pose pose,
-            @Local(name = "vertexconsumer") VertexConsumer vertexConsumer
-    ) {
-        ((IAcceleratedVertexConsumer) vertexConsumer).beginTransform(pose.pose(), pose.normal());
-    }
-
-    @Inject(method = "renderFlame", at = @At(value = "TAIL"))
-    public void endFlameTransform(
-            PoseStack pPoseStack,
-            MultiBufferSource pBuffer,
-            Entity pEntity,
-            Quaternionf pQuaternion,
-            CallbackInfo ci,
-            @Local(name = "vertexconsumer") VertexConsumer vertexConsumer
-    ) {
-        ((IAcceleratedVertexConsumer) vertexConsumer).endTransform();
-    }
 
     @Inject(method = "shadowVertex", at = @At("HEAD"), cancellable = true)
     private static void fastShadowVertex(
@@ -103,6 +42,8 @@ public class EntityRenderDispatcherMixin {
         }
 
         ci.cancel();
+
+        extension.beginTransform(pPose.pose(), pPose.normal());
         pConsumer.addVertex(
                 pOffsetX,
                 pOffsetY,
@@ -144,6 +85,8 @@ public class EntityRenderDispatcherMixin {
         }
 
         ci.cancel();
+
+        extension.beginTransform(pMatrixEntry.pose(), pMatrixEntry.normal());
         pBuffer.addVertex(
                 pX,
                 pY,

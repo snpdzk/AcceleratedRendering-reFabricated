@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.items.mixins;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedBakedModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.resources.model.BakedModel;
@@ -29,7 +29,7 @@ public interface BakedModelMixin extends IAcceleratedBakedModel {
 
     @Unique
     @Override
-    default int getCustomColor() {
+    default int getCustomColor(int layer) {
         return -1;
     }
 }

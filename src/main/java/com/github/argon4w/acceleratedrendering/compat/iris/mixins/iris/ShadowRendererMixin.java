@@ -3,7 +3,7 @@ package com.github.argon4w.acceleratedrendering.compat.iris.mixins.iris;
 import com.github.argon4w.acceleratedrendering.compat.iris.IShadowBufferSourceGetter;
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatBuffers;
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
-import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.RedirectingBufferSource;
 import com.google.common.base.Suppliers;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.mixin.LevelRendererAccessor;

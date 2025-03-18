@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.features.culling;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
-import com.github.argon4w.acceleratedrendering.core.gl.programs.BarrierFlags;
+import com.github.argon4w.acceleratedrendering.core.backends.programs.BarrierFlags;
 import com.github.argon4w.acceleratedrendering.core.programs.LoadComputeShaderEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;

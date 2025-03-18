@@ -5,9 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "BufferBuilderAccessor",
+    "EntityOutlineGeneratorMixin",
     "LevelRendererMixin",
     "MinecraftMixin",
-    "VertexConsumerMixin"
+    "VertexConsumerMixin",
+    "VertexDoubleConsumerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

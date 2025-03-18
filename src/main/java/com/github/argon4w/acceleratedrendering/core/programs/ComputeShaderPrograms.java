@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.programs;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
-import com.github.argon4w.acceleratedrendering.core.gl.programs.BarrierFlags;
+import com.github.argon4w.acceleratedrendering.core.backends.programs.BarrierFlags;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.FixedTransformProgramSelector;

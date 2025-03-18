@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.gl.buffers;
+package com.github.argon4w.acceleratedrendering.core.backends.buffers;
 
 import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
 

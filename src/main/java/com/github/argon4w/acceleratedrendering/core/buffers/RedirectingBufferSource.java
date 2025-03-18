@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.buffers.redirecting;
+package com.github.argon4w.acceleratedrendering.core.buffers;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.IAcceleratedBufferSource;

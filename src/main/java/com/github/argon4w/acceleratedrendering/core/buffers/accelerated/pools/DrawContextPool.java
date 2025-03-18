@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools;
 
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.SegmentBuffer;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.SegmentBuffer;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import com.mojang.blaze3d.vertex.VertexFormat;
 

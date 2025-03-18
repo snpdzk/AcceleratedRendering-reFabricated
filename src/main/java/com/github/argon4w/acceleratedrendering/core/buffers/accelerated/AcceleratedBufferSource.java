@@ -4,7 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.Dr
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.MappedBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.AcceleratedBufferBuilder;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;

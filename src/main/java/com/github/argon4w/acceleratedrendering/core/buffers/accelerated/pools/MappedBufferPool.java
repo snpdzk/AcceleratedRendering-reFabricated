@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools;
 
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 
 public class MappedBufferPool extends SimpleResetPool<MappedBufferPool.Pooled, Void> {

@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.modelparts.mixins;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
 import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;

@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.gl.buffers;
+package com.github.argon4w.acceleratedrendering.core.backends.buffers;
 
 import com.github.argon4w.acceleratedrendering.core.utils.SimpleResetPool;
 import org.apache.commons.lang3.mutable.MutableLong;
@@ -34,6 +34,10 @@ public class SegmentBuffer extends MutableBuffer {
 
     public long getSegmentOffset(long size) {
         return segmentOffset.getAndAdd(size);
+    }
+
+    public long getSegmentOffset() {
+        return segmentOffset.getValue();
     }
 
     public class SegmentPool extends SimpleResetPool<Segment, Void> {

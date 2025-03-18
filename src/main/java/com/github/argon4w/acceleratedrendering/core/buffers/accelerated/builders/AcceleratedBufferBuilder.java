@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.buffers.builders;
+package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders;
 
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSetPool;
@@ -18,6 +18,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.Set;
 
 public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVertexConsumer {
@@ -46,6 +47,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     private long transform;
     private long normal;
     private int sharing;
+    private int cachedSharing;
 
     private Matrix4f cachedTransform;
     private Matrix3f cachedNormal;
@@ -81,6 +83,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         this.transform = -1;
         this.normal = -1;
         this.sharing = -1;
+        this.cachedSharing = -1;
 
         this.cachedTransform = null;
         this.cachedNormal = null;
@@ -107,14 +110,6 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             float pY,
             float pZ
     ) {
-        vertexCount ++;
-        elementCount ++;
-
-        if (elementCount >= polygonSize) {
-            elementSegment.countPolygons(polygonElementCount);
-            elementCount = 0;
-        }
-
         long vertex = vertexBuffer.reserve(vertexSize);
         long varying = varyingBuffer.reserve(4L * 4L);
 
@@ -124,14 +119,23 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
         MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
 
-        MemoryUtil.memPutInt(varying + 0 * 4L, 0);
-        MemoryUtil.memPutInt(varying + 1 * 4L, sharing);
-        MemoryUtil.memPutInt(varying + 2 * 4L, -1);
-        MemoryUtil.memPutInt(varying + 3 * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varying + 0L * 4L, 0);
+        MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
+        MemoryUtil.memPutInt(varying + 2L * 4L, -1);
+        MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
 
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
         data.addExtraVertex(vertex);
         data.addExtraVarying(varying);
+
+        vertexCount ++;
+        elementCount ++;
+
+        if (elementCount >= polygonSize) {
+            elementSegment.countPolygons(polygonElementCount);
+            elementCount = 0;
+            sharing = -1;
+        }
 
         return this;
     }
@@ -216,7 +220,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     ) {
         Matrix3f normalMatrix = pPose.normal();
 
-        if (transform == -1) {
+        if (sharing == -1) {
             return VertexConsumer.super.setNormal(
                     pPose,
                     pNormalX,
@@ -271,14 +275,6 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             float pNormalY,
             float pNormalZ
     ) {
-        vertexCount ++;
-        elementCount ++;
-
-        if (elementCount >= polygonSize) {
-            elementSegment.countPolygons(polygonElementCount);
-            elementCount = 0;
-        }
-
         long vertex = vertexBuffer.reserve(vertexSize);
         long varying = varyingBuffer.reserve(4L * 4L);
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
@@ -317,6 +313,15 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
         MemoryUtil.memPutInt(varying + 2L * 4L, -1);
         MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
+
+        vertexCount ++;
+        elementCount ++;
+
+        if (elementCount >= polygonSize) {
+            elementSegment.countPolygons(polygonElementCount);
+            elementCount = 0;
+            sharing = -1;
+        }
     }
 
     @Override
@@ -325,6 +330,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
                 && transformMatrix.equals(cachedTransform)
                 && normalMatrix.equals(cachedNormal)
         ) {
+            sharing = cachedSharing;
             return;
         }
 
@@ -332,6 +338,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         cachedNormal = new Matrix3f(normalMatrix);
 
         sharing = bufferSet.getSharing();
+        cachedSharing = sharing;
+
         transform = bufferSet.reserveSharing();
         normal = transform + 4L * 4L * 4L;
 
@@ -341,10 +349,10 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
     @Override
     public void endTransform() {
-        this.cachedTransform = null;
-        this.cachedNormal = null;
-        this.sharing = -1;
-        this.transform = -1;
+        cachedTransform = null;
+        cachedNormal = null;
+        sharing = -1;
+        cachedSharing = -1;
     }
 
     @Override
@@ -360,7 +368,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         vertexCount += size;
 
         long vertex = vertexBuffer.reserve(vertexSize * (long) size);
-        long varying = varyingBuffer.reserve(2L * 4L * size);
+        long varying = varyingBuffer.reserve(4L * 4L * size);
         long length = (long) size * bufferSet.getVertexSize();
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
@@ -386,6 +394,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         }
 
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
+        MemoryUtil.memPutInt(varying + 2L * 4L, -1);
+        MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
 
         for (int i = 0; i < size; i++) {
             MemoryUtil.memPutInt(varying + i * 4L * 4L, i);
@@ -426,6 +436,7 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
         MemoryUtil.memPutInt(varying + 2L * 4L, mesh);
+        MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
 
         for (int i = 0; i < size; i++) {
             MemoryUtil.memPutInt(varying + i * 4L * 4L, i);
@@ -435,6 +446,11 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     @Override
     public boolean isAccelerated() {
         return true;
+    }
+
+    @Override
+    public void mapRenderTypes(Map<RenderType, VertexConsumer> map) {
+        map.put(renderType, this);
     }
 
     @Override

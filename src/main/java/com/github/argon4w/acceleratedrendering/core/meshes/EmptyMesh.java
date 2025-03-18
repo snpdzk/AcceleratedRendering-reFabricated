@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 
 public class EmptyMesh implements IMesh {
 

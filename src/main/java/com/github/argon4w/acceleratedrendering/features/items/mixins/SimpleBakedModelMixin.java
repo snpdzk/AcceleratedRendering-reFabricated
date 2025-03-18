@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.features.items.mixins;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
 import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
@@ -56,7 +56,7 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel {
 
                     mesh.write(
                             extension,
-                            itemColor.getColor(itemStack, layer),
+                            hasCustomColor() ? getCustomColor(layer) : itemColor.getColor(itemStack, layer),
                             combinedLight,
                             combinedOverlay
                     );
@@ -149,7 +149,7 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel {
                 layers.put(layer, mesh);
                 mesh.write(
                         extension,
-                        itemColor.getColor(itemStack, layer),
+                        hasCustomColor() ? getCustomColor(layer) : itemColor.getColor(itemStack, layer),
                         combinedLight,
                         combinedOverlay
                 );
@@ -170,7 +170,7 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel {
     }
 
     @Override
-    public int getCustomColor() {
-        return 0;
+    public int getCustomColor(int layer) {
+        return -1;
     }
 }

@@ -2,7 +2,7 @@ package com.github.argon4w.acceleratedrendering.compat.iris.mixins.acceleratedre
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IAcceleratedUnwrap;
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
-import com.github.argon4w.acceleratedrendering.core.buffers.redirecting.RedirectingBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.RedirectingBufferSource;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.irisshaders.batchedentityrendering.impl.WrappableRenderType;

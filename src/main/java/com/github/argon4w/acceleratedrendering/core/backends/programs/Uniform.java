@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.gl.programs;
+package com.github.argon4w.acceleratedrendering.core.backends.programs;
 
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;

@@ -1,9 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.builders.IAcceleratedVertexConsumer;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.EmptyServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.IServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.gl.buffers.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.EmptyServerBuffer;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
