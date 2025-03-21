@@ -50,7 +50,11 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel, IAccelerat
 
         extension.doRender(
                 this,
-                new AcceleratedItemRenderContext(itemStack, (SimpleBakedModel) (Object) this),
+                new AcceleratedItemRenderContext(
+                        itemStack,
+                        null,
+                        null
+                ),
                 pose.pose(),
                 pose.normal(),
                 combinedLight,

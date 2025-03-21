@@ -2,32 +2,44 @@ package com.github.argon4w.acceleratedrendering.features.entities.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
+import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityShadowRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import org.joml.Matrix3f;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(EntityRenderDispatcher.class)
+@Mixin(value = EntityRenderDispatcher.class, priority = 999)
 public class EntityRenderDispatcherMixin {
 
-    @Inject(method = "shadowVertex", at = @At("HEAD"), cancellable = true)
-    private static void fastShadowVertex(
+    @Unique private static final Matrix3f SHADOW_NORMAL_MATRIX = new Matrix3f().identity();
+    @Unique private static final AcceleratedEntityShadowRenderer SHADOW_RENDERER = new AcceleratedEntityShadowRenderer();
+
+    @Inject(method = "renderBlockShadow", at = @At("HEAD"), cancellable = true)
+    private static void fastBlockShadow(
             PoseStack.Pose pPose,
-            VertexConsumer pConsumer,
-            int pColor,
-            float pOffsetX,
-            float pOffsetY,
-            float pOffsetZ,
-            float pU,
-            float pV,
+            VertexConsumer pVertexConsumer,
+            ChunkAccess pChunk,
+            LevelReader pLevel,
+            BlockPos pPos,
+            double pX,
+            double pY,
+            double pZ,
+            float pSize,
+            float pWeight,
             CallbackInfo ci
     ) {
-        IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) pConsumer;
+        IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) pVertexConsumer;
 
         if (!AcceleratedEntityRenderingFeature.isEnabled()) {
             return;
@@ -42,63 +54,21 @@ public class EntityRenderDispatcherMixin {
         }
 
         ci.cancel();
-
-        extension.beginTransform(pPose.pose(), pPose.normal());
-        pConsumer.addVertex(
-                pOffsetX,
-                pOffsetY,
-                pOffsetZ,
-                pColor,
-                pU,
-                pV,
-                OverlayTexture.NO_OVERLAY,
+        extension.doRender(
+                SHADOW_RENDERER,
+                new AcceleratedEntityShadowRenderer.Context(
+                        pLevel,
+                        pChunk,
+                        pPos,
+                        new Vector3f((float) pX, (float) pY, (float) pZ),
+                        pSize,
+                        pWeight
+                ),
+                pPose.pose(),
+                SHADOW_NORMAL_MATRIX,
                 LightTexture.FULL_BRIGHT,
-                0.0F,
-                1.0F,
-                0.0F
-        );
-    }
-
-    @Inject(method = "fireVertex", at = @At("HEAD"), cancellable = true)
-    private static void fastFlameVertex(
-            PoseStack.Pose pMatrixEntry,
-            VertexConsumer pBuffer,
-            float pX,
-            float pY,
-            float pZ,
-            float pTexU,
-            float pTexV,
-            CallbackInfo ci
-    ) {
-        IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) pBuffer;
-
-        if (!AcceleratedEntityRenderingFeature.isEnabled()) {
-            return;
-        }
-
-        if (!AcceleratedEntityRenderingFeature.shouldUseAcceleratedPipeline()) {
-            return;
-        }
-
-        if (!extension.isAccelerated()) {
-            return;
-        }
-
-        ci.cancel();
-
-        extension.beginTransform(pMatrixEntry.pose(), pMatrixEntry.normal());
-        pBuffer.addVertex(
-                pX,
-                pY,
-                pZ,
-                -1,
-                pTexU,
-                pTexV,
                 OverlayTexture.NO_OVERLAY,
-                LightTexture.FULL_BLOCK,
-                0.0F,
-                1.0F,
-                0.0F
+                -1
         );
     }
 }

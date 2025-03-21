@@ -14,11 +14,15 @@ public class AcceleratedItemRenderContext {
     private final BakedModel bakedModel;
     private final RandomSource random;
 
-    public AcceleratedItemRenderContext(ItemStack itemStack, BakedModel bakedModel) {
+    public AcceleratedItemRenderContext(
+            ItemStack itemStack,
+            BakedModel bakedModel,
+            RandomSource random
+    ) {
         this.itemStack = itemStack;
         this.itemColor = ((ItemColorsAccessor) Minecraft.getInstance().getItemColors()).getItemColors().getOrDefault(itemStack.getItem(), EmptyItemColor.INSTANCE);
         this.bakedModel = bakedModel;
-        this.random = RandomSource.create();
+        this.random = random;
     }
 
     public ItemStack getItemStack() {
