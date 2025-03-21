@@ -15,6 +15,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 @EventBusSubscriber(modid = AcceleratedRenderingModEntry.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class NormalCullingPrograms {
 
+    public static final ResourceLocation CORE_POS_TEX_QUAD_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_quad_culling");
+    public static final ResourceLocation CORE_POS_TEX_TRIANGLE_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_triangle_culling");
     public static final ResourceLocation CORE_POS_TEX_COLOR_QUAD_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_color_quad_culling");
     public static final ResourceLocation CORE_POS_TEX_COLOR_TRIANGLE_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_color_triangle_culling");
     public static final ResourceLocation CORE_ENTITY_QUAD_CULLING_KEY = AcceleratedRenderingModEntry.location("core_entity_quad_culling");
@@ -49,6 +51,20 @@ public class NormalCullingPrograms {
                 BarrierFlags.SHADER_STORAGE,
                 BarrierFlags.ATOMIC_COUNTER
         );
+
+        event.loadComputeShader(
+                CORE_POS_TEX_QUAD_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/culling/pos_tex_quad_culling_shader.compute"),
+                BarrierFlags.SHADER_STORAGE,
+                BarrierFlags.ATOMIC_COUNTER
+        );
+
+        event.loadComputeShader(
+                CORE_POS_TEX_TRIANGLE_CULLING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/culling/pos_tex_triangle_culling_shader.compute"),
+                BarrierFlags.SHADER_STORAGE,
+                BarrierFlags.ATOMIC_COUNTER
+        );
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -75,6 +91,18 @@ public class NormalCullingPrograms {
                 parent,
                 VertexFormat.Mode.QUADS,
                 CORE_POS_TEX_COLOR_QUAD_CULLING_KEY
+        ));
+
+        event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new NormalCullingProgramSelector(
+                parent,
+                VertexFormat.Mode.TRIANGLES,
+                CORE_POS_TEX_TRIANGLE_CULLING_KEY
+        ));
+
+        event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new NormalCullingProgramSelector(
+                parent,
+                VertexFormat.Mode.QUADS,
+                CORE_POS_TEX_QUAD_CULLING_KEY
         ));
     }
 }

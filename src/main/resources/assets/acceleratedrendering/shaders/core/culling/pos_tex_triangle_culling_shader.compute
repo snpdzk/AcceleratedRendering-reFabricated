@@ -4,17 +4,8 @@ struct Vertex {
     float x;
     float y;
     float z;
-    uint color;
     float u0;
     float v0;
-    int uv1;
-    int uv2;
-    uint normal;
-    uint iris_data_0;
-    uint iris_data_1;
-    uint iris_data_2;
-    uint iris_data_3;
-    uint iris_data_4;
 };
 
 struct VaryingData {
@@ -60,11 +51,11 @@ layout(location=0) uniform mat4 viewMatrix;
 layout(location=1) uniform uint polygonCount;
 layout(location=2) uniform uint vertexOffset;
 
-bool isNormalVisable(Vertex vertex);
+bool isNormalVisable(vec3 pos, vec3 normal);
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
-    uint base = index * 4u;
+    uint base = index * 3u;
 
     if (index >= polygonCount) {
         return;
@@ -73,32 +64,34 @@ void main() {
     uint index1 = vertexOffset + base + 0u;
     uint index2 = vertexOffset + base + 1u;
     uint index3 = vertexOffset + base + 2u;
-    uint index4 = vertexOffset + base + 3u;
 
     uint flags = varyings[index - varyings[index1].offset].flags;
     uint noCull = flags & 0x1u;
 
+    Vertex vertex1 = vertices[index1];
+    Vertex vertex2 = vertices[index2];
+    Vertex vertex3 = vertices[index3];
+
+    vec3 pos1 = vec3(vertex1.x, vertex1.y, vertex1.z);
+    vec3 pos2 = vec3(vertex2.x, vertex2.y, vertex2.z);
+    vec3 pos3 = vec3(vertex3.x, vertex3.y, vertex3.z);
+    vec3 normal = cross(pos2 - pos1, pos3 - pos1);
+
     if (noCull > 0u
-    || isNormalVisable(vertices[index1])
-    || isNormalVisable(vertices[index2])
-    || isNormalVisable(vertices[index3])
-    || isNormalVisable(vertices[index4])
+            || isNormalVisable(pos1, normal)
+            || isNormalVisable(pos2, normal)
+            || isNormalVisable(pos3, normal)
     ) {
-        uint indexOut = atomicCounterAdd(indexCounter, 6u) / 3u;
+        uint indexOut = atomicCounterAdd(indexCounter, 3u) / 3u;
 
-        polygonsOut[indexOut + 0].vertex1 = index1;
-        polygonsOut[indexOut + 0].vertex2 = index2;
-        polygonsOut[indexOut + 0].vertex3 = index3;
-
-        polygonsOut[indexOut + 1].vertex1 = index3;
-        polygonsOut[indexOut + 1].vertex2 = index4;
-        polygonsOut[indexOut + 1].vertex3 = index1;
+        polygonsOut[indexOut].vertex1 = index1;
+        polygonsOut[indexOut].vertex2 = index2;
+        polygonsOut[indexOut].vertex3 = index3;
     }
 }
 
-bool isNormalVisable(Vertex vertex) {
-    vec3 normal = unpackSnorm4x8(vertex.normal).xyz;
-    vec4 posStart = vec4(vertex.x, vertex.y, vertex.z, 1.0);
+bool isNormalVisable(vec3 pos, vec3 normal) {
+    vec4 posStart = vec4(pos, 1.0);
     vec4 posEnd = posStart + vec4(normal, 0.0);
 
     posStart = viewMatrix * posStart;

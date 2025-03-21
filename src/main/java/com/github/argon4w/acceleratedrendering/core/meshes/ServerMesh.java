@@ -1,9 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.EmptyServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
@@ -12,16 +12,10 @@ import java.util.Map;
 
 public class ServerMesh implements IMesh {
 
-    private final RenderType renderType;
     private final int size;
     private final int offset;
 
-    public ServerMesh(
-            RenderType renderType,
-            int size,
-            int offset
-    ) {
-        this.renderType = renderType;
+    public ServerMesh(int size, int offset) {
         this.size = size;
         this.offset = offset;
     }
@@ -34,7 +28,6 @@ public class ServerMesh implements IMesh {
             int overlay
     ) {
         extension.addServerMesh(
-                renderType,
                 offset,
                 size,
                 color,
@@ -62,15 +55,14 @@ public class ServerMesh implements IMesh {
             }
 
             return new ServerMesh(
-                    collector.getKey(),
                     vertexCount,
                     collector.getOffset()
             );
         }
 
         @Override
-        public MeshCollector newMeshCollector(RenderType key) {
-            VertexFormat vertexFormat = key.format;
+        public MeshCollector newMeshCollector(RenderType renderType) {
+            VertexFormat vertexFormat = renderType.format;
             MappedBuffer buffer = storageBuffers.get(vertexFormat);
 
             if (buffer == null) {
@@ -79,7 +71,8 @@ public class ServerMesh implements IMesh {
             }
 
             return new MeshCollector(
-                    key,
+                    this,
+                    vertexFormat,
                     buffer,
                     (int) buffer.getPosition()
             );

@@ -1,9 +1,9 @@
 package com.github.argon4w.acceleratedrendering.core;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.RedirectingBufferSource;
+import com.github.argon4w.acceleratedrendering.core.buffers.SimpleOutlineBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.AcceleratedBufferSource;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.buffers.SimpleOutlineBufferSource;
-import com.github.argon4w.acceleratedrendering.core.buffers.RedirectingBufferSource;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 

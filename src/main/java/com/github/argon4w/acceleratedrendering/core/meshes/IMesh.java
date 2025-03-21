@@ -9,7 +9,7 @@ public interface IMesh {
 
     interface Builder {
 
-        MeshCollector newMeshCollector(RenderType key);
+        MeshCollector newMeshCollector(RenderType renderType);
         IMesh build(MeshCollector collector);
     }
 }

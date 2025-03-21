@@ -8,8 +8,9 @@
     "EntityOutlineGeneratorMixin",
     "LevelRendererMixin",
     "MinecraftMixin",
+    "SheetedDecalTextureGeneratorMixin",
     "VertexConsumerMixin",
-    "VertexDoubleConsumerMixin"
+    "VertexDoubleConsumerMixin",
   ],
   "injectors": {
     "defaultRequire": 1

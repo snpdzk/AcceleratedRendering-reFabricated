@@ -2,19 +2,18 @@ package com.github.argon4w.acceleratedrendering.core.programs;
 
 import com.github.argon4w.acceleratedrendering.AcceleratedRenderingModEntry;
 import com.github.argon4w.acceleratedrendering.core.backends.programs.BarrierFlags;
-import com.github.argon4w.acceleratedrendering.core.programs.culling.LoadCullingProgramSelectorEvent;
+import com.github.argon4w.acceleratedrendering.core.programs.processing.FixedPolygonProcessor;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.LoadPolygonProcessorEvent;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.FixedTransformProgramSelector;
 import com.github.argon4w.acceleratedrendering.core.programs.transform.LoadTransformProgramSelectorEvent;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-
-import java.util.function.UnaryOperator;
 
 @EventBusSubscriber(modid = AcceleratedRenderingModEntry.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ComputeShaderPrograms {
@@ -25,6 +24,8 @@ public class ComputeShaderPrograms {
     public static final ResourceLocation CORE_POS_COLOR_TEX_LIGHT_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("core_pos_color_tex_light_vertex_transform");
     public static final ResourceLocation CORE_PASS_THROUGH_QUAD_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_quad_culling");
     public static final ResourceLocation CORE_PASS_THROUGH_TRIANGLE_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_triangle_culling");
+    public static final ResourceLocation CORE_POS_TEX_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_quad_processing");
+    public static final ResourceLocation CORE_POS_TEX_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_triangle_processing");
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
@@ -65,6 +66,18 @@ public class ComputeShaderPrograms {
                 BarrierFlags.SHADER_STORAGE,
                 BarrierFlags.ATOMIC_COUNTER
         );
+
+        event.loadComputeShader(
+                CORE_POS_TEX_QUAD_PROCESSING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/processing/pos_tex_quad_processing_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        event.loadComputeShader(
+                CORE_POS_TEX_TRIANGLE_PROCESSING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/processing/pos_tex_triangle_processing_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -75,20 +88,19 @@ public class ComputeShaderPrograms {
         event.loadFor(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, parent -> new FixedTransformProgramSelector(CORE_POS_COLOR_TEX_LIGHT_VERTEX_TRANSFORM_KEY));
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onLoadCullingPrograms(LoadCullingProgramSelectorEvent event) {
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, UnaryOperator.identity());
-        event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, UnaryOperator.identity());
-        event.loadFor(DefaultVertexFormat.POSITION_TEX, UnaryOperator.identity());
-        event.loadFor(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, UnaryOperator.identity());
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent()
     public static void onLoadPolygonProcessors(LoadPolygonProcessorEvent event) {
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, UnaryOperator.identity());
-        event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, UnaryOperator.identity());
-        event.loadFor(DefaultVertexFormat.POSITION_TEX, UnaryOperator.identity());
-        event.loadFor(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, UnaryOperator.identity());
+        event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new FixedPolygonProcessor(
+                parent,
+                VertexFormat.Mode.TRIANGLES,
+                CORE_POS_TEX_TRIANGLE_PROCESSING_KEY
+        ));
+
+        event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new FixedPolygonProcessor(
+                parent,
+                VertexFormat.Mode.QUADS,
+                CORE_POS_TEX_QUAD_PROCESSING_KEY
+        ));
     }
 
     @SubscribeEvent

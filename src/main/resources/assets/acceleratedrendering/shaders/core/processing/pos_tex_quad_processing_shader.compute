@@ -1,0 +1,116 @@
+#version 460 core
+
+struct Vertex {
+    float x;
+    float y;
+    float z;
+    float u0;
+    float v0;
+};
+
+struct VaryingData {
+    int offset;
+    int sharing;
+    int mesh;
+    int decal;
+    int flags;
+};
+
+struct DecalData {
+    mat4 cameraInverse;
+    mat3 normalInverse;
+    float scale;
+    uint padding0;
+    uint padding1;
+    uint padding2;
+};
+
+layout(local_size_x = 128) in;
+
+layout(binding=1, std430) buffer Vertices {
+    Vertex vertices[];
+};
+
+layout(binding=3, std430) readonly buffer Varyings {
+    VaryingData varyings[];
+};
+
+layout(binding=5, std430) readonly buffer Decals {
+    DecalData decals[];
+};
+
+layout(binding=7, std430) readonly buffer Rotations {
+    mat4 rotations[];
+};
+
+layout(location=0) uniform uint polygonCount;
+layout(location=1) uniform uint vertexOffset;
+
+mat4 getNearestRotation(vec3 normal);
+
+const vec3 directions[6] = {
+    vec3(0.0, -1.0, 0.0), // DOWN
+    vec3(0.0, 1.0, 0.0), // UP
+    vec3(0.0, 0.0, -1.0), // NORTH
+    vec3(0.0, 0.0, 1.0), // SOUTH
+    vec3(-1.0, 0.0, 0.0), //WEST
+    vec3(1.0, 0.0, 0.0) //EAST
+};
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+    uint base = index * 4u;
+    uint decalIndex = varyings[base - varyings[base].offset].decal;
+
+    if (index >= polygonCount || decalIndex == -1) {
+        return;
+    }
+
+    uint index1 = vertexOffset + base + 0u;
+    uint index2 = vertexOffset + base + 1u;
+    uint index3 = vertexOffset + base + 2u;
+    uint index4 = vertexOffset + base + 3u;
+
+    Vertex vertex1 = vertices[index1];
+    Vertex vertex2 = vertices[index2];
+    Vertex vertex3 = vertices[index3];
+    Vertex vertex4 = vertices[index4];
+    DecalData decal = decals[decalIndex];
+
+    vec3 pos1 = vec3(vertex1.x, vertex1.y, vertex1.z);
+    vec3 pos2 = vec3(vertex2.x, vertex2.y, vertex2.z);
+    vec3 pos3 = vec3(vertex3.x, vertex3.y, vertex3.z);
+    vec3 pos4 = vec3(vertex4.x, vertex4.y, vertex4.z);
+    vec3 normal = cross(pos2 - pos1, pos3 - pos1);
+
+    mat4 rotation = getNearestRotation(decal.normalInverse * normalize(normal));
+
+    vec3 uv1 = (rotation * decal.cameraInverse * vec4(pos1, 1.0)).xyz * -decal.scale;
+    vec3 uv2 = (rotation * decal.cameraInverse * vec4(pos2, 1.0)).xyz * -decal.scale;
+    vec3 uv3 = (rotation * decal.cameraInverse * vec4(pos3, 1.0)).xyz * -decal.scale;
+    vec3 uv4 = (rotation * decal.cameraInverse * vec4(pos4, 1.0)).xyz * -decal.scale;
+
+    vertices[index1].u0 = uv1.x;
+    vertices[index1].v0 = uv1.y;
+    vertices[index2].u0 = uv2.x;
+    vertices[index2].v0 = uv2.y;
+    vertices[index3].u0 = uv3.x;
+    vertices[index3].v0 = uv3.y;
+    vertices[index4].u0 = uv4.x;
+    vertices[index4].v0 = uv4.y;
+}
+
+mat4 getNearestRotation(vec3 normal) {
+    mat4 rotationResult = mat4(0.0);
+    float cosAngle = -2.0;
+
+    for (uint i = 0; i < 6u; i ++) {
+        float dotResult = dot(directions[i], normalize(normal));
+        float dotStep = step(cosAngle, dotResult);
+
+        cosAngle = mix(cosAngle, dotResult, dotStep);
+        rotationResult = dotStep * rotations[i] + (1 - dotStep) * rotationResult;
+    }
+
+    return rotationResult;
+}

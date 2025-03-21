@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.core.programs.culling;
 
 import com.github.argon4w.acceleratedrendering.core.backends.programs.ComputeProgram;
 import com.github.argon4w.acceleratedrendering.core.backends.programs.Uniform;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderPrograms;
 import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
@@ -32,7 +33,9 @@ public class PassThroughCullingProgramDispatcher implements IPolygonProgramDispa
     }
 
     @Override
-    public int dispatch(int vertexCount, int vertexOffset) {
+    public int dispatch(AcceleratedBufferBuilder builder) {
+        int vertexCount = builder.getVertexCount();
+        int vertexOffset = builder.getVertexOffset();
         int polygonCount = vertexCount / mode.primitiveLength;
 
         polygonCountUniform.uploadUnsignedInt(polygonCount);

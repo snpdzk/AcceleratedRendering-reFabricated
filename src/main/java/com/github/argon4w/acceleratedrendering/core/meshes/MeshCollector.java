@@ -4,13 +4,12 @@ import com.github.argon4w.acceleratedrendering.core.backends.buffers.IClientBuff
 import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.FastColor;
 import org.lwjgl.system.MemoryUtil;
 
 public class MeshCollector {
 
-    private final RenderType key;
+    private final IMesh.Builder builder;
     private final IClientBuffer buffer;
     private final int offset;
     private final int vertexSize;
@@ -24,23 +23,23 @@ public class MeshCollector {
     private int vertexCount;
 
     public MeshCollector(
-            RenderType key,
+            IMesh.Builder builder,
+            VertexFormat vertexFormat,
             IClientBuffer buffer,
             int offset
     ) {
-        this.key = key;
+        this.builder = builder;
         this.buffer = buffer;
-        this.vertexCount = 0;
-
         this.offset = offset;
 
-        VertexFormat format = key.format;
-        this.vertexSize = format.getVertexSize();
-        this.colorOffset = format.getOffset(VertexFormatElement.COLOR);
-        this.posOffset = format.getOffset(VertexFormatElement.POSITION);
-        this.uv0Offset = format.getOffset(VertexFormatElement.UV);
-        this.uv2Offset = format.getOffset(VertexFormatElement.UV2);
-        this.normalOffset = format.getOffset(VertexFormatElement.NORMAL);
+        this.vertexSize = vertexFormat.getVertexSize();
+        this.colorOffset = vertexFormat.getOffset(VertexFormatElement.COLOR);
+        this.posOffset = vertexFormat.getOffset(VertexFormatElement.POSITION);
+        this.uv0Offset = vertexFormat.getOffset(VertexFormatElement.UV);
+        this.uv2Offset = vertexFormat.getOffset(VertexFormatElement.UV2);
+        this.normalOffset = vertexFormat.getOffset(VertexFormatElement.NORMAL);
+
+        this.vertexCount = 0;
     }
 
     public void addVertex(
@@ -84,16 +83,16 @@ public class MeshCollector {
         }
     }
 
+    public IMesh build() {
+        return builder.build(this);
+    }
+
     public IClientBuffer getBuffer() {
         return buffer;
     }
 
     public int getVertexCount() {
         return vertexCount;
-    }
-
-    public RenderType getKey() {
-        return key;
     }
 
     public int getOffset() {

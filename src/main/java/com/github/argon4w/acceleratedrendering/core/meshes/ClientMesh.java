@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IClientBuffer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import net.minecraft.client.renderer.RenderType;
 
@@ -9,16 +9,10 @@ import java.nio.ByteBuffer;
 
 public class ClientMesh implements IMesh {
 
-    private final RenderType renderType;
     private final int size;
     private final ByteBuffer vertexBuffer;
 
-    public ClientMesh(
-            RenderType renderType,
-            int size,
-            ByteBuffer vertexBuffer
-    ) {
-        this.renderType = renderType;
+    public ClientMesh(int size, ByteBuffer vertexBuffer) {
         this.size = size;
         this.vertexBuffer = vertexBuffer;
     }
@@ -31,7 +25,6 @@ public class ClientMesh implements IMesh {
             int overlay
     ) {
         extension.addClientMesh(
-                renderType,
                 vertexBuffer,
                 size,
                 color,
@@ -49,9 +42,10 @@ public class ClientMesh implements IMesh {
         }
 
         @Override
-        public MeshCollector newMeshCollector(RenderType key) {
+        public MeshCollector newMeshCollector(RenderType renderType) {
             return new MeshCollector(
-                    key,
+                    this,
+                    renderType.format,
                     new SimpleClientBuffer(),
                     0
             );
@@ -71,11 +65,7 @@ public class ClientMesh implements IMesh {
                 return EmptyMesh.INSTANCE;
             }
 
-            return new ClientMesh(
-                    collector.getKey(),
-                    vertexCount,
-                    byteBuffer
-            );
+            return new ClientMesh(vertexCount, byteBuffer);
         }
 
         public record SimpleClientBuffer(ByteBufferBuilder builder) implements IClientBuffer {

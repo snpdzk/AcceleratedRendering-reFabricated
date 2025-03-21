@@ -1,14 +1,13 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs.processing;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
+import com.github.argon4w.acceleratedrendering.core.programs.FixedPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IPolygonProcessor;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraft.resources.ResourceLocation;
-import org.lwjgl.system.MemoryUtil;
 
 public class IrisEntityPolygonProcessor implements IPolygonProcessor {
 
@@ -39,7 +38,7 @@ public class IrisEntityPolygonProcessor implements IPolygonProcessor {
                 parent,
                 vertexFormat,
                 mode,
-                new IrisProcessingProgramDispatcher(mode, key)
+                new FixedPolygonProgramDispatcher(mode, key)
         );
     }
 

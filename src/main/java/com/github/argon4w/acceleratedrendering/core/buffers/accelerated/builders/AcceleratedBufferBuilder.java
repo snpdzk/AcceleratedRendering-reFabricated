@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.Accelera
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.MappedBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -18,10 +19,8 @@ import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.Set;
 
-public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVertexConsumer {
+public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, VertexConsumer {
 
     private final VertexBufferPool.VertexBuffer vertexBuffer;
     private final MappedBufferPool.Pooled varyingBuffer;
@@ -91,27 +90,58 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
     @Override
     public VertexConsumer addVertex(
-            PoseStack.Pose pPose,
             float pX,
             float pY,
             float pZ
     ) {
-        beginTransform(pPose.pose(), pPose.normal());
         return addVertex(
                 pX,
                 pY,
-                pZ
+                pZ,
+                -1
         );
     }
 
     @Override
     public VertexConsumer addVertex(
+            PoseStack.Pose pPose,
             float pX,
             float pY,
             float pZ
     ) {
+        return addVertex(
+                pPose,
+                pX,
+                pY,
+                pZ,
+                -1
+        );
+    }
+
+    public VertexConsumer addVertex(
+            PoseStack.Pose pPose,
+            float pX,
+            float pY,
+            float pZ,
+            int decal
+    ) {
+        beginTransform(pPose.pose(), pPose.normal());
+        return addVertex(
+                pX,
+                pY,
+                pZ,
+                decal
+        );
+    }
+
+    VertexConsumer addVertex(
+            float pX,
+            float pY,
+            float pZ,
+            int decal
+    ) {
         long vertex = vertexBuffer.reserve(vertexSize);
-        long varying = varyingBuffer.reserve(4L * 4L);
+        long varying = varyingBuffer.reserve(5L * 4L);
 
         this.vertex = vertex;
 
@@ -122,7 +152,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         MemoryUtil.memPutInt(varying + 0L * 4L, 0);
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
         MemoryUtil.memPutInt(varying + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varying + 3L * 4L, decal);
+        MemoryUtil.memPutInt(varying + 4L * 4L, bufferSet.getFlags(mode));
 
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
         data.addExtraVertex(vertex);
@@ -275,8 +306,38 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
             float pNormalY,
             float pNormalZ
     ) {
+        addVertex(
+                pX,
+                pY,
+                pZ,
+                pColor,
+                pU,
+                pV,
+                pPackedOverlay,
+                pPackedLight,
+                pNormalX,
+                pNormalY,
+                pNormalZ,
+                -1
+        );
+    }
+
+    void addVertex(
+            float pX,
+            float pY,
+            float pZ,
+            int pColor,
+            float pU,
+            float pV,
+            int pPackedOverlay,
+            int pPackedLight,
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ,
+            int decal
+    ) {
         long vertex = vertexBuffer.reserve(vertexSize);
-        long varying = varyingBuffer.reserve(4L * 4L);
+        long varying = varyingBuffer.reserve(5L * 4L);
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
         data.addExtraVertex(vertex);
@@ -312,7 +373,8 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
         MemoryUtil.memPutInt(varying + 0L * 4L, 0);
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
         MemoryUtil.memPutInt(varying + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varying + 3L * 4L, decal);
+        MemoryUtil.memPutInt(varying + 4L * 4L, bufferSet.getFlags(mode));
 
         vertexCount ++;
         elementCount ++;
@@ -357,18 +419,32 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
     @Override
     public void addClientMesh(
-            RenderType renderType,
             ByteBuffer meshBuffer,
             int size,
             int color,
             int light,
             int overlay
     ) {
-        elementSegment.countPolygons(mode.indexCount(size));
-        vertexCount += size;
+        addClientMesh(
+                meshBuffer,
+                size,
+                color,
+                light,
+                overlay,
+                -1
+        );
+    }
 
+    void addClientMesh(
+            ByteBuffer meshBuffer,
+            int size,
+            int color,
+            int light,
+            int overlay,
+            int decal
+    ) {
         long vertex = vertexBuffer.reserve(vertexSize * (long) size);
-        long varying = varyingBuffer.reserve(4L * 4L * size);
+        long varying = varyingBuffer.reserve(5L * 4L * size);
         long length = (long) size * bufferSet.getVertexSize();
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
@@ -395,28 +471,47 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
         MemoryUtil.memPutInt(varying + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varying + 3L * 4L, decal);
+        MemoryUtil.memPutInt(varying + 4L * 4L, bufferSet.getFlags(mode));
 
         for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 4L * 4L, i);
+            MemoryUtil.memPutInt(varying + i * 5L * 4L, i);
         }
+
+        elementSegment.countPolygons(mode.indexCount(size));
+        vertexCount += size;
     }
+
 
     @Override
     public void addServerMesh(
-            RenderType renderType,
             int offset,
             int size,
             int color,
             int light,
             int overlay
     ) {
-        elementSegment.countPolygons(mode.indexCount(size));
-        vertexCount += size;
+        addServerMesh(
+                offset,
+                size,
+                color,
+                light,
+                overlay,
+                -1
+        );
+    }
 
+    void addServerMesh(
+            int offset,
+            int size,
+            int color,
+            int light,
+            int overlay,
+            int decal
+    ) {
         int mesh = offset / bufferSet.getVertexSize();
         long vertex = vertexBuffer.reserve(vertexSize * (long) size);
-        long varying = varyingBuffer.reserve(4L * 4L * size);
+        long varying = varyingBuffer.reserve(5L * 4L * size);
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
         data.addExtraVertex(vertex);
@@ -436,11 +531,60 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
 
         MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
         MemoryUtil.memPutInt(varying + 2L * 4L, mesh);
-        MemoryUtil.memPutInt(varying + 3L * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varying + 3L * 4L, decal);
+        MemoryUtil.memPutInt(varying + 4L * 4L, bufferSet.getFlags(mode));
 
         for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 4L * 4L, i);
+            MemoryUtil.memPutInt(varying + i * 5L * 4L, i);
         }
+
+        elementSegment.countPolygons(mode.indexCount(size));
+        vertexCount += size;
+    }
+
+    @Override
+    public VertexConsumer getDecal(
+            Matrix4f transformMatrix,
+            Matrix3f normalMatrix,
+            float scale,
+            int color
+    ) {
+        int decal = bufferSet.getDecal();
+
+        long cameraInverse = bufferSet.reserveDecal();
+        long normalInverse = cameraInverse + 4L * 4L * 4L;
+        long textureScale = normalInverse + 4L * 4L * 3L;
+
+        ByteUtils.putMatrix4f(cameraInverse, transformMatrix);
+        ByteUtils.putMatrix3x4f(normalInverse, normalMatrix);
+        MemoryUtil.memPutFloat(textureScale, scale);
+
+        return new AcceleratedSheetedDecalTextureGenerator(
+                this,
+                decal,
+                color
+        );
+    }
+
+    @Override
+    public <T>  void doRender(
+            IAcceleratedRenderer<T> renderer,
+            T context,
+            Matrix4f transformMatrix,
+            Matrix3f normalMatrix,
+            int light,
+            int overlay,
+            int color
+    ) {
+        renderer.render(
+                this,
+                context,
+                transformMatrix,
+                normalMatrix,
+                light,
+                overlay,
+                color
+        );
     }
 
     @Override
@@ -449,13 +593,12 @@ public class AcceleratedBufferBuilder implements VertexConsumer, IAcceleratedVer
     }
 
     @Override
-    public void mapRenderTypes(Map<RenderType, VertexConsumer> map) {
-        map.put(renderType, this);
+    public RenderType getRenderType() {
+        return renderType;
     }
 
-    @Override
-    public Set<RenderType> getRenderTypes() {
-        return Set.of(renderType);
+    public boolean isEmpty() {
+        return vertexCount == 0;
     }
 
     public int getVertexCount() {

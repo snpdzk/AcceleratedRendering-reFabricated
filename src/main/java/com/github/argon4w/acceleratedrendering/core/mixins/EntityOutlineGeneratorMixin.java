@@ -1,7 +1,10 @@
 package com.github.argon4w.acceleratedrendering.core.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedEntityOutlineGenerator;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.DecoratedRenderer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IBufferDecorator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -13,25 +16,17 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.Set;
 
 @Mixin(OutlineBufferSource.EntityOutlineGenerator.class)
-public abstract class EntityOutlineGeneratorMixin implements IAcceleratedVertexConsumer, VertexConsumer {
+public class EntityOutlineGeneratorMixin implements IAcceleratedVertexConsumer, IBufferDecorator {
 
     @Shadow @Final private VertexConsumer delegate;
     @Shadow @Final private int color;
 
     @Unique
     @Override
-    public void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
-        ((IAcceleratedVertexConsumer) delegate).beginTransform(transformMatrix, normalMatrix);
-    }
-
-    @Unique
-    @Override
-    public void endTransform() {
-        ((IAcceleratedVertexConsumer) delegate).endTransform();
+    public VertexConsumer decorate(VertexConsumer vertexConsumer) {
+        return new AcceleratedEntityOutlineGenerator(vertexConsumer, color);
     }
 
     @Unique
@@ -42,70 +37,76 @@ public abstract class EntityOutlineGeneratorMixin implements IAcceleratedVertexC
 
     @Unique
     @Override
-    public void mapRenderTypes(Map<RenderType, VertexConsumer> map) {
-        ((IAcceleratedVertexConsumer) delegate).mapRenderTypes(map);
+    public void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
+        throw new UnsupportedOperationException("Unsupported Operation.");
     }
 
     @Unique
     @Override
-    public Set<RenderType> getRenderTypes() {
-        return ((IAcceleratedVertexConsumer) delegate).getRenderTypes();
+    public void endTransform() {
+        throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public RenderType getRenderType() {
+        throw new UnsupportedOperationException("Unsupported Operation.");
     }
 
     @Unique
     @Override
     public void addClientMesh(
-            RenderType renderType,
             ByteBuffer meshBuffer,
             int size,
             int color,
             int light,
             int overlay
     ) {
-        ((IAcceleratedVertexConsumer) delegate).addClientMesh(
-                renderType,
-                meshBuffer,
-                size,
-                this.color,
-                -1,
-                -1
-        );
+        throw new UnsupportedOperationException("Unsupported Operation.");
     }
 
     @Unique
     @Override
     public void addServerMesh(
-            RenderType renderType,
             int offset,
             int size,
             int color,
             int light,
             int overlay
     ) {
-        ((IAcceleratedVertexConsumer) delegate).addServerMesh(
-                renderType,
-                offset,
-                size,
-                this.color,
-                -1,
-                -1
-        );
+        throw new UnsupportedOperationException("Unsupported Operation.");
     }
 
+    @Unique
     @Override
-    public VertexConsumer addVertex(
-            PoseStack.Pose pPose,
-            float pX,
-            float pY,
-            float pZ
+    public VertexConsumer getDecal(
+            Matrix4f transformMatrix,
+            Matrix3f normalMatrix,
+            float scale,
+            int color
     ) {
-        return delegate
-                .addVertex(
-                        pPose,
-                        pX,
-                        pY,
-                        pZ
-                )
-                .setColor(color);
+        throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public <T>  void doRender(
+            IAcceleratedRenderer<T> renderer,
+            T context,
+            Matrix4f transformMatrix,
+            Matrix3f normalMatrix,
+            int light,
+            int overlay,
+            int color
+    ) {
+        ((IAcceleratedVertexConsumer) delegate).doRender(
+                new DecoratedRenderer<>(renderer, this),
+                context,
+                transformMatrix,
+                normalMatrix,
+                light,
+                overlay,
+                color
+        );
     }
 }

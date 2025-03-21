@@ -1,10 +1,10 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.DrawContextPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.MappedBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -110,10 +110,7 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             AcceleratedBufferBuilder builder = acceleratedBuilders.get(renderType);
             ElementBufferPool.ElementSegment elementSegment = builder.getElementSegment();
 
-            int vertexCount = builder.getVertexCount();
-            int vertexOffset = builder.getVertexOffset();
-
-            if (vertexCount == 0) {
+            if (builder.isEmpty()) {
                 continue;
             }
 
@@ -123,8 +120,8 @@ public class AcceleratedBufferSource extends MultiBufferSource.BufferSource impl
             drawContext.bindComputeBuffers(elementSegment);
             drawContexts.put(renderType, drawContext);
 
-            barrier |= bufferEnvironment.selectProcessingProgramDispatcher(mode).dispatch(vertexCount, vertexOffset);
-            barrier |= bufferEnvironment.selectCullProgramDispatcher(renderType).dispatch(vertexCount, vertexOffset);
+            barrier |= bufferEnvironment.selectProcessingProgramDispatcher(mode).dispatch(builder);
+            barrier |= bufferEnvironment.selectCullProgramDispatcher(renderType).dispatch(builder);
         }
 
         glMemoryBarrier(barrier);
