@@ -6,6 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
 import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.TextureUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.UVUtils;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.modelparts.VertexUtils;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -108,7 +109,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
             for (ModelPart.Polygon polygon : cube.polygons) {
                 Vector3f normal = polygon.normal;
 
-                if (CullerUtils.shouldCull(VertexUtils.fromModelPart(polygon.vertices), image)) {
+                if (CullerUtils.shouldCull(VertexUtils.fromModelPart(polygon.vertices, UVUtils.getMapper(vertexConsumer)), image)) {
                     continue;
                 }
 

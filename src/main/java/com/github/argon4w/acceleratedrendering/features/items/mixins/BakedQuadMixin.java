@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
 import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.TextureUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.UVUtils;
 import com.github.argon4w.acceleratedrendering.core.utils.Vertex;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedBakedQuad;
@@ -86,6 +87,7 @@ public class BakedQuadMixin implements IAcceleratedBakedQuad {
             float normalZ = ((byte) ((packedNormal >> 16) & 0xFF)) / 127.0f;
 
             modelVertices[i] = new Vertex(
+                    UVUtils.getMapper(extension),
                     new Vector3f(posX, posY, posZ),
                     packedColor,
                     new Vector2f(u0, v0),

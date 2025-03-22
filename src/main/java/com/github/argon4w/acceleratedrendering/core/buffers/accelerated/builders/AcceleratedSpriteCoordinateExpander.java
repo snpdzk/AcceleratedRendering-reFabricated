@@ -1,6 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
+import com.github.argon4w.acceleratedrendering.core.utils.IUVMapper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
@@ -11,9 +12,10 @@ import org.joml.Vector2f;
 
 import java.nio.ByteBuffer;
 
-public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexConsumer, VertexConsumer {
+public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexConsumer, VertexConsumer, IUVMapper {
 
     private final AcceleratedBufferBuilder delegate;
+    private final TextureAtlasSprite sprite;
     private final Vector2f uv0;
     private final Vector2f uv1;
     private final int decal;
@@ -24,9 +26,20 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             int decal
     ) {
         this.delegate = delegate;
+        this.sprite = sprite;
         this.uv0 = new Vector2f(sprite.getU0(), sprite.getV0());
         this.uv1 = new Vector2f(sprite.getU1(), sprite.getV1());
         this.decal = decal;
+    }
+
+    @Override
+    public float mapU(float u) {
+        return sprite.getU(u);
+    }
+
+    @Override
+    public float mapV(float v) {
+        return sprite.getV(v);
     }
 
     @Override
