@@ -543,7 +543,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         uv0.getToAddress(coordinate0);
         uv1.getToAddress(coordinate1);
 
-        return new AcceleratedSheetedDecalTextureGenerator(
+        return generator.generate(
                 this,
                 decal,
                 color
