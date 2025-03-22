@@ -96,6 +96,8 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
                     light,
                     overlay
             );
+
+            extension.endTransform();
             return;
         }
 

@@ -16,12 +16,6 @@ public interface VertexConsumerMixin extends IAcceleratedVertexConsumer, VertexC
 
     @Unique
     @Override
-    default boolean isAccelerated() {
-        return false;
-    }
-
-    @Unique
-    @Override
     default void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
         throw new UnsupportedOperationException("Unsupported Operation.");
     }
@@ -30,6 +24,12 @@ public interface VertexConsumerMixin extends IAcceleratedVertexConsumer, VertexC
     @Override
     default void endTransform() {
         throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    default boolean isAccelerated() {
+        return false;
     }
 
     @Unique

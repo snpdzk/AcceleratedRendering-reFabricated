@@ -95,7 +95,7 @@ public class SheetedDecalTextureGeneratorMixin implements IAcceleratedVertexCons
             int color
     ) {
         ((IAcceleratedVertexConsumer) delegate).doRender(
-                new DecoratedRenderer<>(renderer, this),
+                renderer.decorate(this),
                 context,
                 transformMatrix,
                 normalMatrix,
@@ -107,8 +107,8 @@ public class SheetedDecalTextureGeneratorMixin implements IAcceleratedVertexCons
 
     @Unique
     @Override
-    public VertexConsumer decorate(VertexConsumer vertexConsumer) {
-        return ((IAcceleratedVertexConsumer) vertexConsumer).getDecal(
+    public VertexConsumer decorate(VertexConsumer buffer) {
+        return ((IAcceleratedVertexConsumer) buffer).getDecal(
                 cameraInversePose,
                 normalInversePose,
                 textureScale,

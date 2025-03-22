@@ -40,7 +40,7 @@ public class IrisCullingProgramDispatcher implements IPolygonProgramDispatcher {
         int vertexOffset = builder.getVertexOffset();
         int polygonCount = vertexCount / mode.primitiveLength;
 
-        viewMatrixUniform.uploadMatrix4f(getModelViewMatrix());
+        viewMatrixUniform.uploadMatrix4f(ShadowRenderingState.areShadowsCurrentlyBeingRendered() ? ShadowRenderer.MODELVIEW : RenderSystem.getModelViewMatrix());
         polygonCountUniform.uploadUnsignedInt(polygonCount);
         vertexOffsetUniform.uploadUnsignedInt(vertexOffset);
 
@@ -49,11 +49,5 @@ public class IrisCullingProgramDispatcher implements IPolygonProgramDispatcher {
         program.resetProgram();
 
         return program.getBarrierFlags();
-    }
-
-    private Matrix4f getModelViewMatrix() {
-        return ShadowRenderingState.areShadowsCurrentlyBeingRendered()
-                ? ShadowRenderer.MODELVIEW
-                : RenderSystem.getModelViewMatrix();
     }
 }

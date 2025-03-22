@@ -92,10 +92,9 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel, IAccelerat
                         light,
                         overlay
                 );
-
-                extension.endTransform();
             }
 
+            extension.endTransform();
             return;
         }
 

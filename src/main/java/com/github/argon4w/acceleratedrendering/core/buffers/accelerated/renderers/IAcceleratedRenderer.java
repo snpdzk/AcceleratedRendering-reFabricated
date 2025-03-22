@@ -7,4 +7,8 @@ import org.joml.Matrix4f;
 public interface IAcceleratedRenderer<T> {
 
     void render(VertexConsumer vertexConsumer, T context, Matrix4f transformMatrix, Matrix3f normalMatrix, int light, int overlay, int color);
+
+    default IAcceleratedRenderer<T> decorate(IBufferDecorator decorator) {
+        return new DecoratedRenderer<>(this, decorator);
+    }
 }

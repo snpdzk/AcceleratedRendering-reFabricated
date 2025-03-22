@@ -25,14 +25,8 @@ public class EntityOutlineGeneratorMixin implements IAcceleratedVertexConsumer, 
 
     @Unique
     @Override
-    public VertexConsumer decorate(VertexConsumer vertexConsumer) {
-        return new AcceleratedEntityOutlineGenerator(vertexConsumer, color);
-    }
-
-    @Unique
-    @Override
-    public boolean isAccelerated() {
-        return ((IAcceleratedVertexConsumer) delegate).isAccelerated();
+    public VertexConsumer decorate(VertexConsumer buffer) {
+        return new AcceleratedEntityOutlineGenerator(buffer, color);
     }
 
     @Unique
@@ -45,6 +39,12 @@ public class EntityOutlineGeneratorMixin implements IAcceleratedVertexConsumer, 
     @Override
     public void endTransform() {
         throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public boolean isAccelerated() {
+        return ((IAcceleratedVertexConsumer) delegate).isAccelerated();
     }
 
     @Unique
@@ -100,7 +100,7 @@ public class EntityOutlineGeneratorMixin implements IAcceleratedVertexConsumer, 
             int color
     ) {
         ((IAcceleratedVertexConsumer) delegate).doRender(
-                new DecoratedRenderer<>(renderer, this),
+                renderer.decorate(this),
                 context,
                 transformMatrix,
                 normalMatrix,

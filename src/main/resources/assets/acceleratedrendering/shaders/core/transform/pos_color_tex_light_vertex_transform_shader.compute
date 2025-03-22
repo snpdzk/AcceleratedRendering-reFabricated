@@ -88,6 +88,7 @@ void main() {
 
     vec4 pos = transformMatrix * vec4(vertex.x, vertex.y, vertex.z, 1.0);
     vec4 color = refColor * unpackUnorm4x8(vertex.color);
+    uvec2 uv2 = max(floatBitsToUint(unpackSnorm2x16(vertex.uv2)), refUv2);
     // vec3 normal = normalize(normalMatrix * unpackSnorm4x8(vertex.normal).xyz);
 
     verticesOut[indexOut].x = pos.x;
@@ -99,7 +100,7 @@ void main() {
 
     verticesOut[indexOut].color = packUnorm4x8(color);
     // verticesOut[indexOut].uv1 = verticesIn[reference].uv1;
-    verticesOut[indexOut].uv2 = packSnorm2x16(uintBitsToFloat(max(floatBitsToUint(unpackSnorm2x16(vertex.uv2)), refUv2)));
+    verticesOut[indexOut].uv2 = packSnorm2x16(uintBitsToFloat(uv2));
 
     // verticesOut[indexOut].normal = packSnorm4x8(vec4(normal, 0.0));
 }
