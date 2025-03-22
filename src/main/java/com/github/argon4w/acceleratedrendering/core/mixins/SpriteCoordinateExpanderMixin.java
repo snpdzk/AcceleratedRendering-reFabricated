@@ -1,12 +1,16 @@
 package com.github.argon4w.acceleratedrendering.core.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedSpriteCoordinateExpander;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedDecalBufferGenerator;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IBufferDecorator;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SpriteCoordinateExpander;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -17,11 +21,14 @@ import org.spongepowered.asm.mixin.Unique;
 
 import java.nio.ByteBuffer;
 
-@Mixin(VertexMultiConsumer.Double.class)
-public class VertexDoubleConsumerMixin implements IAcceleratedVertexConsumer {
+@Mixin(SpriteCoordinateExpander.class)
+public class SpriteCoordinateExpanderMixin implements IAcceleratedVertexConsumer, IBufferDecorator, IAcceleratedDecalBufferGenerator {
 
-    @Shadow @Final private VertexConsumer first;
-    @Shadow @Final private VertexConsumer second;
+    @Unique private static final Matrix4f CAMERA = new Matrix4f().zero();
+    @Unique private static final Matrix3f NORMAL = new Matrix3f().zero();
+
+    @Shadow @Final private VertexConsumer delegate;
+    @Shadow @Final private TextureAtlasSprite sprite;
 
     @Unique
     @Override
@@ -38,7 +45,7 @@ public class VertexDoubleConsumerMixin implements IAcceleratedVertexConsumer {
     @Unique
     @Override
     public boolean isAccelerated() {
-        return ((IAcceleratedVertexConsumer) first).isAccelerated() && ((IAcceleratedVertexConsumer) second).isAccelerated();
+        return ((IAcceleratedVertexConsumer) delegate).isAccelerated();
     }
 
     @Unique
@@ -140,8 +147,8 @@ public class VertexDoubleConsumerMixin implements IAcceleratedVertexConsumer {
             int overlay,
             int color
     ) {
-        ((IAcceleratedVertexConsumer) first).doRender(
-                renderer,
+        ((IAcceleratedVertexConsumer) delegate).doRender(
+                renderer.decorate(this),
                 context,
                 transformMatrix,
                 normalMatrix,
@@ -149,14 +156,33 @@ public class VertexDoubleConsumerMixin implements IAcceleratedVertexConsumer {
                 overlay,
                 color
         );
-        ((IAcceleratedVertexConsumer) second).doRender(
-                renderer,
-                context,
-                transformMatrix,
-                normalMatrix,
-                light,
-                overlay,
-                color
+    }
+
+    @Unique
+    @Override
+    public VertexConsumer generate(
+            AcceleratedBufferBuilder delegate,
+            int decal,
+            int color
+    ) {
+        return new AcceleratedSpriteCoordinateExpander(
+                delegate,
+                sprite,
+                decal
+        );
+    }
+
+    @Unique
+    @Override
+    public VertexConsumer decorate(VertexConsumer buffer) {
+        return ((IAcceleratedVertexConsumer) buffer).getDecal(
+                CAMERA,
+                NORMAL,
+                1.0f,
+                -1,
+                new Vector2f(sprite.getU0(), sprite.getV0()),
+                new Vector2f(sprite.getU1(), sprite.getV1()),
+                this
         );
     }
 }

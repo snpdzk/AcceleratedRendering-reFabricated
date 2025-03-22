@@ -3,6 +3,7 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.backends.Sync;
 import com.github.argon4w.acceleratedrendering.core.backends.VertexArray;
+import com.github.argon4w.acceleratedrendering.core.backends.buffers.ImmutableBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.DrawContextPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
@@ -10,12 +11,10 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.Ma
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
-import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.core.Direction;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.joml.Matrix4f;
 
 import static org.lwjgl.opengl.GL46.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL46.GL_SHADER_STORAGE_BUFFER;
@@ -60,7 +59,7 @@ public class AcceleratedBufferSetPool {
         private final ElementBufferPool elementBufferPool;
         private final MappedBuffer sharingBuffer;
         private final MappedBuffer decalBuffer;
-        private final MappedBuffer rotationBuffer;
+        private final ImmutableBuffer rotationBuffer;
         private final MappedBufferPool varyingBuffer;
         private final VertexBufferPool vertexBuffer;
         private final VertexArray vertexArray;
@@ -77,7 +76,7 @@ public class AcceleratedBufferSetPool {
             this.elementBufferPool = new ElementBufferPool(this.size);
             this.sharingBuffer = new MappedBuffer(64L);
             this.decalBuffer = new MappedBuffer(64L);
-            this.rotationBuffer = new MappedBuffer(4L * 4L * 4L * 6L);
+            this.rotationBuffer = new AcceleratedDecalRotationBuffer(Direction.values());
             this.varyingBuffer = new MappedBufferPool(this.size);
             this.vertexBuffer = new VertexBufferPool(this.size, this);
             this.vertexArray = new VertexArray();
@@ -87,22 +86,6 @@ public class AcceleratedBufferSetPool {
 
             this.used = false;
             this.format = null;
-
-            long rotation = this.rotationBuffer.reserve(4L * 4L * 4L * 6L);
-            Direction[] directions = Direction.values();
-
-            for (int i = 0; i < 6; i++) {
-                Direction direction = directions[i];
-
-                Matrix4f matrix = new Matrix4f().identity();
-                matrix.rotate(direction.getRotation());
-                matrix.rotateX((float) (- Math.PI / 2));
-                matrix.rotateY((float) Math.PI);
-
-                ByteUtils.putMatrix4f(rotation + i * 4L * 4L * 4L, matrix);
-            }
-
-            this.rotationBuffer.flush();
         }
 
         public void reset() {
@@ -188,7 +171,7 @@ public class AcceleratedBufferSetPool {
         }
 
         public long reserveDecal() {
-            return decalBuffer.reserve(4L * 4L * 4L + 4L * 4L * 3L + 4L * 4L);
+            return decalBuffer.reserve(4L * 4L * 4L + 4L * 4L * 3L + 4L * 4L * 2L);
         }
 
         public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {

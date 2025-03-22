@@ -4,8 +4,12 @@ struct Vertex {
     float x;
     float y;
     float z;
+    uint color;
     float u0;
     float v0;
+    uint uv1;
+    uint uv2;
+    uint normal;
 };
 
 struct VaryingData {
@@ -80,7 +84,7 @@ void main() {
     vec3 pos2 = vec3(vertex2.x, vertex2.y, vertex2.z);
     vec3 pos3 = vec3(vertex3.x, vertex3.y, vertex3.z);
 
-    vec3 normal = cross(pos2 - pos1, pos3 - pos1);
+    vec3 normal = unpackSnorm4x8(vertex1.normal).xyz;
 
     vec2 uv1 = vec2(vertex1.u0, vertex1.v0);
     vec2 uv2 = vec2(vertex2.u0, vertex2.v0);

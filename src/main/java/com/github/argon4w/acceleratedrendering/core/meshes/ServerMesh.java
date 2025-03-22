@@ -32,7 +32,8 @@ public class ServerMesh implements IMesh {
                 size,
                 color,
                 light,
-                overlay
+                overlay,
+                -1
         );
     }
 

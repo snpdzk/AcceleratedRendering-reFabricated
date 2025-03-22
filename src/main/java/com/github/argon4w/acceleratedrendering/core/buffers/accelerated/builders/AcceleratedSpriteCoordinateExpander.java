@@ -4,40 +4,49 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderer
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import java.nio.ByteBuffer;
 
-public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexConsumer, VertexConsumer {
+public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexConsumer, VertexConsumer {
 
-    private final VertexConsumer delegate;
-    private final int color;
+    private final AcceleratedBufferBuilder delegate;
+    private final Vector2f uv0;
+    private final Vector2f uv1;
+    private final int decal;
 
-    public AcceleratedEntityOutlineGenerator(VertexConsumer delegate, int color) {
+    public AcceleratedSpriteCoordinateExpander(
+            AcceleratedBufferBuilder delegate,
+            TextureAtlasSprite sprite,
+            int decal
+    ) {
         this.delegate = delegate;
-        this.color = color;
+        this.uv0 = new Vector2f(sprite.getU0(), sprite.getV0());
+        this.uv1 = new Vector2f(sprite.getU1(), sprite.getV1());
+        this.decal = decal;
     }
 
     @Override
     public void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
-        ((IAcceleratedVertexConsumer) delegate).beginTransform(transformMatrix, normalMatrix);
+        delegate.beginTransform(transformMatrix, normalMatrix);
     }
 
     @Override
     public void endTransform() {
-        ((IAcceleratedVertexConsumer) delegate).endTransform();
+        delegate.endTransform();
     }
 
     @Override
     public boolean isAccelerated() {
-        return ((IAcceleratedVertexConsumer) delegate).isAccelerated();
+        return delegate.isAccelerated();
     }
 
     @Override
     public RenderType getRenderType() {
-        return ((IAcceleratedVertexConsumer) delegate).getRenderType();
+        return delegate.getRenderType();
     }
 
     @Override
@@ -49,13 +58,13 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             int overlay,
             int decal
     ) {
-        ((IAcceleratedVertexConsumer) delegate).addClientMesh(
+        delegate.addClientMesh(
                 meshBuffer,
                 size,
-                this.color,
+                color,
                 light,
                 overlay,
-                decal
+                this.decal
         );
     }
 
@@ -68,13 +77,13 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             int overlay,
             int decal
     ) {
-        ((IAcceleratedVertexConsumer) delegate).addServerMesh(
+        delegate.addServerMesh(
                 offset,
                 size,
-                this.color,
+                color,
                 light,
                 overlay,
-                decal
+                this.decal
         );
     }
 
@@ -88,19 +97,19 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             Vector2f uv1,
             IAcceleratedDecalBufferGenerator generator
     ) {
-        return new AcceleratedEntityOutlineGenerator(((IAcceleratedVertexConsumer) delegate).getDecal(
+        return delegate.getDecal(
                 transformMatrix,
                 normalMatrix,
                 scale,
                 color,
-                uv0,
-                uv1,
+                this.uv0,
+                this.uv1,
                 generator
-        ), this.color);
+        );
     }
 
     @Override
-    public <T>  void doRender(
+    public <T> void doRender(
             IAcceleratedRenderer<T> renderer,
             T context,
             Matrix4f transformMatrix,
@@ -127,12 +136,12 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             float pZ,
             int decal
     ) {
-        ((IAcceleratedVertexConsumer) delegate).addVertex(
+        delegate.addVertex(
                 pX,
                 pY,
                 pZ,
-                decal
-        ).setColor(color);
+                this.decal
+        );
         return this;
     }
 
@@ -144,13 +153,13 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             float pZ,
             int decal
     ) {
-        ((IAcceleratedVertexConsumer) delegate).addVertex(
+        delegate.addVertex(
                 pPose,
                 pX,
                 pY,
                 pZ,
-                decal
-        ).setColor(color);
+                this.decal
+        );
         return this;
     }
 
@@ -169,19 +178,19 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             float pNormalZ,
             int decal
     ) {
-        ((IAcceleratedVertexConsumer) delegate).addVertex(
+        delegate.addVertex(
                 pX,
                 pY,
                 pZ,
-                color,
-                0.0f,
-                0.0f,
-                -1,
-                -1,
-                0.0f,
-                0.0f,
-                0.0f,
-                decal
+                pColor,
+                pU,
+                pV,
+                pPackedOverlay,
+                pPackedLight,
+                pNormalX,
+                pNormalY,
+                pNormalZ,
+                this.decal
         );
     }
 
@@ -194,8 +203,9 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
         delegate.addVertex(
                 pX,
                 pY,
-                pZ
-        ).setColor(color);
+                pZ,
+                decal
+        );
         return this;
     }
 
@@ -210,8 +220,27 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
                 pPose,
                 pX,
                 pY,
-                pZ
-        ).setColor(color);
+                pZ,
+                decal
+        );
+        return this;
+    }
+
+    @Override
+    public VertexConsumer setUv(float pU, float pV) {
+        delegate.setUv(pU, pV);
+        return this;
+    }
+
+    @Override
+    public VertexConsumer setUv1(int pU, int pV) {
+        delegate.setUv1(pU, pV);
+        return this;
+    }
+
+    @Override
+    public VertexConsumer setUv2(int pU, int pV) {
+        delegate.setUv2(pU, pV);
         return this;
     }
 
@@ -222,21 +251,12 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             int pBlue,
             int pAlpha
     ) {
-        return this;
-    }
-
-    @Override
-    public VertexConsumer setUv(float pU, float pV) {
-        return this;
-    }
-
-    @Override
-    public VertexConsumer setUv1(int pU, int pV) {
-        return this;
-    }
-
-    @Override
-    public VertexConsumer setUv2(int pU, int pV) {
+        delegate.setColor(
+                pRed,
+                pGreen,
+                pBlue,
+                pAlpha
+        );
         return this;
     }
 
@@ -246,6 +266,11 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             float pNormalY,
             float pNormalZ
     ) {
+        delegate.setNormal(
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
         return this;
     }
 
@@ -256,6 +281,12 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
             float pNormalY,
             float pNormalZ
     ) {
+        delegate.setNormal(
+                pPose,
+                pNormalX,
+                pNormalY,
+                pNormalZ
+        );
         return this;
     }
 
@@ -277,14 +308,15 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
                 pX,
                 pY,
                 pZ,
-                color,
-                0.0f,
-                0.0f,
-                -1,
-                -1,
-                0.0f,
-                0.0f,
-                0.0f
+                pColor,
+                pU,
+                pV,
+                pPackedOverlay,
+                pPackedLight,
+                pNormalX,
+                pNormalY,
+                pNormalZ,
+                decal
         );
     }
 }

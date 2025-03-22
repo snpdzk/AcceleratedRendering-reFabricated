@@ -2,7 +2,10 @@ package com.github.argon4w.acceleratedrendering.features.items.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
-import com.github.argon4w.acceleratedrendering.features.items.*;
+import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderContext;
+import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
+import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedBakedModel;
+import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedBakedQuad;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;

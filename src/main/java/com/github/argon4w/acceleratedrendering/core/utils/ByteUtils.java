@@ -24,7 +24,7 @@ public class ByteUtils {
     }
 
     public static void putMatrix4f(long address, Matrix4f matrix) {
-        matrix.get(MemoryUtil.memByteBuffer(address, 4 * 4 * 4));
+        matrix.getToAddress(address);
     }
 
     public static void putByteBuffer(

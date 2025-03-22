@@ -6,10 +6,14 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 
 import java.nio.ByteBuffer;
 
 public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVertexConsumer, VertexConsumer {
+
+    private static final Vector2f UV0 = new Vector2f(0.0f, 0.0f);
+    private static final Vector2f UV1 = new Vector2f(1.0f, 1.0f);
 
     private final AcceleratedBufferBuilder delegate;
     private final int decal;
@@ -51,7 +55,8 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
             int size,
             int color,
             int light,
-            int overlay
+            int overlay,
+            int decal
     ) {
         delegate.addClientMesh(
                 meshBuffer,
@@ -59,7 +64,7 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
                 this.color,
                 light,
                 overlay,
-                decal
+                this.decal
         );
     }
 
@@ -69,7 +74,8 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
             int size,
             int color,
             int light,
-            int overlay
+            int overlay,
+            int decal
     ) {
         delegate.addServerMesh(
                 offset,
@@ -77,7 +83,7 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
                 this.color,
                 light,
                 overlay,
-                decal
+                this.decal
         );
     }
 
@@ -86,13 +92,19 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
             Matrix4f transformMatrix,
             Matrix3f normalMatrix,
             float scale,
-            int color
+            int color,
+            Vector2f uv0,
+            Vector2f uv1,
+            IAcceleratedDecalBufferGenerator generator
     ) {
         return delegate.getDecal(
                 transformMatrix,
                 normalMatrix,
                 scale,
-                color
+                color,
+                UV0,
+                UV1,
+                generator
         );
     }
 
@@ -114,6 +126,71 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
                 light,
                 overlay,
                 color
+        );
+    }
+
+    @Override
+    public VertexConsumer addVertex(
+            float pX,
+            float pY,
+            float pZ,
+            int decal
+    ) {
+        delegate.addVertex(
+                pX,
+                pY,
+                pZ,
+                decal
+        );
+        return this;
+    }
+
+    @Override
+    public VertexConsumer addVertex(
+            PoseStack.Pose pPose,
+            float pX,
+            float pY,
+            float pZ,
+            int decal
+    ) {
+        delegate.addVertex(
+                pPose,
+                pX,
+                pY,
+                pZ,
+                decal
+        );
+        return this;
+    }
+
+    @Override
+    public void addVertex(
+            float pX,
+            float pY,
+            float pZ,
+            int pColor,
+            float pU,
+            float pV,
+            int pPackedOverlay,
+            int pPackedLight,
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ,
+            int decal
+    ) {
+        delegate.addVertex(
+                pX,
+                pY,
+                pZ,
+                pColor,
+                -1,
+                -1,
+                pPackedOverlay,
+                pPackedLight,
+                pNormalX,
+                pNormalY,
+                pNormalZ,
+                decal
         );
     }
 
@@ -156,13 +233,13 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
 
     @Override
     public VertexConsumer setUv1(int pU, int pV) {
-        delegate.setUv(pU, pV);
+        delegate.setUv1(pU, pV);
         return this;
     }
 
     @Override
     public VertexConsumer setUv2(int pU, int pV) {
-        delegate.setUv(pU, pV);
+        delegate.setUv2(pU, pV);
         return this;
     }
 
@@ -173,12 +250,7 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
             int pBlue,
             int pAlpha
     ) {
-        delegate.setColor(
-                255,
-                255,
-                255,
-                255
-        );
+        delegate.setColor(color);
         return this;
     }
 

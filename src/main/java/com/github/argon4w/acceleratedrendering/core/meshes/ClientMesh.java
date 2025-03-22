@@ -29,7 +29,8 @@ public class ClientMesh implements IMesh {
                 size,
                 color,
                 light,
-                overlay
+                overlay,
+                -1
         );
     }
 

@@ -28,6 +28,10 @@ public class FeatureConfig {
     public final ModConfigSpec.ConfigValue<PipelineSetting> acceleratedItemRenderingDefaultPipeline;
     public final ModConfigSpec.ConfigValue<MeshType> acceleratedItemRenderingMeshType;
 
+    public final ModConfigSpec.ConfigValue<FeatureStatus> acceleratedBlockEntityRenderingFeatureStatus;
+    public final ModConfigSpec.ConfigValue<PipelineSetting> acceleratedBlockEntityRenderingDefaultPipeline;
+    public final ModConfigSpec.ConfigValue<MeshType> acceleratedBlockEntityRenderingMeshType;
+
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingFeatureStatus;
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingDefaultCulling;
     public final ModConfigSpec.ConfigValue<FeatureStatus> normalCullingIgnoreCullState;
@@ -115,28 +119,28 @@ public class FeatureConfig {
         builder.pop();
 
         builder
-                .comment("Accelerated Text Rendering Settings")
-                .comment("Accelerated Text Rendering uses GPU to cache and transform vertices while rendering text through BakedGlyph, instead of generating and transforming vertices every time the text are rendered in CPU.")
-                .translation("acceleratedrendering.configuration.accelerated_text_rendering")
-                .push("accelerated_text_rendering");
+                .comment("Accelerated Block Entity Rendering Settings")
+                .comment("Accelerated Block Entity Rendering uses GPU to cache and transform vertices while rendering block entities, instead of generating and transforming vertices every time the block entities are rendered in CPU.")
+                .translation("acceleratedrendering.configuration.accelerated_block_entity_rendering")
+                .push("accelerated_block_entity_rendering");
 
-        acceleratedTextRenderingFeatureStatus = builder
-                .comment("- DISABLED: Disable accelerated text rendering.")
-                .comment("- ENABLED: Enable accelerated text rendering.")
-                .translation("acceleratedrendering.configuration.accelerated_text_rendering.feature_status")
+        acceleratedBlockEntityRenderingFeatureStatus = builder
+                .comment("- DISABLED: Disable accelerated block entity rendering.")
+                .comment("- ENABLED: Enable accelerated block entity rendering.")
+                .translation("acceleratedrendering.configuration.accelerated_block_entity_rendering.feature_status")
                 .defineEnum("feature_status", FeatureStatus.ENABLED);
 
-        acceleratedTextRenderingDefaultPipeline = builder
-                .comment("- VANILLA: Text will not be rendered into the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own text.")
-                .comment("- ACCELERATED: All text will be rendered in the accelerated pipeline unless mods explicitly disable it temporarily when rendering their own text.")
-                .translation("acceleratedrendering.configuration.accelerated_text_rendering.default_pipeline")
+        acceleratedBlockEntityRenderingDefaultPipeline = builder
+                .comment("- VANILLA: Block entities will not be rendered into the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own block entities.")
+                .comment("- ACCELERATED: All block entities will be rendered in the accelerated pipeline unless mods explicitly disable it temporarily when rendering their own block entities.")
+                .translation("acceleratedrendering.configuration.accelerated_block_entity_rendering.default_pipeline")
                 .defineEnum("default_pipeline", PipelineSetting.ACCELERATED);
 
-        acceleratedTextRenderingMeshType = builder
+        acceleratedBlockEntityRenderingMeshType = builder
                 .gameRestart()
                 .comment("- CLIENT: Cached mesh will be stored on the client side (CPU), which will use less VRAM but take more time to upload to the server side (GPU) during rendering.")
                 .comment("- SERVER: Cached mesh will be stored on the server side (GPU), which may speed up rendering but will use more VRAM to store the mesh.")
-                .translation("acceleratedrendering.configuration.accelerated_text_rendering.mesh_type")
+                .translation("acceleratedrendering.configuration.accelerated_block_entity_rendering.mesh_type")
                 .defineEnum("mesh_type", MeshType.SERVER);
 
         builder.pop();
@@ -170,6 +174,33 @@ public class FeatureConfig {
                 .comment("- CLIENT: Cached mesh will be stored on the client side (CPU), which will use less VRAM but take more time to upload to the server side (GPU) during rendering.")
                 .comment("- SERVER: Cached mesh will be stored on the server side (GPU), which may speed up rendering but will use more VRAM to store the mesh.")
                 .translation("acceleratedrendering.configuration.accelerated_item_rendering.mesh_type")
+                .defineEnum("mesh_type", MeshType.SERVER);
+
+        builder.pop();
+
+        builder
+                .comment("Accelerated Text Rendering Settings")
+                .comment("Accelerated Text Rendering uses GPU to cache and transform vertices while rendering text through BakedGlyph, instead of generating and transforming vertices every time the text are rendered in CPU.")
+                .translation("acceleratedrendering.configuration.accelerated_text_rendering")
+                .push("accelerated_text_rendering");
+
+        acceleratedTextRenderingFeatureStatus = builder
+                .comment("- DISABLED: Disable accelerated text rendering.")
+                .comment("- ENABLED: Enable accelerated text rendering.")
+                .translation("acceleratedrendering.configuration.accelerated_text_rendering.feature_status")
+                .defineEnum("feature_status", FeatureStatus.ENABLED);
+
+        acceleratedTextRenderingDefaultPipeline = builder
+                .comment("- VANILLA: Text will not be rendered into the accelerated pipeline unless mods explicitly enable it temporarily when rendering their own text.")
+                .comment("- ACCELERATED: All text will be rendered in the accelerated pipeline unless mods explicitly disable it temporarily when rendering their own text.")
+                .translation("acceleratedrendering.configuration.accelerated_text_rendering.default_pipeline")
+                .defineEnum("default_pipeline", PipelineSetting.ACCELERATED);
+
+        acceleratedTextRenderingMeshType = builder
+                .gameRestart()
+                .comment("- CLIENT: Cached mesh will be stored on the client side (CPU), which will use less VRAM but take more time to upload to the server side (GPU) during rendering.")
+                .comment("- SERVER: Cached mesh will be stored on the server side (GPU), which may speed up rendering but will use more VRAM to store the mesh.")
+                .translation("acceleratedrendering.configuration.accelerated_text_rendering.mesh_type")
                 .defineEnum("mesh_type", MeshType.SERVER);
 
         builder.pop();

@@ -1,14 +1,18 @@
 package com.github.argon4w.acceleratedrendering.core.mixins;
 
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedSheetedDecalTextureGenerator;
+import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedDecalBufferGenerator;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.DecoratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IBufferDecorator;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +21,10 @@ import org.spongepowered.asm.mixin.Unique;
 import java.nio.ByteBuffer;
 
 @Mixin(SheetedDecalTextureGenerator.class)
-public class SheetedDecalTextureGeneratorMixin implements IAcceleratedVertexConsumer, IBufferDecorator {
+public class SheetedDecalTextureGeneratorMixin implements IAcceleratedVertexConsumer, IBufferDecorator, IAcceleratedDecalBufferGenerator {
+
+    @Unique private static final Vector2f UV0 = new Vector2f(0.0f, 0.0f);
+    @Unique private static final Vector2f UV1 = new Vector2f(1.0f, 1.0f);
 
     @Shadow @Final private VertexConsumer delegate;
     @Shadow @Final private Matrix4f cameraInversePose;
@@ -55,7 +62,8 @@ public class SheetedDecalTextureGeneratorMixin implements IAcceleratedVertexCons
             int size,
             int color,
             int light,
-            int overlay
+            int overlay,
+            int decal
     ) {
         throw new UnsupportedOperationException("Unsupported Operation.");
     }
@@ -67,7 +75,8 @@ public class SheetedDecalTextureGeneratorMixin implements IAcceleratedVertexCons
             int size,
             int color,
             int light,
-            int overlay
+            int overlay,
+            int decal
     ) {
         throw new UnsupportedOperationException("Unsupported Operation.");
     }
@@ -78,7 +87,52 @@ public class SheetedDecalTextureGeneratorMixin implements IAcceleratedVertexCons
             Matrix4f transformMatrix,
             Matrix3f normalMatrix,
             float scale,
-            int color
+            int color,
+            Vector2f uv0,
+            Vector2f uv1,
+            IAcceleratedDecalBufferGenerator generator
+    ) {
+        throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public VertexConsumer addVertex(
+            float pX,
+            float pY,
+            float pZ,
+            int decal
+    ) {
+        throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public VertexConsumer addVertex(
+            PoseStack.Pose pPose,
+            float pX,
+            float pY,
+            float pZ,
+            int decal
+    ) {
+        throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public void addVertex(
+            float pX,
+            float pY,
+            float pZ,
+            int pColor,
+            float pU,
+            float pV,
+            int pPackedOverlay,
+            int pPackedLight,
+            float pNormalX,
+            float pNormalY,
+            float pNormalZ,
+            int decal
     ) {
         throw new UnsupportedOperationException("Unsupported Operation.");
     }
@@ -107,12 +161,29 @@ public class SheetedDecalTextureGeneratorMixin implements IAcceleratedVertexCons
 
     @Unique
     @Override
+    public VertexConsumer generate(
+            AcceleratedBufferBuilder delegate,
+            int decal,
+            int color
+    ) {
+        return new AcceleratedSheetedDecalTextureGenerator(
+                delegate,
+                decal,
+                color
+        );
+    }
+
+    @Unique
+    @Override
     public VertexConsumer decorate(VertexConsumer buffer) {
         return ((IAcceleratedVertexConsumer) buffer).getDecal(
                 cameraInversePose,
                 normalInversePose,
                 textureScale,
-                -1
+                -1,
+                UV0,
+                UV1,
+                this
         );
     }
 }

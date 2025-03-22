@@ -10,7 +10,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.shadows.ShadowRenderer;
 import net.irisshaders.iris.shadows.ShadowRenderingState;
 import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix4f;
 
 public class IrisCullingProgramDispatcher implements IPolygonProgramDispatcher {
 

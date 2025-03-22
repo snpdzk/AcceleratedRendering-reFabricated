@@ -9,8 +9,9 @@
     "LevelRendererMixin",
     "MinecraftMixin",
     "SheetedDecalTextureGeneratorMixin",
+    "SpriteCoordinateExpanderMixin",
     "VertexConsumerMixin",
-    "VertexDoubleConsumerMixin",
+    "VertexDoubleConsumerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

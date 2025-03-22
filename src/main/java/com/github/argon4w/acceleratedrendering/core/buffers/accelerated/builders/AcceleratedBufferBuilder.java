@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.FastColor;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -50,6 +51,9 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
     private Matrix4f cachedTransform;
     private Matrix3f cachedNormal;
+
+    private final Matrix4f cachedTransformValue;
+    private final Matrix3f cachedNormalValue;
 
     public AcceleratedBufferBuilder(
             VertexBufferPool.VertexBuffer vertexBuffer,
@@ -86,6 +90,9 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
         this.cachedTransform = null;
         this.cachedNormal = null;
+
+        this.cachedTransformValue = new Matrix4f();
+        this.cachedNormalValue = new Matrix3f();
     }
 
     @Override
@@ -118,6 +125,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         );
     }
 
+    @Override
     public VertexConsumer addVertex(
             PoseStack.Pose pPose,
             float pX,
@@ -134,7 +142,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         );
     }
 
-    VertexConsumer addVertex(
+    @Override
+    public VertexConsumer addVertex(
             float pX,
             float pY,
             float pZ,
@@ -322,7 +331,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         );
     }
 
-    void addVertex(
+    @Override
+    public void addVertex(
             float pX,
             float pY,
             float pZ,
@@ -396,8 +406,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             return;
         }
 
-        cachedTransform = new Matrix4f(transformMatrix);
-        cachedNormal = new Matrix3f(normalMatrix);
+        cachedTransform = cachedTransformValue.set(transformMatrix);
+        cachedNormal = cachedNormalValue.set(normalMatrix);
 
         sharing = bufferSet.getSharing();
         cachedSharing = sharing;
@@ -419,23 +429,6 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
     @Override
     public void addClientMesh(
-            ByteBuffer meshBuffer,
-            int size,
-            int color,
-            int light,
-            int overlay
-    ) {
-        addClientMesh(
-                meshBuffer,
-                size,
-                color,
-                light,
-                overlay,
-                -1
-        );
-    }
-
-    void addClientMesh(
             ByteBuffer meshBuffer,
             int size,
             int color,
@@ -482,26 +475,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         vertexCount += size;
     }
 
-
     @Override
     public void addServerMesh(
-            int offset,
-            int size,
-            int color,
-            int light,
-            int overlay
-    ) {
-        addServerMesh(
-                offset,
-                size,
-                color,
-                light,
-                overlay,
-                -1
-        );
-    }
-
-    void addServerMesh(
             int offset,
             int size,
             int color,
@@ -547,7 +522,10 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             Matrix4f transformMatrix,
             Matrix3f normalMatrix,
             float scale,
-            int color
+            int color,
+            Vector2f uv0,
+            Vector2f uv1,
+            IAcceleratedDecalBufferGenerator generator
     ) {
         int decal = bufferSet.getDecal();
 
@@ -555,9 +533,15 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         long normalInverse = cameraInverse + 4L * 4L * 4L;
         long textureScale = normalInverse + 4L * 4L * 3L;
 
+        long coordinate0 = textureScale + 4L;
+        long coordinate1 = coordinate0 + 4L * 2L;
+
         ByteUtils.putMatrix4f(cameraInverse, transformMatrix);
         ByteUtils.putMatrix3x4f(normalInverse, normalMatrix);
         MemoryUtil.memPutFloat(textureScale, scale);
+
+        uv0.getToAddress(coordinate0);
+        uv1.getToAddress(coordinate1);
 
         return new AcceleratedSheetedDecalTextureGenerator(
                 this,

@@ -26,6 +26,8 @@ public class ComputeShaderPrograms {
     public static final ResourceLocation CORE_PASS_THROUGH_TRIANGLE_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_triangle_culling");
     public static final ResourceLocation CORE_POS_TEX_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_quad_processing");
     public static final ResourceLocation CORE_POS_TEX_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_triangle_processing");
+    public static final ResourceLocation CORE_ENTITY_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_entity_quad_processing");
+    public static final ResourceLocation CORE_ENTITY_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_entity_triangle_processing");
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
@@ -78,6 +80,18 @@ public class ComputeShaderPrograms {
                 AcceleratedRenderingModEntry.location("shaders/core/processing/pos_tex_triangle_processing_shader.compute"),
                 BarrierFlags.SHADER_STORAGE
         );
+
+        event.loadComputeShader(
+                CORE_ENTITY_QUAD_PROCESSING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/processing/entity_quad_processing_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
+
+        event.loadComputeShader(
+                CORE_ENTITY_TRIANGLE_PROCESSING_KEY,
+                AcceleratedRenderingModEntry.location("shaders/core/processing/entity_triangle_processing_shader.compute"),
+                BarrierFlags.SHADER_STORAGE
+        );
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -100,6 +114,18 @@ public class ComputeShaderPrograms {
                 parent,
                 VertexFormat.Mode.QUADS,
                 CORE_POS_TEX_QUAD_PROCESSING_KEY
+        ));
+
+        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new FixedPolygonProcessor(
+                parent,
+                VertexFormat.Mode.TRIANGLES,
+                CORE_ENTITY_TRIANGLE_PROCESSING_KEY
+        ));
+
+        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new FixedPolygonProcessor(
+                parent,
+                VertexFormat.Mode.QUADS,
+                CORE_ENTITY_QUAD_PROCESSING_KEY
         ));
     }
 

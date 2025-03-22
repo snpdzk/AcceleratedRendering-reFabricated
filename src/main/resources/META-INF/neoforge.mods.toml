@@ -60,21 +60,25 @@ config="${mod_id}.compat.iris.mixins.json"
 [[mixins]]
 config="${mod_id}.feature.entities.mixins.json"
 
-# Simple Normal Culling Feature Mixins
-[[mixins]]
-config="${mod_id}.feature.culling.mixins.json"
-
 # Accelerated Entity ModelPart Rendering Feature Mixins
 [[mixins]]
 config="${mod_id}.feature.modelparts.mixins.json"
+
+# Accelerated Block Entity Rendering Feature Mixins
+[[mixins]]
+config="${mod_id}.feature.blocks.mixins.json"
+
+#Accelerated Item Rendering Feature Mixins
+[[mixins]]
+config="${mod_id}.feature.items.mixins.json"
 
 # Accelerated Text Rendering Feature Mixins
 [[mixins]]
 config="${mod_id}.feature.text.mixins.json"
 
-#Accelerated Item Rendering Feature Mixins
+# Simple Normal Culling Feature Mixins
 [[mixins]]
-config="${mod_id}.feature.items.mixins.json"
+config="${mod_id}.feature.culling.mixins.json"
 
 # The [[accessTransformers]] block allows you to declare where your AT file is.
 # If this block is omitted, a fallback attempt will be made to load an AT from META-INF/accesstransformer.cfg
