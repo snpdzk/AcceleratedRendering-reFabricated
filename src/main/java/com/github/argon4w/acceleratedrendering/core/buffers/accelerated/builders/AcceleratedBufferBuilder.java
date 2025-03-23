@@ -7,13 +7,15 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.Ma
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
-import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.MemUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.FastColor;
+import net.neoforged.neoforge.client.textures.UnitTextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -270,7 +272,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         }
 
         if (!normalMatrix.equals(cachedNormal)) {
-            ByteUtils.putMatrix3x4f(normal, normalMatrix);
+            MemUtils.putMatrix3x4f(normal, normalMatrix);
         }
 
         return setNormal(
@@ -294,9 +296,9 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             throw new IllegalStateException("Vertex not building!");
         }
 
-        ByteUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
-        ByteUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
-        ByteUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
+        MemUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
+        MemUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
+        MemUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
 
         return this;
     }
@@ -375,9 +377,9 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         }
 
         if (normalOffset != -1) {
-            ByteUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
-            ByteUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
-            ByteUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
+            MemUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
+            MemUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
+            MemUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
         }
 
         MemoryUtil.memPutInt(varying + 0L * 4L, 0);
@@ -415,8 +417,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         transform = bufferSet.reserveSharing();
         normal = transform + 4L * 4L * 4L;
 
-        ByteUtils.putMatrix4f(transform, transformMatrix);
-        ByteUtils.putMatrix3x4f(normal, normalMatrix);
+        MemUtils.putMatrix4f(transform, transformMatrix);
+        MemUtils.putMatrix3x4f(normal, normalMatrix);
     }
 
     @Override
@@ -444,8 +446,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         data.addExtraVertex(vertex);
         data.addExtraVarying(varying);
 
-        ByteUtils.putByteBuffer(
-                meshBuffer,
+        MemoryUtil.memCopy(
+                MemoryUtil.memAddress0(meshBuffer),
                 vertex,
                 length
         );
@@ -484,7 +486,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             int overlay,
             int decal
     ) {
-        int mesh = offset / bufferSet.getVertexSize();
+        int mesh = offset / vertexSize;
         long vertex = vertexBuffer.reserve(vertexSize * (long) size);
         long varying = varyingBuffer.reserve(5L * 4L * size);
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
@@ -536,12 +538,12 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         long coordinate0 = textureScale + 4L;
         long coordinate1 = coordinate0 + 4L * 2L;
 
-        ByteUtils.putMatrix4f(cameraInverse, transformMatrix);
-        ByteUtils.putMatrix3x4f(normalInverse, normalMatrix);
+        MemUtils.putMatrix4f(cameraInverse, transformMatrix);
+        MemUtils.putMatrix3x4f(normalInverse, normalMatrix);
         MemoryUtil.memPutFloat(textureScale, scale);
 
-        uv0.getToAddress(coordinate0);
-        uv1.getToAddress(coordinate1);
+        MemUtils.putVector2f(coordinate0, uv0);
+        MemUtils.putVector2f(coordinate1, uv1);
 
         return generator.generate(
                 this,
@@ -579,6 +581,11 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
     @Override
     public RenderType getRenderType() {
         return renderType;
+    }
+
+    @Override
+    public TextureAtlasSprite getSprite() {
+        return UnitTextureAtlasSprite.INSTANCE;
     }
 
     public boolean isEmpty() {

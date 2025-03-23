@@ -14,22 +14,12 @@ import java.nio.ByteBuffer;
 
 public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexConsumer, VertexConsumer, IUVMapper {
 
-    private final AcceleratedBufferBuilder delegate;
+    private final VertexConsumer delegate;
     private final TextureAtlasSprite sprite;
-    private final Vector2f uv0;
-    private final Vector2f uv1;
-    private final int decal;
 
-    public AcceleratedSpriteCoordinateExpander(
-            AcceleratedBufferBuilder delegate,
-            TextureAtlasSprite sprite,
-            int decal
-    ) {
+    public AcceleratedSpriteCoordinateExpander(VertexConsumer delegate, TextureAtlasSprite sprite) {
         this.delegate = delegate;
         this.sprite = sprite;
-        this.uv0 = new Vector2f(sprite.getU0(), sprite.getV0());
-        this.uv1 = new Vector2f(sprite.getU1(), sprite.getV1());
-        this.decal = decal;
     }
 
     @Override
@@ -44,22 +34,27 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
 
     @Override
     public void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
-        delegate.beginTransform(transformMatrix, normalMatrix);
+        ((IAcceleratedVertexConsumer) delegate).beginTransform(transformMatrix, normalMatrix);
     }
 
     @Override
     public void endTransform() {
-        delegate.endTransform();
+        ((IAcceleratedVertexConsumer) delegate).endTransform();
     }
 
     @Override
     public boolean isAccelerated() {
-        return delegate.isAccelerated();
+        return ((IAcceleratedVertexConsumer) delegate).isAccelerated();
     }
 
     @Override
     public RenderType getRenderType() {
-        return delegate.getRenderType();
+        return ((IAcceleratedVertexConsumer) delegate).getRenderType();
+    }
+
+    @Override
+    public TextureAtlasSprite getSprite() {
+        return sprite;
     }
 
     @Override
@@ -71,13 +66,13 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             int overlay,
             int decal
     ) {
-        delegate.addClientMesh(
+        ((IAcceleratedVertexConsumer) delegate).addClientMesh(
                 meshBuffer,
                 size,
                 color,
                 light,
                 overlay,
-                this.decal
+                decal
         );
     }
 
@@ -90,13 +85,13 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             int overlay,
             int decal
     ) {
-        delegate.addServerMesh(
+        ((IAcceleratedVertexConsumer) delegate).addServerMesh(
                 offset,
                 size,
                 color,
                 light,
                 overlay,
-                this.decal
+                decal
         );
     }
 
@@ -110,13 +105,13 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             Vector2f uv1,
             IAcceleratedDecalBufferGenerator generator
     ) {
-        return delegate.getDecal(
+        return ((IAcceleratedVertexConsumer) delegate).getDecal(
                 transformMatrix,
                 normalMatrix,
                 scale,
                 color,
-                this.uv0,
-                this.uv1,
+                new Vector2f(this.sprite.getU(uv0.x), this.sprite.getV(uv0.y)),
+                new Vector2f(this.sprite.getU(uv1.x), this.sprite.getV(uv1.y)),
                 generator
         );
     }
@@ -149,11 +144,11 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             float pZ,
             int decal
     ) {
-        delegate.addVertex(
+        ((IAcceleratedVertexConsumer) delegate).addVertex(
                 pX,
                 pY,
                 pZ,
-                this.decal
+                decal
         );
         return this;
     }
@@ -166,12 +161,12 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             float pZ,
             int decal
     ) {
-        delegate.addVertex(
+        ((IAcceleratedVertexConsumer) delegate).addVertex(
                 pPose,
                 pX,
                 pY,
                 pZ,
-                this.decal
+                decal
         );
         return this;
     }
@@ -191,19 +186,19 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             float pNormalZ,
             int decal
     ) {
-        delegate.addVertex(
+        ((IAcceleratedVertexConsumer) delegate).addVertex(
                 pX,
                 pY,
                 pZ,
                 pColor,
-                pU,
-                pV,
+                sprite.getU(pU),
+                sprite.getV(pV),
                 pPackedOverlay,
                 pPackedLight,
                 pNormalX,
                 pNormalY,
                 pNormalZ,
-                this.decal
+                decal
         );
     }
 
@@ -216,8 +211,7 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
         delegate.addVertex(
                 pX,
                 pY,
-                pZ,
-                decal
+                pZ
         );
         return this;
     }
@@ -233,15 +227,14 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
                 pPose,
                 pX,
                 pY,
-                pZ,
-                decal
+                pZ
         );
         return this;
     }
 
     @Override
     public VertexConsumer setUv(float pU, float pV) {
-        delegate.setUv(pU, pV);
+        delegate.setUv(sprite.getU(pU), sprite.getV(pV));
         return this;
     }
 
@@ -322,14 +315,13 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
                 pY,
                 pZ,
                 pColor,
-                pU,
-                pV,
+                sprite.getU(pU),
+                sprite.getV(pV),
                 pPackedOverlay,
                 pPackedLight,
                 pNormalX,
                 pNormalY,
-                pNormalZ,
-                decal
+                pNormalZ
         );
     }
 }

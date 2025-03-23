@@ -4,10 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
-import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.TextureUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.UVUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.Vertex;
+import com.github.argon4w.acceleratedrendering.core.utils.*;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderContext;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedBakedModel;
@@ -20,6 +17,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +41,7 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel, IAccelerat
     @Shadow @Final protected List<BakedQuad> unculledFaces;
     @Shadow @Final protected Map<Direction, List<BakedQuad>> culledFaces;
 
-    @Unique private final Map<RenderType, Int2ObjectMap<IMesh>> meshes = new Object2ObjectOpenHashMap<>();
+    @Unique private final Map<TextureAtlasSprite, Map<RenderType, Int2ObjectMap<IMesh>>> spriteMeshes = new LazyMap<>(new Object2ObjectOpenHashMap<>(), Object2ObjectOpenHashMap::new);
 
     @Override
     public void renderItemFast(ItemStack itemStack, PoseStack poseStack, IAcceleratedVertexConsumer extension, int combinedLight, int combinedOverlay) {
@@ -79,6 +77,9 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel, IAccelerat
         IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) vertexConsumer;
 
         RenderType renderType = extension.getRenderType();
+        TextureAtlasSprite sprite = extension.getSprite();
+
+        Map<RenderType, Int2ObjectMap<IMesh>> meshes = spriteMeshes.get(sprite);
         Int2ObjectMap<IMesh> layers = meshes.get(renderType);
 
         extension.beginTransform(transformMatrix, normalMatrix);
@@ -105,13 +106,13 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel, IAccelerat
         Int2ObjectMap<MeshCollector> meshCollectors = new Int2ObjectLinkedOpenHashMap<>();
         NativeImage image = TextureUtils.downloadTexture(renderType, 0);
 
-        List<BakedQuad> allFaces = new ArrayList<>(unculledFaces);
+        List<BakedQuad> faces = new ArrayList<>(unculledFaces);
 
-        for (Direction direction : culledFaces.keySet()) {
-            allFaces.addAll(culledFaces.get(direction));
+        for (List<BakedQuad> list : culledFaces.values()) {
+            faces.addAll(list);
         }
 
-        for (BakedQuad quad : allFaces) {
+        for (BakedQuad quad : faces) {
             int[] vertices = quad.getVertices();
             int layer = quad.getTintIndex();
             int size = vertices.length / 8;
@@ -147,10 +148,9 @@ public class SimpleBakedModelMixin implements IAcceleratedBakedModel, IAccelerat
                 float normalZ = ((byte) ((packedNormal >> 16) & 0xFF)) / 127.0f;
 
                 modelVertices[i] = new Vertex(
-                        UVUtils.getMapper(vertexConsumer),
                         new Vector3f(posX, posY, posZ),
                         packedColor,
-                        new Vector2f(u0, v0),
+                        new Vector2f(sprite.getU(u0), sprite.getV(v0)),
                         new Vector3f(normalX, normalY, normalZ)
                 );
             }

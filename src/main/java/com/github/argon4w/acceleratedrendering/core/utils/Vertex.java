@@ -11,7 +11,6 @@ public class Vertex {
     private final Vector3f normal;
 
     public Vertex(
-            IUVMapper mapper,
             Vector3f position,
             int color,
             Vector2f uv,
@@ -19,19 +18,18 @@ public class Vertex {
     ) {
         this.position = position;
         this.color = color;
-        this.uv = new Vector2f(mapper.mapU(uv.x), mapper.mapU(uv.y));
+        this.uv = uv;
         this.normal = normal;
     }
 
     public Vertex(
-            IUVMapper mapper,
             Vector3f position,
             float u,
             float v
     ) {
         this.position = position;
         this.color = -1;
-        this.uv = new Vector2f(mapper.mapU(u), mapper.mapV(v));
+        this.uv = new Vector2f(u, v);
         this.normal = new Vector3f(0, 1, 0);
     }
 

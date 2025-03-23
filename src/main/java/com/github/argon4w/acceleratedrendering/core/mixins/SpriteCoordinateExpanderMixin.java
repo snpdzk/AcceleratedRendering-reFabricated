@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.mixins;
 
-import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedSpriteCoordinateExpander;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedDecalBufferGenerator;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
@@ -22,13 +21,16 @@ import org.spongepowered.asm.mixin.Unique;
 import java.nio.ByteBuffer;
 
 @Mixin(SpriteCoordinateExpander.class)
-public class SpriteCoordinateExpanderMixin implements IAcceleratedVertexConsumer, IBufferDecorator, IAcceleratedDecalBufferGenerator {
-
-    @Unique private static final Matrix4f CAMERA = new Matrix4f().zero();
-    @Unique private static final Matrix3f NORMAL = new Matrix3f().zero();
+public class SpriteCoordinateExpanderMixin implements IAcceleratedVertexConsumer, IBufferDecorator {
 
     @Shadow @Final private VertexConsumer delegate;
     @Shadow @Final private TextureAtlasSprite sprite;
+
+    @Unique
+    @Override
+    public VertexConsumer decorate(VertexConsumer buffer) {
+        return new AcceleratedSpriteCoordinateExpander(buffer, sprite);
+    }
 
     @Unique
     @Override
@@ -51,6 +53,12 @@ public class SpriteCoordinateExpanderMixin implements IAcceleratedVertexConsumer
     @Unique
     @Override
     public RenderType getRenderType() {
+        throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public TextureAtlasSprite getSprite() {
         throw new UnsupportedOperationException("Unsupported Operation.");
     }
 
@@ -155,34 +163,6 @@ public class SpriteCoordinateExpanderMixin implements IAcceleratedVertexConsumer
                 light,
                 overlay,
                 color
-        );
-    }
-
-    @Unique
-    @Override
-    public VertexConsumer generate(
-            AcceleratedBufferBuilder delegate,
-            int decal,
-            int color
-    ) {
-        return new AcceleratedSpriteCoordinateExpander(
-                delegate,
-                sprite,
-                decal
-        );
-    }
-
-    @Unique
-    @Override
-    public VertexConsumer decorate(VertexConsumer buffer) {
-        return ((IAcceleratedVertexConsumer) buffer).getDecal(
-                CAMERA,
-                NORMAL,
-                1.0f,
-                -1,
-                new Vector2f(sprite.getU0(), sprite.getV0()),
-                new Vector2f(sprite.getU1(), sprite.getV1()),
-                this
         );
     }
 }

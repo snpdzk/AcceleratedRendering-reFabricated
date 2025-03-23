@@ -4,9 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
-import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.TextureUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.UVUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.*;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.modelparts.VertexUtils;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -15,6 +13,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -34,7 +33,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 
     @Shadow @Final private List<ModelPart.Cube> cubes;
 
-    @Unique private final Map<RenderType, IMesh> meshes = new Object2ObjectOpenHashMap<>();
+    @Unique private final Map<TextureAtlasSprite, Map<RenderType, IMesh>> spriteMeshes = new LazyMap<>(new Object2ObjectOpenHashMap<>(), Object2ObjectOpenHashMap::new);
 
     @Inject(method = "compile", at = @At("HEAD"), cancellable = true)
     public void compile(
@@ -86,6 +85,9 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
         IAcceleratedVertexConsumer extension = ((IAcceleratedVertexConsumer) vertexConsumer);
 
         RenderType renderType = extension.getRenderType();
+        TextureAtlasSprite sprite = extension.getSprite();
+
+        Map<RenderType, IMesh> meshes = spriteMeshes.get(sprite);
         IMesh mesh = meshes.get(renderType);
 
         extension.beginTransform(transformMatrix, normalMatrix);
@@ -109,7 +111,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
             for (ModelPart.Polygon polygon : cube.polygons) {
                 Vector3f normal = polygon.normal;
 
-                if (CullerUtils.shouldCull(VertexUtils.fromModelPart(polygon.vertices, UVUtils.getMapper(vertexConsumer)), image)) {
+                if (CullerUtils.shouldCull(VertexUtils.fromModelPart(polygon.vertices, sprite), image)) {
                     continue;
                 }
 
@@ -119,8 +121,8 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
                             vertex.pos.y / 16.0f,
                             vertex.pos.z / 16.0f,
                             -1,
-                            vertex.u,
-                            vertex.v,
+                            sprite.getU(vertex.u),
+                            sprite.getV(vertex.v),
                             overlay,
                             0,
                             normal.x,

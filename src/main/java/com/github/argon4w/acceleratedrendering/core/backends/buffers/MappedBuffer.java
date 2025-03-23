@@ -1,6 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.backends.buffers;
 
-import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
@@ -46,7 +46,7 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
 
     @Override
     public ByteBuffer byteBuffer() {
-        return ByteUtils.toBuffer(address, size);
+        return MemoryUtil.memByteBufferSafe(address, (int) size);
     }
 
     @Override

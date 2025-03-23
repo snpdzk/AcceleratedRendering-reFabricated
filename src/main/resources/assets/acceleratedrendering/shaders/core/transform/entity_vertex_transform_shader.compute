@@ -72,7 +72,7 @@ void main() {
 
     if (sharing != -1) {
         transformMatrix = sharings[sharing].transform;
-        normalMatrix = sharings[sharing].normal;
+        normalMatrix = mat3(transpose(inverse(transformMatrix)));
     } else {
         transformMatrix = mat4(1.0);
         normalMatrix = mat3(1.0);

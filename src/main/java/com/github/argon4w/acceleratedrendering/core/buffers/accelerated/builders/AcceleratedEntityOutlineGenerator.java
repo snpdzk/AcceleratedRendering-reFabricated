@@ -4,6 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderer
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -38,6 +39,11 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
     @Override
     public RenderType getRenderType() {
         return ((IAcceleratedVertexConsumer) delegate).getRenderType();
+    }
+
+    @Override
+    public TextureAtlasSprite getSprite() {
+        return ((IAcceleratedVertexConsumer) delegate).getSprite();
     }
 
     @Override

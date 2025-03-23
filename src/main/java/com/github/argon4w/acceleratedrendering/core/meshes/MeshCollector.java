@@ -1,7 +1,7 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IClientBuffer;
-import com.github.argon4w.acceleratedrendering.core.utils.ByteUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.MemUtils;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.util.FastColor;
@@ -55,9 +55,8 @@ public class MeshCollector {
             float pNormalY,
             float pNormalZ
     ) {
-        this.vertexCount++;
-
-        long vertex = this.buffer.reserve(vertexSize);
+        vertexCount++;
+        long vertex = buffer.reserve(vertexSize);
 
         MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
         MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
@@ -77,9 +76,9 @@ public class MeshCollector {
         }
 
         if (normalOffset != -1L) {
-            ByteUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
-            ByteUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
-            ByteUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
+            MemUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
+            MemUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
+            MemUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
         }
     }
 

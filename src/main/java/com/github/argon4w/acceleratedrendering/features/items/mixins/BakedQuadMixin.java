@@ -3,10 +3,7 @@ package com.github.argon4w.acceleratedrendering.features.items.mixins;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
-import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.TextureUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.UVUtils;
-import com.github.argon4w.acceleratedrendering.core.utils.Vertex;
+import com.github.argon4w.acceleratedrendering.core.utils.*;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedBakedQuad;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -14,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.neoforged.neoforge.client.model.IQuadTransformer;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -27,7 +25,7 @@ import java.util.Map;
 @Mixin(BakedQuad.class)
 public class BakedQuadMixin implements IAcceleratedBakedQuad {
 
-    @Unique private static final Map<int[], Map<RenderType, IMesh>> MESHES = new Reference2ObjectOpenHashMap<>();
+    @Unique private static final Map<int[], Map<TextureAtlasSprite, Map<RenderType, IMesh>>> SPRITE_MESHES = new LazyMap<>(new Reference2ObjectOpenHashMap<>(), LazyMap.supplierOf(Reference2ObjectOpenHashMap::new, Reference2ObjectOpenHashMap::new));
 
     @Shadow @Final protected int[] vertices;
 
@@ -35,18 +33,14 @@ public class BakedQuadMixin implements IAcceleratedBakedQuad {
     @Override
     public void renderFast(IAcceleratedVertexConsumer extension, int combinedLight, int combinedOverlay, int color) {
         RenderType renderType = extension.getRenderType();
-        Map<RenderType, IMesh> meshes = MESHES.get(vertices);
+        TextureAtlasSprite sprite = extension.getSprite();
 
-        if (meshes == null) {
-            meshes = new Object2ObjectOpenHashMap<>();
-            MESHES.put(vertices, meshes);
-        }
+        Map<RenderType, IMesh> meshes = SPRITE_MESHES.get(vertices).get(sprite);
+        IMesh mesh = meshes.get(renderType);
 
         if (hasCustomColor()) {
             color = getCustomColor();
         }
-
-        IMesh mesh = meshes.get(renderType);
 
         if (mesh != null) {
             mesh.write(
@@ -87,10 +81,9 @@ public class BakedQuadMixin implements IAcceleratedBakedQuad {
             float normalZ = ((byte) ((packedNormal >> 16) & 0xFF)) / 127.0f;
 
             modelVertices[i] = new Vertex(
-                    UVUtils.getMapper(extension),
                     new Vector3f(posX, posY, posZ),
                     packedColor,
-                    new Vector2f(u0, v0),
+                    new Vector2f(sprite.getU(u0), sprite.getV(v0)),
                     new Vector3f(normalX, normalY, normalZ)
             );
         }

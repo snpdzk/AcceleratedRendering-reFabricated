@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -52,6 +53,12 @@ public class EntityOutlineGeneratorMixin implements IAcceleratedVertexConsumer, 
     @Unique
     @Override
     public RenderType getRenderType() {
+        throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public TextureAtlasSprite getSprite() {
         throw new UnsupportedOperationException("Unsupported Operation.");
     }
 

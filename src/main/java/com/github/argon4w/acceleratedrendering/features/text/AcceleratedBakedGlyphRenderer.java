@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -17,12 +18,12 @@ import java.util.Map;
 
 public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void> {
 
-    private final Map<RenderType, IMesh> meshes;
+    private final Map<TextureAtlasSprite, Map<RenderType, IMesh>> spriteMeshes;
     private final BakedGlyph glyph;
     private final boolean italic;
 
     public AcceleratedBakedGlyphRenderer(BakedGlyph glyph, boolean italic) {
-        this.meshes = new Object2ObjectOpenHashMap<>();
+        this.spriteMeshes = new Object2ObjectOpenHashMap<>();
         this.glyph = glyph;
         this.italic = italic;
     }
@@ -40,6 +41,14 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void>
         IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) vertexConsumer;
 
         RenderType renderType = extension.getRenderType();
+        TextureAtlasSprite sprite = extension.getSprite();
+        Map<RenderType, IMesh> meshes = spriteMeshes.get(sprite);
+
+        if (meshes == null) {
+            meshes = new Object2ObjectOpenHashMap<>();
+            spriteMeshes.put(sprite, meshes);
+        }
+
         IMesh mesh = meshes.get(renderType);
 
         extension.beginTransform(transformMatrix, normalMatrix);
@@ -67,8 +76,8 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void>
                 ((BakedGlyphAccessor) glyph).getUp(),
                 0.0F,
                 -1,
-                ((BakedGlyphAccessor) glyph).getU0(),
-                ((BakedGlyphAccessor) glyph).getV0(),
+                sprite.getU(((BakedGlyphAccessor) glyph).getU0()),
+                sprite.getV(((BakedGlyphAccessor) glyph).getV0()),
                 -1,
                 0,
                 -1,
@@ -81,8 +90,8 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void>
                 ((BakedGlyphAccessor) glyph).getDown(),
                 0.0F,
                 -1,
-                ((BakedGlyphAccessor) glyph).getU0(),
-                ((BakedGlyphAccessor) glyph).getV1(),
+                sprite.getU(((BakedGlyphAccessor) glyph).getU0()),
+                sprite.getV(((BakedGlyphAccessor) glyph).getV1()),
                 -1,
                 0,
                 -1,
@@ -95,8 +104,8 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void>
                 ((BakedGlyphAccessor) glyph).getDown(),
                 0.0F,
                 -1,
-                ((BakedGlyphAccessor) glyph).getU1(),
-                ((BakedGlyphAccessor) glyph).getV1(),
+                sprite.getU(((BakedGlyphAccessor) glyph).getU1()),
+                sprite.getV(((BakedGlyphAccessor) glyph).getV1()),
                 -1,
                 0,
                 -1,
@@ -109,8 +118,8 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void>
                 ((BakedGlyphAccessor) glyph).getUp(),
                 0.0F,
                 -1,
-                ((BakedGlyphAccessor) glyph).getU1(),
-                ((BakedGlyphAccessor) glyph).getV0(),
+                sprite.getU(((BakedGlyphAccessor) glyph).getU1()),
+                sprite.getV(((BakedGlyphAccessor) glyph).getV0()),
                 -1,
                 0,
                 -1,
