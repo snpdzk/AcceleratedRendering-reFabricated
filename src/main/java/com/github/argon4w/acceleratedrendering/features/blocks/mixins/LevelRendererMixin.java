@@ -63,7 +63,7 @@ public abstract class LevelRendererMixin {
             return;
         }
 
-        if (shouldShowEntityOutlines() && pBlockEntity.hasCustomOutlineRendering(minecraft.player)) {
+        if (shouldShowEntityOutlines()) {
             flag2.set(true);
         }
 
