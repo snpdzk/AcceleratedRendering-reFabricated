@@ -18,17 +18,19 @@ public class DecoratedRenderer<T> implements IAcceleratedRenderer<T> {
     public void render(
             VertexConsumer vertexConsumer,
             T context,
-            Matrix4f transformMatrix,
-            Matrix3f normalMatrix,
+            Matrix4f transform,
+            Matrix3f normal,
             int light,
             int overlay,
             int color
     ) {
         renderer.render(
-                bufferDecorator.decorate(vertexConsumer),
+                bufferDecorator.decorate(
+                        vertexConsumer
+                ),
                 context,
-                transformMatrix,
-                normalMatrix,
+                transform,
+                normal,
                 light,
                 overlay,
                 color

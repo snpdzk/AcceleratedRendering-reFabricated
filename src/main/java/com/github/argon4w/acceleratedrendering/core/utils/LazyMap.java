@@ -153,8 +153,4 @@ public class LazyMap<K, V> implements Map<K, V> {
     public boolean equals(Object obj) {
         return map.equals(obj);
     }
-
-    public static <K, V> Supplier<Map<K, V>> supplierOf(Supplier<Map<K, V>> supplier1, Supplier<V> supplier2) {
-        return () -> new LazyMap<>(supplier1.get(), supplier2);
-    }
 }

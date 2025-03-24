@@ -20,7 +20,6 @@ public class BakedGlyphMixin {
     @Unique private static final Matrix4f TRANSFORM = new Matrix4f();
     @Unique private static final Matrix3f NORMAL = new Matrix3f();
 
-
     @Unique private final AcceleratedBakedGlyphRenderer normalRenderer = new AcceleratedBakedGlyphRenderer((BakedGlyph) (Object) this, false);
     @Unique private final AcceleratedBakedGlyphRenderer italicRenderer = new AcceleratedBakedGlyphRenderer((BakedGlyph) (Object) this, true);
 

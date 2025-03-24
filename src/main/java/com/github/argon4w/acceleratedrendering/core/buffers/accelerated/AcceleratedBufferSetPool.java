@@ -3,7 +3,6 @@ package com.github.argon4w.acceleratedrendering.core.buffers.accelerated;
 import com.github.argon4w.acceleratedrendering.core.CoreFeature;
 import com.github.argon4w.acceleratedrendering.core.backends.Sync;
 import com.github.argon4w.acceleratedrendering.core.backends.VertexArray;
-import com.github.argon4w.acceleratedrendering.core.backends.buffers.ImmutableBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.DrawContextPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.ElementBufferPool;
@@ -13,7 +12,6 @@ import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBuffer
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
-import net.minecraft.core.Direction;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import static org.lwjgl.opengl.GL46.GL_ARRAY_BUFFER;
@@ -58,14 +56,11 @@ public class AcceleratedBufferSetPool {
         private final DrawContextPool drawContextPool;
         private final ElementBufferPool elementBufferPool;
         private final MappedBuffer sharingBuffer;
-        private final MappedBuffer decalBuffer;
-        private final ImmutableBuffer rotationBuffer;
         private final MappedBufferPool varyingBuffer;
         private final VertexBufferPool vertexBuffer;
         private final VertexArray vertexArray;
         private final Sync sync;
         private final MutableInt sharing;
-        private final MutableInt decal;
 
         private boolean used;
         private VertexFormat format;
@@ -75,14 +70,11 @@ public class AcceleratedBufferSetPool {
             this.drawContextPool = new DrawContextPool(this.size);
             this.elementBufferPool = new ElementBufferPool(this.size);
             this.sharingBuffer = new MappedBuffer(64L);
-            this.decalBuffer = new MappedBuffer(64L);
-            this.rotationBuffer = new AcceleratedDecalRotationBuffer(Direction.values());
             this.varyingBuffer = new MappedBufferPool(this.size);
             this.vertexBuffer = new VertexBufferPool(this.size, this);
             this.vertexArray = new VertexArray();
             this.sync = new Sync();
             this.sharing = new MutableInt(0);
-            this.decal = new MutableInt(0);
 
             this.used = false;
             this.format = null;
@@ -93,18 +85,14 @@ public class AcceleratedBufferSetPool {
             elementBufferPool.reset();
             varyingBuffer.reset();
             sharingBuffer.reset();
-            decalBuffer.reset();
             vertexBuffer.reset();
 
             sharing.setValue(0);
-            decal.setValue(0);
         }
 
         public void bindTransformBuffers() {
             vertexBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 1);
             sharingBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 2);
-            decalBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 5);
-            rotationBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 7);
             bufferEnvironment.getServerMeshBuffer().bindBase(GL_SHADER_STORAGE_BUFFER, 4);
         }
 
@@ -125,7 +113,6 @@ public class AcceleratedBufferSetPool {
 
         public void prepare() {
             sharingBuffer.flush();
-            decalBuffer.flush();
             vertexBuffer.prepare();
             elementBufferPool.prepare();
         }
@@ -162,16 +149,8 @@ public class AcceleratedBufferSetPool {
             return sharing.getAndIncrement();
         }
 
-        public int getDecal() {
-            return decal.getAndIncrement();
-        }
-
         public long reserveSharing() {
             return sharingBuffer.reserve(4L * 4L * 4L + 4L * 4L * 3L);
-        }
-
-        public long reserveDecal() {
-            return decalBuffer.reserve(4L * 4L * 4L + 4L * 4L * 3L + 4L * 4L * 2L);
         }
 
         public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {

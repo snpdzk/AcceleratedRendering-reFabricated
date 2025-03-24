@@ -2,6 +2,7 @@ package com.github.argon4w.acceleratedrendering.features.items.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
+import com.github.argon4w.acceleratedrendering.core.utils.DirectionUtils;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderContext;
 import com.github.argon4w.acceleratedrendering.features.items.AcceleratedItemRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.items.IAcceleratedBakedModel;
@@ -26,10 +27,6 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin implements IAcceleratedRenderer<AcceleratedItemRenderContext> {
 
-    @Unique
-    private static final Direction[] DIRECTIONS = Direction.values();
-
-    @SuppressWarnings("deprecation")
     @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;renderModelLists(Lnet/minecraft/client/resources/model/BakedModel;Lnet/minecraft/world/item/ItemStack;IILcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;)V"))
     public void renderFast(
             ItemRenderer instance,
@@ -124,47 +121,40 @@ public class ItemRendererMixin implements IAcceleratedRenderer<AcceleratedItemRe
         );
     }
 
+    @SuppressWarnings("deprecation")
+    @Unique
     @Override
     public void render(
             VertexConsumer vertexConsumer,
             AcceleratedItemRenderContext context,
-            Matrix4f transformMatrix,
-            Matrix3f normalMatrix,
+            Matrix4f transform,
+            Matrix3f normal,
             int light,
             int overlay,
             int color
     ) {
+        IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) vertexConsumer;
+
         ItemStack itemStack = context.getItemStack();
         ItemColor itemColor = context.getItemColor();
         BakedModel model = context.getBakedModel();
         RandomSource source = context.getRandom();
 
-        IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) vertexConsumer;
+        extension.beginTransform(transform, normal);
 
-        extension.beginTransform(transformMatrix, normalMatrix);
-
-        for (Direction direction : DIRECTIONS) {
+        for (Direction direction : DirectionUtils.FULL) {
             source.setSeed(42L);
 
             for (BakedQuad quad : model.getQuads(null, direction, source)) {
                 ((IAcceleratedBakedQuad) quad).renderFast(
+                        transform,
+                        normal,
                         extension,
                         light,
                         overlay,
                         itemColor.getColor(itemStack, quad.getTintIndex())
                 );
             }
-        }
-
-        source.setSeed(42L);
-
-        for (BakedQuad quad : model.getQuads(null, null, source)) {
-            ((IAcceleratedBakedQuad) quad).renderFast(
-                    extension,
-                    light,
-                    overlay,
-                    itemColor.getColor(itemStack, quad.getTintIndex())
-            );
         }
 
         extension.endTransform();

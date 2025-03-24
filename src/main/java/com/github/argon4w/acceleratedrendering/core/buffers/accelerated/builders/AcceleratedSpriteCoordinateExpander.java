@@ -1,18 +1,17 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
-import com.github.argon4w.acceleratedrendering.core.utils.IUVMapper;
+import com.github.argon4w.acceleratedrendering.core.buffers.graphs.IBufferGraph;
+import com.github.argon4w.acceleratedrendering.core.buffers.graphs.SpriteBufferGraph;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 
 import java.nio.ByteBuffer;
 
-public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexConsumer, VertexConsumer, IUVMapper {
+public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexConsumer, VertexConsumer {
 
     private final VertexConsumer delegate;
     private final TextureAtlasSprite sprite;
@@ -23,18 +22,13 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
     }
 
     @Override
-    public float mapU(float u) {
-        return sprite.getU(u);
+    public VertexConsumer decorate(VertexConsumer buffer) {
+        return new AcceleratedSpriteCoordinateExpander(buffer, sprite);
     }
 
     @Override
-    public float mapV(float v) {
-        return sprite.getV(v);
-    }
-
-    @Override
-    public void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
-        ((IAcceleratedVertexConsumer) delegate).beginTransform(transformMatrix, normalMatrix);
+    public void beginTransform(Matrix4f transform, Matrix3f normal) {
+        ((IAcceleratedVertexConsumer) delegate).beginTransform(transform, normal);
     }
 
     @Override
@@ -48,13 +42,8 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
     }
 
     @Override
-    public RenderType getRenderType() {
-        return ((IAcceleratedVertexConsumer) delegate).getRenderType();
-    }
-
-    @Override
-    public TextureAtlasSprite getSprite() {
-        return sprite;
+    public IBufferGraph getBufferGraph() {
+        return new SpriteBufferGraph(((IAcceleratedVertexConsumer) delegate).getBufferGraph(), sprite);
     }
 
     @Override
@@ -63,16 +52,14 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             int size,
             int color,
             int light,
-            int overlay,
-            int decal
+            int overlay
     ) {
         ((IAcceleratedVertexConsumer) delegate).addClientMesh(
                 meshBuffer,
                 size,
                 color,
                 light,
-                overlay,
-                decal
+                overlay
         );
     }
 
@@ -82,37 +69,14 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
             int size,
             int color,
             int light,
-            int overlay,
-            int decal
+            int overlay
     ) {
         ((IAcceleratedVertexConsumer) delegate).addServerMesh(
                 offset,
                 size,
                 color,
                 light,
-                overlay,
-                decal
-        );
-    }
-
-    @Override
-    public VertexConsumer getDecal(
-            Matrix4f transformMatrix,
-            Matrix3f normalMatrix,
-            float scale,
-            int color,
-            Vector2f uv0,
-            Vector2f uv1,
-            IAcceleratedDecalBufferGenerator generator
-    ) {
-        return ((IAcceleratedVertexConsumer) delegate).getDecal(
-                transformMatrix,
-                normalMatrix,
-                scale,
-                color,
-                new Vector2f(this.sprite.getU(uv0.x), this.sprite.getV(uv0.y)),
-                new Vector2f(this.sprite.getU(uv1.x), this.sprite.getV(uv1.y)),
-                generator
+                overlay
         );
     }
 
@@ -120,8 +84,8 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
     public <T> void doRender(
             IAcceleratedRenderer<T> renderer,
             T context,
-            Matrix4f transformMatrix,
-            Matrix3f normalMatrix,
+            Matrix4f transform,
+            Matrix3f normal,
             int light,
             int overlay,
             int color
@@ -129,76 +93,11 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
         renderer.render(
                 this,
                 context,
-                transformMatrix,
-                normalMatrix,
+                transform,
+                normal,
                 light,
                 overlay,
                 color
-        );
-    }
-
-    @Override
-    public VertexConsumer addVertex(
-            float pX,
-            float pY,
-            float pZ,
-            int decal
-    ) {
-        ((IAcceleratedVertexConsumer) delegate).addVertex(
-                pX,
-                pY,
-                pZ,
-                decal
-        );
-        return this;
-    }
-
-    @Override
-    public VertexConsumer addVertex(
-            PoseStack.Pose pPose,
-            float pX,
-            float pY,
-            float pZ,
-            int decal
-    ) {
-        ((IAcceleratedVertexConsumer) delegate).addVertex(
-                pPose,
-                pX,
-                pY,
-                pZ,
-                decal
-        );
-        return this;
-    }
-
-    @Override
-    public void addVertex(
-            float pX,
-            float pY,
-            float pZ,
-            int pColor,
-            float pU,
-            float pV,
-            int pPackedOverlay,
-            int pPackedLight,
-            float pNormalX,
-            float pNormalY,
-            float pNormalZ,
-            int decal
-    ) {
-        ((IAcceleratedVertexConsumer) delegate).addVertex(
-                pX,
-                pY,
-                pZ,
-                pColor,
-                sprite.getU(pU),
-                sprite.getV(pV),
-                pPackedOverlay,
-                pPackedLight,
-                pNormalX,
-                pNormalY,
-                pNormalZ,
-                decal
         );
     }
 

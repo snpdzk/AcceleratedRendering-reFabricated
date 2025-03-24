@@ -6,20 +6,23 @@ import org.joml.Vector3f;
 public class Vertex {
 
     private final Vector3f position;
-    private final int color;
     private final Vector2f uv;
     private final Vector3f normal;
+    private final int color;
+    private final int light;
 
     public Vertex(
             Vector3f position,
-            int color,
             Vector2f uv,
-            Vector3f normal
+            Vector3f normal,
+            int color,
+            int light
     ) {
         this.position = position;
-        this.color = color;
         this.uv = uv;
         this.normal = normal;
+        this.color = color;
+        this.light = light;
     }
 
     public Vertex(
@@ -28,17 +31,14 @@ public class Vertex {
             float v
     ) {
         this.position = position;
-        this.color = -1;
         this.uv = new Vector2f(u, v);
-        this.normal = new Vector3f(0, 1, 0);
+        this.normal = new Vector3f();
+        this.color = -1;
+        this.light = 0;
     }
 
     public Vector3f getPosition() {
         return position;
-    }
-
-    public int getColor() {
-        return color;
     }
 
     public Vector2f getUv() {
@@ -47,5 +47,13 @@ public class Vertex {
 
     public Vector3f getNormal() {
         return normal;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public int getLight() {
+        return light;
     }
 }

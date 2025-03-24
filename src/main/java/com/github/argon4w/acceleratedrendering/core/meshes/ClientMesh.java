@@ -3,9 +3,12 @@ package com.github.argon4w.acceleratedrendering.core.meshes;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.IClientBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import net.minecraft.client.renderer.RenderType;
 
 import java.nio.ByteBuffer;
+import java.util.Set;
 
 public class ClientMesh implements IMesh {
 
@@ -29,8 +32,7 @@ public class ClientMesh implements IMesh {
                 size,
                 color,
                 light,
-                overlay,
-                -1
+                overlay
         );
     }
 
@@ -38,18 +40,10 @@ public class ClientMesh implements IMesh {
 
         public static final Builder INSTANCE = new Builder();
 
+        private final Set<ByteBufferBuilder> builders;
+
         private Builder() {
-
-        }
-
-        @Override
-        public MeshCollector newMeshCollector(RenderType renderType) {
-            return new MeshCollector(
-                    this,
-                    renderType.format,
-                    new SimpleClientBuffer(),
-                    0
-            );
+            this.builders = new ReferenceLinkedOpenHashSet<>();
         }
 
         @Override
@@ -60,29 +54,22 @@ public class ClientMesh implements IMesh {
                 return EmptyMesh.INSTANCE;
             }
 
-            ByteBuffer byteBuffer = collector.getBuffer().byteBuffer();
+            ByteBufferBuilder builder = collector.getBuffer();
+            ByteBufferBuilder.Result result = builder.build();
 
-            if (byteBuffer == null) {
+            if (result == null) {
+                builder.close();
                 return EmptyMesh.INSTANCE;
             }
 
-            return new ClientMesh(vertexCount, byteBuffer);
+            builders.add(builder);
+            return new ClientMesh(vertexCount, result.byteBuffer());
         }
 
-        public record SimpleClientBuffer(ByteBufferBuilder builder) implements IClientBuffer {
-
-            public SimpleClientBuffer() {
-                this(new ByteBufferBuilder(36 * 32));
-            }
-
-            @Override
-            public long reserve(long bytes) {
-                return builder.reserve((int) bytes);
-            }
-
-            @Override
-            public ByteBuffer byteBuffer() {
-                return builder.build().byteBuffer();
+        @Override
+        public void close() {
+            for (ByteBufferBuilder builder : builders) {
+                builder.close();
             }
         }
     }

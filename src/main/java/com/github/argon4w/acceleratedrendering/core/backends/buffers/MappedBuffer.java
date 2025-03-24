@@ -45,11 +45,6 @@ public class MappedBuffer extends MutableBuffer implements IClientBuffer {
     }
 
     @Override
-    public ByteBuffer byteBuffer() {
-        return MemoryUtil.memByteBufferSafe(address, (int) size);
-    }
-
-    @Override
     public void beforeExpand() {
         unmap();
     }

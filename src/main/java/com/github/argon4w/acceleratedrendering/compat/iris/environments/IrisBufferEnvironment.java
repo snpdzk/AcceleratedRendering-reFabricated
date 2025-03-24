@@ -142,7 +142,7 @@ public class IrisBufferEnvironment implements IBufferEnvironment {
 
         @Override
         public IServerBuffer getServerMeshBuffer() {
-            return ServerMesh.Builder.INSTANCE.getStorageBuffer(irisVertexFormat);
+            return ServerMesh.Builder.INSTANCE.storageBuffers.get(irisVertexFormat);
         }
 
         @Override

@@ -13,7 +13,13 @@ public interface BakedModelMixin extends IAcceleratedBakedModel {
 
     @Unique
     @Override
-    default void renderItemFast(ItemStack itemStack, PoseStack poseStack, IAcceleratedVertexConsumer vertexConsumer, int combinedLight, int combinedOverlay) {
+    default void renderItemFast(
+            ItemStack itemStack,
+            PoseStack poseStack,
+            IAcceleratedVertexConsumer vertexConsumer,
+            int combinedLight,
+            int combinedOverlay
+    ) {
         throw new UnsupportedOperationException("Unsupported Operation.");
     }
 
@@ -22,14 +28,9 @@ public interface BakedModelMixin extends IAcceleratedBakedModel {
         return false;
     }
 
-    @Override
-    default boolean hasCustomColor() {
-        return false;
-    }
-
     @Unique
     @Override
-    default int getCustomColor(int layer) {
-        return -1;
+    default int getCustomColor(int layer, int color) {
+        return color;
     }
 }

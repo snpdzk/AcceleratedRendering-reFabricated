@@ -24,8 +24,8 @@ public class AcceleratedEntityShadowRenderer implements IAcceleratedRenderer<Acc
     public void render(
             VertexConsumer vertexConsumer,
             Context context,
-            Matrix4f transformMatrix,
-            Matrix3f normalMatrix,
+            Matrix4f transform,
+            Matrix3f normal,
             int light,
             int overlay,
             int color
@@ -93,7 +93,7 @@ public class AcceleratedEntityShadowRenderer implements IAcceleratedRenderer<Acc
         float v0 = -minPosZ / 2.0f / size + 0.5f;
         float v1 = -maxPosZ / 2.0f / size + 0.5f;
 
-        extension.beginTransform(transformMatrix, normalMatrix);
+        extension.beginTransform(transform, normal);
 
         vertexConsumer.addVertex(
                 minPosX,

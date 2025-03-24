@@ -1,13 +1,14 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
-import com.github.argon4w.acceleratedrendering.core.backends.buffers.EmptyServerBuffer;
-import com.github.argon4w.acceleratedrendering.core.backends.buffers.IServerBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
+import com.github.argon4w.acceleratedrendering.core.utils.LazyMap;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import net.minecraft.client.renderer.RenderType;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class ServerMesh implements IMesh {
@@ -32,8 +33,7 @@ public class ServerMesh implements IMesh {
                 size,
                 color,
                 light,
-                overlay,
-                -1
+                overlay
         );
     }
 
@@ -41,10 +41,10 @@ public class ServerMesh implements IMesh {
 
         public static final Builder INSTANCE = new Builder();
 
-        private final Map<VertexFormat, MappedBuffer> storageBuffers;
+        public final Map<VertexFormat, MappedBuffer> storageBuffers;
 
         private Builder() {
-            this.storageBuffers = new Object2ObjectLinkedOpenHashMap<>();
+            this.storageBuffers = new LazyMap<>(new Object2ObjectLinkedOpenHashMap<>(), () -> new MappedBuffer(1024L, true));
         }
 
         @Override
@@ -55,38 +55,35 @@ public class ServerMesh implements IMesh {
                 return EmptyMesh.INSTANCE;
             }
 
-            return new ServerMesh(
-                    vertexCount,
-                    collector.getOffset()
+            ByteBufferBuilder builder = collector.getBuffer();
+            ByteBufferBuilder.Result result = builder.build();
+
+            if (result == null) {
+                builder.close();
+                return EmptyMesh.INSTANCE;
+            }
+
+            ByteBuffer clientBuffer = result.byteBuffer();
+            MappedBuffer serverBuffer = storageBuffers.get(collector.getVertexFormat());
+
+            long capacity = clientBuffer.capacity();
+            long position = serverBuffer.getPosition();
+
+            MemoryUtil.memCopy(
+                    MemoryUtil.memAddress0(clientBuffer),
+                    serverBuffer.reserve(capacity),
+                    capacity
             );
+
+            builder.close();
+            return new ServerMesh(vertexCount, (int) position);
         }
 
         @Override
-        public MeshCollector newMeshCollector(RenderType renderType) {
-            VertexFormat vertexFormat = renderType.format;
-            MappedBuffer buffer = storageBuffers.get(vertexFormat);
-
-            if (buffer == null) {
-                buffer = new MappedBuffer(1024L, true);
-                storageBuffers.put(vertexFormat, buffer);
+        public void close() {
+            for (MappedBuffer buffer : storageBuffers.values()) {
+                buffer.delete();
             }
-
-            return new MeshCollector(
-                    this,
-                    vertexFormat,
-                    buffer,
-                    (int) buffer.getPosition()
-            );
-        }
-
-        public IServerBuffer getStorageBuffer(VertexFormat vertexFormat) {
-            IServerBuffer buffer = storageBuffers.get(vertexFormat);
-
-            if (buffer == null) {
-                buffer = EmptyServerBuffer.INSTANCE;
-            }
-
-            return buffer;
         }
     }
 }

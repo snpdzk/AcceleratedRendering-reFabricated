@@ -24,10 +24,6 @@ public class ComputeShaderPrograms {
     public static final ResourceLocation CORE_POS_COLOR_TEX_LIGHT_VERTEX_TRANSFORM_KEY = AcceleratedRenderingModEntry.location("core_pos_color_tex_light_vertex_transform");
     public static final ResourceLocation CORE_PASS_THROUGH_QUAD_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_quad_culling");
     public static final ResourceLocation CORE_PASS_THROUGH_TRIANGLE_CULLING_KEY = AcceleratedRenderingModEntry.location("core_pass_through_triangle_culling");
-    public static final ResourceLocation CORE_POS_TEX_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_quad_processing");
-    public static final ResourceLocation CORE_POS_TEX_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_pos_tex_triangle_processing");
-    public static final ResourceLocation CORE_ENTITY_QUAD_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_entity_quad_processing");
-    public static final ResourceLocation CORE_ENTITY_TRIANGLE_PROCESSING_KEY = AcceleratedRenderingModEntry.location("core_entity_triangle_processing");
 
     @SubscribeEvent
     public static void onLoadComputeShaders(LoadComputeShaderEvent event) {
@@ -68,30 +64,6 @@ public class ComputeShaderPrograms {
                 BarrierFlags.SHADER_STORAGE,
                 BarrierFlags.ATOMIC_COUNTER
         );
-
-        event.loadComputeShader(
-                CORE_POS_TEX_QUAD_PROCESSING_KEY,
-                AcceleratedRenderingModEntry.location("shaders/core/processing/pos_tex_quad_processing_shader.compute"),
-                BarrierFlags.SHADER_STORAGE
-        );
-
-        event.loadComputeShader(
-                CORE_POS_TEX_TRIANGLE_PROCESSING_KEY,
-                AcceleratedRenderingModEntry.location("shaders/core/processing/pos_tex_triangle_processing_shader.compute"),
-                BarrierFlags.SHADER_STORAGE
-        );
-
-        event.loadComputeShader(
-                CORE_ENTITY_QUAD_PROCESSING_KEY,
-                AcceleratedRenderingModEntry.location("shaders/core/processing/entity_quad_processing_shader.compute"),
-                BarrierFlags.SHADER_STORAGE
-        );
-
-        event.loadComputeShader(
-                CORE_ENTITY_TRIANGLE_PROCESSING_KEY,
-                AcceleratedRenderingModEntry.location("shaders/core/processing/entity_triangle_processing_shader.compute"),
-                BarrierFlags.SHADER_STORAGE
-        );
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -100,33 +72,6 @@ public class ComputeShaderPrograms {
         event.loadFor(DefaultVertexFormat.POSITION_TEX_COLOR, parent -> new FixedTransformProgramSelector(CORE_POS_TEX_COLOR_VERTEX_TRANSFORM_KEY));
         event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new FixedTransformProgramSelector(CORE_POS_TEX_VERTEX_TRANSFORM_KEY));
         event.loadFor(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, parent -> new FixedTransformProgramSelector(CORE_POS_COLOR_TEX_LIGHT_VERTEX_TRANSFORM_KEY));
-    }
-
-    @SubscribeEvent()
-    public static void onLoadPolygonProcessors(LoadPolygonProcessorEvent event) {
-        event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new FixedPolygonProcessor(
-                parent,
-                VertexFormat.Mode.TRIANGLES,
-                CORE_POS_TEX_TRIANGLE_PROCESSING_KEY
-        ));
-
-        event.loadFor(DefaultVertexFormat.POSITION_TEX, parent -> new FixedPolygonProcessor(
-                parent,
-                VertexFormat.Mode.QUADS,
-                CORE_POS_TEX_QUAD_PROCESSING_KEY
-        ));
-
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new FixedPolygonProcessor(
-                parent,
-                VertexFormat.Mode.TRIANGLES,
-                CORE_ENTITY_TRIANGLE_PROCESSING_KEY
-        ));
-
-        event.loadFor(DefaultVertexFormat.NEW_ENTITY, parent -> new FixedPolygonProcessor(
-                parent,
-                VertexFormat.Mode.QUADS,
-                CORE_ENTITY_QUAD_PROCESSING_KEY
-        ));
     }
 
     @SubscribeEvent

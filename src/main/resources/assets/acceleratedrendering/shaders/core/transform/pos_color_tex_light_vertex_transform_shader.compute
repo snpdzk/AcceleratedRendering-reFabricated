@@ -14,7 +14,6 @@ struct VaryingData {
     int offset;
     int sharing;
     int mesh;
-    int decal;
     int flags;
 };
 

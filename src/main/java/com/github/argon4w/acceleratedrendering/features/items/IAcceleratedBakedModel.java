@@ -8,6 +8,5 @@ public interface IAcceleratedBakedModel {
 
     void renderItemFast(ItemStack itemStack, PoseStack poseStack, IAcceleratedVertexConsumer extension, int combinedLight, int combinedOverlay);
     boolean isAccelerated();
-    boolean hasCustomColor();
-    int getCustomColor(int layer);
+    int getCustomColor(int layer, int color);
 }

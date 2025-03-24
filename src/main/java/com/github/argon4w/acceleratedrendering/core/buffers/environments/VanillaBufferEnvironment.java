@@ -46,7 +46,7 @@ public class VanillaBufferEnvironment implements IBufferEnvironment {
 
     @Override
     public IServerBuffer getServerMeshBuffer() {
-        return ServerMesh.Builder.INSTANCE.getStorageBuffer(vertexFormat);
+        return ServerMesh.Builder.INSTANCE.storageBuffers.get(vertexFormat);
     }
 
     @Override

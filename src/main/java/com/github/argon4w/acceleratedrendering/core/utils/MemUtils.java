@@ -12,11 +12,6 @@ public class MemUtils {
         MemoryUtil.memPutByte(address, (byte) ((int) (Mth.clamp(value, -1.0F, 1.0F) * 127.0F) & 0xFF));
     }
 
-    public static void putVector2f(long address, Vector2f vector) {
-        MemoryUtil.memPutFloat(address + 0L * 4L, vector.x);
-        MemoryUtil.memPutFloat(address + 1L * 4L, vector.y);
-    }
-
     public static void putMatrix3x4f(long address, Matrix3f matrix) {
         MemoryUtil.memPutFloat(address + 0L * 4L, matrix.m00());
         MemoryUtil.memPutFloat(address + 1L * 4L, matrix.m01());

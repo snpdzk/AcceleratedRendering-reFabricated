@@ -6,6 +6,8 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.El
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.MappedBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
+import com.github.argon4w.acceleratedrendering.core.buffers.graphs.BlankBufferGraph;
+import com.github.argon4w.acceleratedrendering.core.buffers.graphs.IBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.utils.MemUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,12 +15,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.FastColor;
-import net.neoforged.neoforge.client.textures.UnitTextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -28,9 +27,9 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
     private final VertexBufferPool.VertexBuffer vertexBuffer;
     private final MappedBufferPool.Pooled varyingBuffer;
     private final ElementBufferPool.ElementSegment elementSegment;
-
     private final AcceleratedBufferSetPool.BufferSet bufferSet;
-    private final RenderType renderType;
+
+    private final IBufferGraph bufferGraph;
     private final VertexFormat.Mode mode;
     private final int vertexSize;
     private final int polygonSize;
@@ -45,10 +44,10 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
     private int elementCount;
     private int vertexCount;
-    private long vertex;
-    private long transform;
-    private long normal;
-    private int sharing;
+    private long vertexAddress;
+    private long transformAddress;
+    private long normalAddress;
+    private int activeSharing;
     private int cachedSharing;
 
     private Matrix4f cachedTransform;
@@ -67,10 +66,10 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         this.vertexBuffer = vertexBuffer;
         this.varyingBuffer = varyingBuffer;
         this.elementSegment = elementSegment;
-
         this.bufferSet = bufferSet;
-        this.renderType = renderType;
-        this.mode = this.renderType.mode;
+
+        this.bufferGraph = new BlankBufferGraph(renderType);
+        this.mode = renderType.mode;
         this.vertexSize = this.bufferSet.getVertexSize();
         this.polygonSize = this.mode.primitiveLength;
         this.polygonElementCount = this.mode.indexCount(this.polygonSize);
@@ -84,10 +83,10 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
         this.elementCount = 0;
         this.vertexCount = 0;
-        this.vertex = -1;
-        this.transform = -1;
-        this.normal = -1;
-        this.sharing = -1;
+        this.vertexAddress = -1;
+        this.transformAddress = -1;
+        this.normalAddress = -1;
+        this.activeSharing = -1;
         this.cachedSharing = -1;
 
         this.cachedTransform = null;
@@ -99,48 +98,16 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
     @Override
     public VertexConsumer addVertex(
-            float pX,
-            float pY,
-            float pZ
-    ) {
-        return addVertex(
-                pX,
-                pY,
-                pZ,
-                -1
-        );
-    }
-
-    @Override
-    public VertexConsumer addVertex(
             PoseStack.Pose pPose,
             float pX,
             float pY,
             float pZ
-    ) {
-        return addVertex(
-                pPose,
-                pX,
-                pY,
-                pZ,
-                -1
-        );
-    }
-
-    @Override
-    public VertexConsumer addVertex(
-            PoseStack.Pose pPose,
-            float pX,
-            float pY,
-            float pZ,
-            int decal
     ) {
         beginTransform(pPose.pose(), pPose.normal());
         return addVertex(
                 pX,
                 pY,
-                pZ,
-                decal
+                pZ
         );
     }
 
@@ -148,27 +115,25 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
     public VertexConsumer addVertex(
             float pX,
             float pY,
-            float pZ,
-            int decal
+            float pZ
     ) {
-        long vertex = vertexBuffer.reserve(vertexSize);
-        long varying = varyingBuffer.reserve(5L * 4L);
+        long vertexAddress = vertexBuffer.reserve(vertexSize);
+        long varyingAddress = varyingBuffer.reserve(4L * 4L);
 
-        this.vertex = vertex;
+        this.vertexAddress = vertexAddress;
 
-        MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
-        MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
-        MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
+        MemoryUtil.memPutFloat(vertexAddress + posOffset + 0L, pX);
+        MemoryUtil.memPutFloat(vertexAddress + posOffset + 4L, pY);
+        MemoryUtil.memPutFloat(vertexAddress + posOffset + 8L, pZ);
 
-        MemoryUtil.memPutInt(varying + 0L * 4L, 0);
-        MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
-        MemoryUtil.memPutInt(varying + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varying + 3L * 4L, decal);
-        MemoryUtil.memPutInt(varying + 4L * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varyingAddress + 0L * 4L, 0);
+        MemoryUtil.memPutInt(varyingAddress + 1L * 4L, activeSharing);
+        MemoryUtil.memPutInt(varyingAddress + 2L * 4L, -1);
+        MemoryUtil.memPutInt(varyingAddress + 3L * 4L, bufferSet.getFlags(mode));
 
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
-        data.addExtraVertex(vertex);
-        data.addExtraVarying(varying);
+        data.addExtraVertex(vertexAddress);
+        data.addExtraVarying(varyingAddress);
 
         vertexCount ++;
         elementCount ++;
@@ -176,7 +141,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         if (elementCount >= polygonSize) {
             elementSegment.countPolygons(polygonElementCount);
             elementCount = 0;
-            sharing = -1;
+            activeSharing = -1;
         }
 
         return this;
@@ -193,14 +158,14 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             return this;
         }
 
-        if (vertex == -1) {
+        if (vertexAddress == -1) {
             throw new IllegalStateException("Vertex not building!");
         }
 
-        MemoryUtil.memPutByte(vertex + colorOffset + 0L, (byte) pRed);
-        MemoryUtil.memPutByte(vertex + colorOffset + 1L, (byte) pGreen);
-        MemoryUtil.memPutByte(vertex + colorOffset + 2L, (byte) pBlue);
-        MemoryUtil.memPutByte(vertex + colorOffset + 3L, (byte) pAlpha);
+        MemoryUtil.memPutByte(vertexAddress + colorOffset + 0L, (byte) pRed);
+        MemoryUtil.memPutByte(vertexAddress + colorOffset + 1L, (byte) pGreen);
+        MemoryUtil.memPutByte(vertexAddress + colorOffset + 2L, (byte) pBlue);
+        MemoryUtil.memPutByte(vertexAddress + colorOffset + 3L, (byte) pAlpha);
 
         return this;
     }
@@ -211,12 +176,12 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             return this;
         }
 
-        if (vertex == -1) {
+        if (vertexAddress == -1) {
             throw new IllegalStateException("Vertex not building!");
         }
 
-        MemoryUtil.memPutFloat(vertex + uv0Offset + 0L, pU);
-        MemoryUtil.memPutFloat(vertex + uv0Offset + 4L, pV);
+        MemoryUtil.memPutFloat(vertexAddress + uv0Offset + 0L, pU);
+        MemoryUtil.memPutFloat(vertexAddress + uv0Offset + 4L, pV);
 
         return this;
     }
@@ -227,12 +192,12 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             return this;
         }
 
-        if (vertex == -1) {
+        if (vertexAddress == -1) {
             throw new IllegalStateException("Vertex not building!");
         }
 
-        MemoryUtil.memPutShort(vertex + uv1Offset + 0L, (short) pU);
-        MemoryUtil.memPutShort(vertex + uv1Offset + 2L, (short) pV);
+        MemoryUtil.memPutShort(vertexAddress + uv1Offset + 0L, (short) pU);
+        MemoryUtil.memPutShort(vertexAddress + uv1Offset + 2L, (short) pV);
 
         return this;
     }
@@ -243,12 +208,12 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             return this;
         }
 
-        if (vertex == -1) {
+        if (vertexAddress == -1) {
             throw new IllegalStateException("Vertex not building!");
         }
 
-        MemoryUtil.memPutShort(vertex + uv2Offset + 0L, (short) pU);
-        MemoryUtil.memPutShort(vertex + uv2Offset + 2L, (short) pV);
+        MemoryUtil.memPutShort(vertexAddress + uv2Offset + 0L, (short) pU);
+        MemoryUtil.memPutShort(vertexAddress + uv2Offset + 2L, (short) pV);
 
         return this;
     }
@@ -260,9 +225,9 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             float pNormalY,
             float pNormalZ
     ) {
-        Matrix3f normalMatrix = pPose.normal();
+        Matrix3f normal = pPose.normal();
 
-        if (sharing == -1) {
+        if (activeSharing == -1) {
             return VertexConsumer.super.setNormal(
                     pPose,
                     pNormalX,
@@ -271,8 +236,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             );
         }
 
-        if (!normalMatrix.equals(cachedNormal)) {
-            MemUtils.putMatrix3x4f(normal, normalMatrix);
+        if (!normal.equals(cachedNormal)) {
+            MemUtils.putMatrix3x4f(normalAddress, normal);
         }
 
         return setNormal(
@@ -292,13 +257,13 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             return this;
         }
 
-        if (vertex == -1) {
+        if (vertexAddress == -1) {
             throw new IllegalStateException("Vertex not building!");
         }
 
-        MemUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
-        MemUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
-        MemUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
+        MemUtils.putNormal(vertexAddress + normalOffset + 0L, pNormalX);
+        MemUtils.putNormal(vertexAddress + normalOffset + 1L, pNormalY);
+        MemUtils.putNormal(vertexAddress + normalOffset + 2L, pNormalZ);
 
         return this;
     }
@@ -317,76 +282,44 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             float pNormalY,
             float pNormalZ
     ) {
-        addVertex(
-                pX,
-                pY,
-                pZ,
-                pColor,
-                pU,
-                pV,
-                pPackedOverlay,
-                pPackedLight,
-                pNormalX,
-                pNormalY,
-                pNormalZ,
-                -1
-        );
-    }
-
-    @Override
-    public void addVertex(
-            float pX,
-            float pY,
-            float pZ,
-            int pColor,
-            float pU,
-            float pV,
-            int pPackedOverlay,
-            int pPackedLight,
-            float pNormalX,
-            float pNormalY,
-            float pNormalZ,
-            int decal
-    ) {
-        long vertex = vertexBuffer.reserve(vertexSize);
-        long varying = varyingBuffer.reserve(5L * 4L);
+        long vertexAddress = vertexBuffer.reserve(vertexSize);
+        long varyingAddress = varyingBuffer.reserve(4L * 4L);
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
 
-        data.addExtraVertex(vertex);
-        data.addExtraVarying(varying);
+        data.addExtraVertex(vertexAddress);
+        data.addExtraVarying(varyingAddress);
 
-        MemoryUtil.memPutFloat(vertex + posOffset + 0L, pX);
-        MemoryUtil.memPutFloat(vertex + posOffset + 4L, pY);
-        MemoryUtil.memPutFloat(vertex + posOffset + 8L, pZ);
+        MemoryUtil.memPutFloat(vertexAddress + posOffset + 0L, pX);
+        MemoryUtil.memPutFloat(vertexAddress + posOffset + 4L, pY);
+        MemoryUtil.memPutFloat(vertexAddress + posOffset + 8L, pZ);
+
+        MemoryUtil.memPutInt(varyingAddress + 0L * 4L, 0);
+        MemoryUtil.memPutInt(varyingAddress + 1L * 4L, activeSharing);
+        MemoryUtil.memPutInt(varyingAddress + 2L * 4L, -1);
+        MemoryUtil.memPutInt(varyingAddress + 3L * 4L, bufferSet.getFlags(mode));
 
         if (colorOffset != -1) {
-            MemoryUtil.memPutInt(vertex + colorOffset + 0L, FastColor.ABGR32.fromArgb32(pColor));
+            MemoryUtil.memPutInt(vertexAddress + colorOffset + 0L, FastColor.ABGR32.fromArgb32(pColor));
         }
 
         if (uv0Offset != -1) {
-            MemoryUtil.memPutFloat(vertex + uv0Offset + 0L, pU);
-            MemoryUtil.memPutFloat(vertex + uv0Offset + 4L, pV);
+            MemoryUtil.memPutFloat(vertexAddress + uv0Offset + 0L, pU);
+            MemoryUtil.memPutFloat(vertexAddress + uv0Offset + 4L, pV);
         }
 
         if (uv1Offset != -1) {
-            MemoryUtil.memPutInt(vertex + uv1Offset + 0L, pPackedOverlay);
+            MemoryUtil.memPutInt(vertexAddress + uv1Offset + 0L, pPackedOverlay);
         }
 
         if (uv2Offset != -1) {
-            MemoryUtil.memPutInt(vertex + uv2Offset + 0L, pPackedLight);
+            MemoryUtil.memPutInt(vertexAddress + uv2Offset + 0L, pPackedLight);
         }
 
         if (normalOffset != -1) {
-            MemUtils.putNormal(vertex + normalOffset + 0L, pNormalX);
-            MemUtils.putNormal(vertex + normalOffset + 1L, pNormalY);
-            MemUtils.putNormal(vertex + normalOffset + 2L, pNormalZ);
+            MemUtils.putNormal(vertexAddress + normalOffset + 0L, pNormalX);
+            MemUtils.putNormal(vertexAddress + normalOffset + 1L, pNormalY);
+            MemUtils.putNormal(vertexAddress + normalOffset + 2L, pNormalZ);
         }
-
-        MemoryUtil.memPutInt(varying + 0L * 4L, 0);
-        MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
-        MemoryUtil.memPutInt(varying + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varying + 3L * 4L, decal);
-        MemoryUtil.memPutInt(varying + 4L * 4L, bufferSet.getFlags(mode));
 
         vertexCount ++;
         elementCount ++;
@@ -394,38 +327,38 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         if (elementCount >= polygonSize) {
             elementSegment.countPolygons(polygonElementCount);
             elementCount = 0;
-            sharing = -1;
+            activeSharing = -1;
         }
     }
 
     @Override
-    public void beginTransform(Matrix4f transformMatrix, Matrix3f normalMatrix) {
+    public void beginTransform(Matrix4f transform, Matrix3f normal) {
         if (CoreFeature.shouldCacheSamePose()
-                && transformMatrix.equals(cachedTransform)
-                && normalMatrix.equals(cachedNormal)
+                && transform.equals(cachedTransform)
+                && normal.equals(cachedNormal)
         ) {
-            sharing = cachedSharing;
+            activeSharing = cachedSharing;
             return;
         }
 
-        cachedTransform = cachedTransformValue.set(transformMatrix);
-        cachedNormal = cachedNormalValue.set(normalMatrix);
+        cachedTransform = cachedTransformValue.set(transform);
+        cachedNormal = cachedNormalValue.set(normal);
 
-        sharing = bufferSet.getSharing();
-        cachedSharing = sharing;
+        cachedSharing = bufferSet.getSharing();
+        activeSharing = cachedSharing;
 
-        transform = bufferSet.reserveSharing();
-        normal = transform + 4L * 4L * 4L;
+        transformAddress = bufferSet.reserveSharing();
+        normalAddress = transformAddress + 4L * 4L * 4L;
 
-        MemUtils.putMatrix4f(transform, transformMatrix);
-        MemUtils.putMatrix3x4f(normal, normalMatrix);
+        MemUtils.putMatrix4f(transformAddress, transform);
+        MemUtils.putMatrix3x4f(normalAddress, normal);
     }
 
     @Override
     public void endTransform() {
         cachedTransform = null;
         cachedNormal = null;
-        sharing = -1;
+        activeSharing = -1;
         cachedSharing = -1;
     }
 
@@ -435,42 +368,40 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             int size,
             int color,
             int light,
-            int overlay,
-            int decal
+            int overlay
     ) {
-        long vertex = vertexBuffer.reserve(vertexSize * (long) size);
-        long varying = varyingBuffer.reserve(5L * 4L * size);
-        long length = (long) size * bufferSet.getVertexSize();
-        IExtraVertexData data = bufferSet.getExtraVertex(mode);
+        long vertexAddress = vertexBuffer.reserve(vertexSize * (long) size);
+        long varyingAddress = varyingBuffer.reserve(4L * 4L * size);
+        long bufferSize = (long) size * bufferSet.getVertexSize();
 
-        data.addExtraVertex(vertex);
-        data.addExtraVarying(varying);
+        IExtraVertexData data = bufferSet.getExtraVertex(mode);
+        data.addExtraVertex(vertexAddress);
+        data.addExtraVarying(varyingAddress);
 
         MemoryUtil.memCopy(
                 MemoryUtil.memAddress0(meshBuffer),
-                vertex,
-                length
+                vertexAddress,
+                bufferSize
         );
 
         if (colorOffset != -1) {
-            MemoryUtil.memPutInt(vertex + colorOffset, FastColor.ABGR32.fromArgb32(color));
+            MemoryUtil.memPutInt(vertexAddress + colorOffset, FastColor.ABGR32.fromArgb32(color));
         }
 
         if (uv1Offset != -1) {
-            MemoryUtil.memPutInt(vertex + uv1Offset, overlay);
+            MemoryUtil.memPutInt(vertexAddress + uv1Offset, overlay);
         }
 
         if (uv2Offset != -1) {
-            MemoryUtil.memPutInt(vertex + uv2Offset, light);
+            MemoryUtil.memPutInt(vertexAddress + uv2Offset, light);
         }
 
-        MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
-        MemoryUtil.memPutInt(varying + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varying + 3L * 4L, decal);
-        MemoryUtil.memPutInt(varying + 4L * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varyingAddress + 1L * 4L, activeSharing);
+        MemoryUtil.memPutInt(varyingAddress + 2L * 4L, -1);
+        MemoryUtil.memPutInt(varyingAddress + 3L * 4L, bufferSet.getFlags(mode));
 
         for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 5L * 4L, i);
+            MemoryUtil.memPutInt(varyingAddress + i * 4L * 4L, i);
         }
 
         elementSegment.countPolygons(mode.indexCount(size));
@@ -483,36 +414,34 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             int size,
             int color,
             int light,
-            int overlay,
-            int decal
+            int overlay
     ) {
-        int mesh = offset / vertexSize;
-        long vertex = vertexBuffer.reserve(vertexSize * (long) size);
-        long varying = varyingBuffer.reserve(5L * 4L * size);
-        IExtraVertexData data = bufferSet.getExtraVertex(mode);
+        int meshOffset = offset / vertexSize;
+        long vertexAddress = vertexBuffer.reserve(vertexSize * (long) size);
+        long varyingAddress = varyingBuffer.reserve(4L * 4L * size);
 
-        data.addExtraVertex(vertex);
-        data.addExtraVarying(varying);
+        IExtraVertexData data = bufferSet.getExtraVertex(mode);
+        data.addExtraVertex(vertexAddress);
+        data.addExtraVarying(varyingAddress);
 
         if (colorOffset != -1) {
-            MemoryUtil.memPutInt(vertex + colorOffset, FastColor.ABGR32.fromArgb32(color));
+            MemoryUtil.memPutInt(vertexAddress + colorOffset, FastColor.ABGR32.fromArgb32(color));
         }
 
         if (uv1Offset != -1) {
-            MemoryUtil.memPutInt(vertex + uv1Offset, overlay);
+            MemoryUtil.memPutInt(vertexAddress + uv1Offset, overlay);
         }
 
         if (uv2Offset != -1) {
-            MemoryUtil.memPutInt(vertex + uv2Offset, light);
+            MemoryUtil.memPutInt(vertexAddress + uv2Offset, light);
         }
 
-        MemoryUtil.memPutInt(varying + 1L * 4L, sharing);
-        MemoryUtil.memPutInt(varying + 2L * 4L, mesh);
-        MemoryUtil.memPutInt(varying + 3L * 4L, decal);
-        MemoryUtil.memPutInt(varying + 4L * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varyingAddress + 1L * 4L, activeSharing);
+        MemoryUtil.memPutInt(varyingAddress + 2L * 4L, meshOffset);
+        MemoryUtil.memPutInt(varyingAddress + 3L * 4L, bufferSet.getFlags(mode));
 
         for (int i = 0; i < size; i++) {
-            MemoryUtil.memPutInt(varying + i * 5L * 4L, i);
+            MemoryUtil.memPutInt(varyingAddress + i * 4L * 4L, i);
         }
 
         elementSegment.countPolygons(mode.indexCount(size));
@@ -520,44 +449,11 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
     }
 
     @Override
-    public VertexConsumer getDecal(
-            Matrix4f transformMatrix,
-            Matrix3f normalMatrix,
-            float scale,
-            int color,
-            Vector2f uv0,
-            Vector2f uv1,
-            IAcceleratedDecalBufferGenerator generator
-    ) {
-        int decal = bufferSet.getDecal();
-
-        long cameraInverse = bufferSet.reserveDecal();
-        long normalInverse = cameraInverse + 4L * 4L * 4L;
-        long textureScale = normalInverse + 4L * 4L * 3L;
-
-        long coordinate0 = textureScale + 4L;
-        long coordinate1 = coordinate0 + 4L * 2L;
-
-        MemUtils.putMatrix4f(cameraInverse, transformMatrix);
-        MemUtils.putMatrix3x4f(normalInverse, normalMatrix);
-        MemoryUtil.memPutFloat(textureScale, scale);
-
-        MemUtils.putVector2f(coordinate0, uv0);
-        MemUtils.putVector2f(coordinate1, uv1);
-
-        return generator.generate(
-                this,
-                decal,
-                color
-        );
-    }
-
-    @Override
     public <T>  void doRender(
             IAcceleratedRenderer<T> renderer,
             T context,
-            Matrix4f transformMatrix,
-            Matrix3f normalMatrix,
+            Matrix4f transform,
+            Matrix3f normal,
             int light,
             int overlay,
             int color
@@ -565,12 +461,17 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         renderer.render(
                 this,
                 context,
-                transformMatrix,
-                normalMatrix,
+                transform,
+                normal,
                 light,
                 overlay,
                 color
         );
+    }
+
+    @Override
+    public VertexConsumer decorate(VertexConsumer buffer) {
+        return buffer;
     }
 
     @Override
@@ -579,13 +480,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
     }
 
     @Override
-    public RenderType getRenderType() {
-        return renderType;
-    }
-
-    @Override
-    public TextureAtlasSprite getSprite() {
-        return UnitTextureAtlasSprite.INSTANCE;
+    public IBufferGraph getBufferGraph() {
+        return bufferGraph;
     }
 
     public boolean isEmpty() {

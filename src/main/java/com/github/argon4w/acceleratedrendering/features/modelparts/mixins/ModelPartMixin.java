@@ -2,9 +2,11 @@ package com.github.argon4w.acceleratedrendering.features.modelparts.mixins;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
+import com.github.argon4w.acceleratedrendering.core.buffers.graphs.IBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.meshes.IMesh;
 import com.github.argon4w.acceleratedrendering.core.meshes.MeshCollector;
-import com.github.argon4w.acceleratedrendering.core.utils.*;
+import com.github.argon4w.acceleratedrendering.core.utils.CullerUtils;
+import com.github.argon4w.acceleratedrendering.core.utils.TextureUtils;
 import com.github.argon4w.acceleratedrendering.features.entities.AcceleratedEntityRenderingFeature;
 import com.github.argon4w.acceleratedrendering.features.modelparts.VertexUtils;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -13,7 +15,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -33,7 +34,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
 
     @Shadow @Final private List<ModelPart.Cube> cubes;
 
-    @Unique private final Map<TextureAtlasSprite, Map<RenderType, IMesh>> spriteMeshes = new LazyMap<>(new Object2ObjectOpenHashMap<>(), Object2ObjectOpenHashMap::new);
+    @Unique private final Map<IBufferGraph, IMesh> meshes = new Object2ObjectOpenHashMap<>();
 
     @Inject(method = "compile", at = @At("HEAD"), cancellable = true)
     public void compile(
@@ -76,21 +77,20 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
     public void render(
             VertexConsumer vertexConsumer,
             Void context,
-            Matrix4f transformMatrix,
-            Matrix3f normalMatrix,
+            Matrix4f transform,
+            Matrix3f normal,
             int light,
             int overlay,
             int color
     ) {
         IAcceleratedVertexConsumer extension = ((IAcceleratedVertexConsumer) vertexConsumer);
 
-        RenderType renderType = extension.getRenderType();
-        TextureAtlasSprite sprite = extension.getSprite();
+        IBufferGraph bufferGraph = extension.getBufferGraph();
+        RenderType renderType = bufferGraph.getRenderType();
 
-        Map<RenderType, IMesh> meshes = spriteMeshes.get(sprite);
-        IMesh mesh = meshes.get(renderType);
+        IMesh mesh = meshes.get(bufferGraph);
 
-        extension.beginTransform(transformMatrix, normalMatrix);
+        extension.beginTransform(transform, normal);
 
         if (mesh != null) {
             mesh.write(
@@ -104,38 +104,43 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
             return;
         }
 
-        MeshCollector meshCollector = AcceleratedEntityRenderingFeature.getMeshBuilder().newMeshCollector(renderType);
-        NativeImage image = TextureUtils.downloadTexture(renderType, 0);
+        NativeImage texture = TextureUtils.downloadTexture(renderType, 0);
+        MeshCollector meshCollector = new MeshCollector(renderType.format);
+        VertexConsumer meshBuilder = extension.decorate(meshCollector);
 
         for (ModelPart.Cube cube : cubes) {
             for (ModelPart.Polygon polygon : cube.polygons) {
-                Vector3f normal = polygon.normal;
+                Vector3f polygonNormal = polygon.normal;
 
-                if (CullerUtils.shouldCull(VertexUtils.fromModelPart(polygon.vertices, sprite), image)) {
+                if (CullerUtils.shouldCull(
+                        VertexUtils.fromModelPart(polygon.vertices),
+                        texture,
+                        bufferGraph
+                )) {
                     continue;
                 }
 
                 for (ModelPart.Vertex vertex : polygon.vertices) {
-                    meshCollector.addVertex(
+                    meshBuilder.addVertex(
                             vertex.pos.x / 16.0f,
                             vertex.pos.y / 16.0f,
                             vertex.pos.z / 16.0f,
                             -1,
-                            sprite.getU(vertex.u),
-                            sprite.getV(vertex.v),
+                            vertex.u,
+                            vertex.v,
                             overlay,
                             0,
-                            normal.x,
-                            normal.y,
-                            normal.z
+                            polygonNormal.x,
+                            polygonNormal.y,
+                            polygonNormal.z
                     );
                 }
             }
         }
 
-        mesh = meshCollector.build();
+        mesh = AcceleratedEntityRenderingFeature.getMeshBuilder().build(meshCollector);
 
-        meshes.put(renderType, mesh);
+        meshes.put(bufferGraph, mesh);
         mesh.write(
                 extension,
                 color,
