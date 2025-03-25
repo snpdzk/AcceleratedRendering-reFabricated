@@ -3,7 +3,6 @@ package com.github.argon4w.acceleratedrendering.core.utils;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.lwjgl.system.MemoryUtil;
 
 public class MemUtils {

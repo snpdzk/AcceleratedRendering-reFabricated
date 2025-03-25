@@ -1,7 +1,6 @@
 package com.github.argon4w.acceleratedrendering.core.meshes;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.IAcceleratedVertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 public interface IMesh {
 
