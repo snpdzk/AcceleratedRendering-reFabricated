@@ -88,7 +88,7 @@ public abstract class LevelRendererMixin {
         if (progress >= 0) {
             bufferSource = new SimpleCrumblingBufferSource(
                     bufferSource,
-                    ModelBakery.DESTROY_TYPES.get(progress),
+                    progress,
                     pPoseStack,
                     1.0f
             );
