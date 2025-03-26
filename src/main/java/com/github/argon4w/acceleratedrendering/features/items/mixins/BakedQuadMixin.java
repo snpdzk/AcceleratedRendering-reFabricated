@@ -47,7 +47,7 @@ public abstract class BakedQuadMixin implements IAcceleratedBakedQuad {
             int color
     ) {
         IBufferGraph bufferGraph = extension.getBufferGraph();
-        RenderType renderType = bufferGraph.getRenderType();
+        RenderType renderType = extension.getRenderType();
 
         Map<IBufferGraph, IMesh> meshes = MESHES.get(vertices);
         IMesh mesh = meshes.get(bufferGraph);

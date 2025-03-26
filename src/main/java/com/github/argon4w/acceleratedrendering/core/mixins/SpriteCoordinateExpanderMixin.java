@@ -6,6 +6,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderer
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.buffers.graphs.IBufferGraph;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SpriteCoordinateExpander;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
@@ -22,6 +23,12 @@ public class SpriteCoordinateExpanderMixin implements IAcceleratedVertexConsumer
 
     @Shadow @Final private VertexConsumer delegate;
     @Shadow @Final private TextureAtlasSprite sprite;
+
+    @Unique
+    @Override
+    public VertexConsumer decorate(VertexConsumer buffer) {
+        return new AcceleratedSpriteCoordinateExpander(buffer, sprite);
+    }
 
     @Unique
     @Override
@@ -44,6 +51,12 @@ public class SpriteCoordinateExpanderMixin implements IAcceleratedVertexConsumer
     @Unique
     @Override
     public IBufferGraph getBufferGraph() {
+        throw new UnsupportedOperationException("Unsupported Operation.");
+    }
+
+    @Unique
+    @Override
+    public RenderType getRenderType() {
         throw new UnsupportedOperationException("Unsupported Operation.");
     }
 
@@ -91,13 +104,5 @@ public class SpriteCoordinateExpanderMixin implements IAcceleratedVertexConsumer
                 overlay,
                 color
         );
-    }
-
-    @Unique
-    @Override
-    public VertexConsumer decorate(
-            VertexConsumer buffer
-    ) {
-        return new AcceleratedSpriteCoordinateExpander(buffer, sprite);
     }
 }

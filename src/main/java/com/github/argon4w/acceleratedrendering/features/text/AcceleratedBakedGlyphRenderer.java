@@ -40,7 +40,7 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void>
         IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) vertexConsumer;
 
         IBufferGraph bufferGraph = extension.getBufferGraph();
-        RenderType renderType = bufferGraph.getRenderType();
+        RenderType renderType = extension.getRenderType();
 
         IMesh mesh = meshes.get(bufferGraph);
 
@@ -62,9 +62,9 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void>
 
         addGlyphQuad(
                 extension.decorate(meshCollector),
+                italic,
                 bakedGlyph,
-                new Vector3f(),
-                italic
+                new Vector3f()
         );
 
         mesh = AcceleratedTextRenderingFeature.getMeshBuilder().build(meshCollector);
@@ -82,9 +82,9 @@ public class AcceleratedBakedGlyphRenderer implements IAcceleratedRenderer<Void>
 
     public static void addGlyphQuad(
             VertexConsumer vertexConsumer,
+            boolean italic,
             BakedGlyph glyph,
-            Vector3f offset,
-            boolean italic
+            Vector3f offset
     ) {
         float italicOffsetUp = italic ? 1.0f - 0.25f * glyph.up : 0.0f;
         float italicOffsetDown = italic ? 1.0f - 0.25f * glyph.down : 0.0f;

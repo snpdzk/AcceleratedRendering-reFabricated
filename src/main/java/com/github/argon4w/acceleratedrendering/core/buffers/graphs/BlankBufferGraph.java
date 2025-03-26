@@ -21,11 +21,6 @@ public class BlankBufferGraph implements IBufferGraph {
     }
 
     @Override
-    public RenderType getRenderType() {
-        return renderType;
-    }
-
-    @Override
     public int hashCode() {
         return renderType.hashCode();
     }

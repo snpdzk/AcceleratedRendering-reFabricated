@@ -10,16 +10,20 @@ public class LoadPolygonProcessorEvent extends Event implements IModBusEvent {
 
     private final VertexFormat vertexFormat;
 
-    IPolygonProcessor processor;
+    private IPolygonProcessor processor;
 
     public LoadPolygonProcessorEvent(VertexFormat vertexFormat) {
         this.vertexFormat = vertexFormat;
-        processor = IPolygonProcessor.empty();
+        this.processor = EmptyPolygonProcessor.INSTANCE;
     }
 
     public void loadFor(VertexFormat vertexFormat, UnaryOperator<IPolygonProcessor> selector) {
         if (this.vertexFormat == vertexFormat) {
             this.processor = selector.apply(this.processor);
         }
+    }
+
+    public IPolygonProcessor getProcessor() {
+        return processor;
     }
 }

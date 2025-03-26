@@ -30,9 +30,12 @@ public class LevelRendererMixin {
             CallbackInfo ci
     ) {
         CoreBuffers.ENTITY.drawBuffers();
+        CoreBuffers.BLOCK.drawBuffers();
         CoreBuffers.POS_TEX.drawBuffers();
         CoreBuffers.POS_COLOR_TEX_LIGHT.drawBuffers();
+
         CoreBuffers.ENTITY.clearBuffers();
+        CoreBuffers.BLOCK.clearBuffers();
         CoreBuffers.POS_TEX.clearBuffers();
         CoreBuffers.POS_COLOR_TEX_LIGHT.clearBuffers();
     }

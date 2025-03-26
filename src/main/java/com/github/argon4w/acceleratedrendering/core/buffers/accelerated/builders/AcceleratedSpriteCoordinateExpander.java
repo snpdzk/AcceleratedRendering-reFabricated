@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.graphs.IBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.buffers.graphs.SpriteBufferGraph;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -23,7 +24,7 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
 
     @Override
     public VertexConsumer decorate(VertexConsumer buffer) {
-        return new AcceleratedSpriteCoordinateExpander(buffer, sprite);
+        return new AcceleratedSpriteCoordinateExpander(((IAcceleratedVertexConsumer) delegate).decorate(buffer), sprite);
     }
 
     @Override
@@ -44,6 +45,11 @@ public class AcceleratedSpriteCoordinateExpander implements IAcceleratedVertexCo
     @Override
     public IBufferGraph getBufferGraph() {
         return new SpriteBufferGraph(((IAcceleratedVertexConsumer) delegate).getBufferGraph(), sprite);
+    }
+
+    @Override
+    public RenderType getRenderType() {
+        return ((IAcceleratedVertexConsumer) delegate).getRenderType();
     }
 
     @Override

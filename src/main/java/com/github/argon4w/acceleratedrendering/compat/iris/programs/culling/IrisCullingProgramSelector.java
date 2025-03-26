@@ -1,8 +1,10 @@
 package com.github.argon4w.acceleratedrendering.compat.iris.programs.culling;
 
 import com.github.argon4w.acceleratedrendering.compat.iris.IrisCompatFeature;
-import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.IPolygonProgramDispatcher;
 import com.github.argon4w.acceleratedrendering.core.programs.culling.ICullingProgramSelector;
+import com.github.argon4w.acceleratedrendering.core.programs.extras.FlagsExtraVertexData;
+import com.github.argon4w.acceleratedrendering.core.programs.extras.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.utils.RenderTypeUtils;
 import com.github.argon4w.acceleratedrendering.features.culling.NormalCullingFeature;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -12,6 +14,9 @@ import net.minecraft.resources.ResourceLocation;
 
 public class IrisCullingProgramSelector implements ICullingProgramSelector {
 
+    public static final FlagsExtraVertexData EMPTY = new FlagsExtraVertexData();
+    public static final FlagsExtraVertexData NO_CULL = new FlagsExtraVertexData(0);
+
     private final ICullingProgramSelector parent;
     private final VertexFormat.Mode mode;
     private final IPolygonProgramDispatcher dispatcher;
@@ -19,23 +24,11 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
     public IrisCullingProgramSelector(
             ICullingProgramSelector parent,
             VertexFormat.Mode mode,
-            IPolygonProgramDispatcher dispatcher
+            ResourceLocation key
     ) {
         this.parent = parent;
         this.mode = mode;
-        this.dispatcher = dispatcher;
-    }
-
-    public IrisCullingProgramSelector(
-            ICullingProgramSelector parent,
-            VertexFormat.Mode mode,
-            ResourceLocation key
-    ) {
-        this(
-                parent,
-                mode,
-                new IrisCullingProgramDispatcher(mode, key)
-        );
+        this.dispatcher = new IrisCullingProgramDispatcher(mode, key);
     }
 
     @Override
@@ -72,31 +65,31 @@ public class IrisCullingProgramSelector implements ICullingProgramSelector {
     }
 
     @Override
-    public int getFlags(VertexFormat.Mode mode) {
+    public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
         if (!IrisCompatFeature.isEnabled()) {
-            return parent.getFlags(mode);
+            return parent.getExtraVertex(mode);
         }
 
         if (!IrisCompatFeature.isIrisCompatCullingEnabled()) {
-            return parent.getFlags(mode);
+            return parent.getExtraVertex(mode);
         }
 
         if (!NormalCullingFeature.isEnabled()) {
-            return parent.getFlags(mode);
+            return parent.getExtraVertex(mode);
         }
 
         if (this.mode != mode) {
-            return parent.getFlags(mode);
+            return parent.getExtraVertex(mode);
         }
 
         if (!IrisCompatFeature.isShadowCullingEnabled() && ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
-            return 0b0;
+            return EMPTY;
         }
 
         if (!NormalCullingFeature.shouldCull()) {
-            return 0b1;
+            return NO_CULL;
         }
 
-        return 0;
+        return EMPTY;
     }
 }

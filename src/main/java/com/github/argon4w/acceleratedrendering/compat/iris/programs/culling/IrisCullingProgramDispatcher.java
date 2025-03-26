@@ -4,7 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.backends.programs.ComputePro
 import com.github.argon4w.acceleratedrendering.core.backends.programs.Uniform;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 import com.github.argon4w.acceleratedrendering.core.programs.ComputeShaderProgramLoader;
-import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.IPolygonProgramDispatcher;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.shadows.ShadowRenderer;
@@ -21,16 +21,12 @@ public class IrisCullingProgramDispatcher implements IPolygonProgramDispatcher {
     private final Uniform polygonCountUniform;
     private final Uniform vertexOffsetUniform;
 
-    private IrisCullingProgramDispatcher(VertexFormat.Mode mode, ComputeProgram program) {
+    public IrisCullingProgramDispatcher(VertexFormat.Mode mode, ResourceLocation key) {
         this.mode = mode;
-        this.program = program;
+        this.program = ComputeShaderProgramLoader.getProgram(key);
         this.viewMatrixUniform = program.getUniform("viewMatrix");
         this.polygonCountUniform = program.getUniform("polygonCount");
         this.vertexOffsetUniform = program.getUniform("vertexOffset");
-    }
-
-    public IrisCullingProgramDispatcher(VertexFormat.Mode mode, ResourceLocation key) {
-        this(mode, ComputeShaderProgramLoader.getProgram(key));
     }
 
     @Override

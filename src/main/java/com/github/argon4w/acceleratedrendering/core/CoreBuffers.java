@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 
 public class CoreBuffers {
 
+    public static final AcceleratedBufferSource BLOCK = new AcceleratedBufferSource(IBufferEnvironment.Presets.BLOCK);
     public static final AcceleratedBufferSource ENTITY = new AcceleratedBufferSource(IBufferEnvironment.Presets.ENTITY);
     public static final AcceleratedBufferSource POS_TEX = new AcceleratedBufferSource(IBufferEnvironment.Presets.POS_TEX);
     public static final AcceleratedBufferSource POS_COLOR_TEX_LIGHT = new AcceleratedBufferSource(IBufferEnvironment.Presets.POS_COLOR_TEX_LIGHT);
@@ -16,12 +17,12 @@ public class CoreBuffers {
 
     public static final RedirectingBufferSource CORE = RedirectingBufferSource.builder()
             .fallback(Minecraft.getInstance().renderBuffers().bufferSource())
+            .bufferSource(BLOCK)
             .bufferSource(ENTITY)
             .bufferSource(POS_TEX)
             .bufferSource(POS_COLOR_TEX_LIGHT)
             .mode(VertexFormat.Mode.QUADS)
             .mode(VertexFormat.Mode.TRIANGLES)
-            .mode(VertexFormat.Mode.LINES)
             .fallbackName("breeze_wind")
             .fallbackName("energy_swirl")
             .build();
@@ -31,7 +32,6 @@ public class CoreBuffers {
             .bufferSource(POS_TEX_COLOR)
             .mode(VertexFormat.Mode.QUADS)
             .mode(VertexFormat.Mode.TRIANGLES)
-            .mode(VertexFormat.Mode.LINES)
             .fallbackName("breeze_wind")
             .fallbackName("energy_swirl")
             .build();

@@ -29,6 +29,7 @@ public class ShadowRendererMixin implements IShadowBufferSourceGetter {
     @Unique
     private final Supplier<MultiBufferSource.BufferSource> SHADOW = Suppliers.memoize(() -> RedirectingBufferSource.builder()
             .fallback(buffers.bufferSource())
+            .bufferSource(IrisCompatBuffers.BLOCK_SHADOW)
             .bufferSource(IrisCompatBuffers.ENTITY_SHADOW)
             .bufferSource(IrisCompatBuffers.GLYPH_SHADOW)
             .bufferSource(IrisCompatBuffers.POS_TEX_SHADOW)
@@ -44,9 +45,12 @@ public class ShadowRendererMixin implements IShadowBufferSourceGetter {
             Camera playerCamera,
             CallbackInfo ci
     ) {
+        IrisCompatBuffers.BLOCK_SHADOW.drawBuffers();
         IrisCompatBuffers.ENTITY_SHADOW.drawBuffers();
         IrisCompatBuffers.GLYPH_SHADOW.drawBuffers();
         IrisCompatBuffers.POS_TEX_SHADOW.drawBuffers();
+
+        IrisCompatBuffers.BLOCK_SHADOW.clearBuffers();
         IrisCompatBuffers.ENTITY_SHADOW.clearBuffers();
         IrisCompatBuffers.POS_TEX_SHADOW.clearBuffers();
         IrisCompatBuffers.GLYPH_SHADOW.clearBuffers();

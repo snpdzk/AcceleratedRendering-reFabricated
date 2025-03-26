@@ -4,6 +4,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderer
 import com.github.argon4w.acceleratedrendering.core.buffers.graphs.DecalBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.buffers.graphs.IBufferGraph;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -45,16 +46,6 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
     }
 
     @Override
-    public VertexConsumer decorate(VertexConsumer buffer) {
-        return new AcceleratedSheetedDecalTextureGenerator(
-                buffer,
-                cameraInverse,
-                normalInverse,
-                textureScale
-        );
-    }
-
-    @Override
     public void beginTransform(Matrix4f transform, Matrix3f normal) {
         ((IAcceleratedVertexConsumer) delegate).beginTransform(transform, normal);
     }
@@ -72,6 +63,11 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
     @Override
     public IBufferGraph getBufferGraph() {
         return new DecalBufferGraph(((IAcceleratedVertexConsumer) delegate).getBufferGraph(), cameraInverse);
+    }
+
+    @Override
+    public RenderType getRenderType() {
+        return ((IAcceleratedVertexConsumer) delegate).getRenderType();
     }
 
     @Override
@@ -213,5 +209,15 @@ public class AcceleratedSheetedDecalTextureGenerator implements IAcceleratedVert
 
         delegate.setUv(-camera.x() * textureScale, -camera.y() * textureScale);
         return this;
+    }
+
+    @Override
+    public VertexConsumer decorate(VertexConsumer buffer) {
+        return new AcceleratedSheetedDecalTextureGenerator(
+                ((IAcceleratedVertexConsumer) delegate).decorate(buffer),
+                cameraInverse,
+                normalInverse,
+                textureScale
+        );
     }
 }

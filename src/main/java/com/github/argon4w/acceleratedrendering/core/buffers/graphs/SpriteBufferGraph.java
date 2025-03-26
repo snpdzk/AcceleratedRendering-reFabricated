@@ -1,6 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.graphs;
 
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 import java.util.Objects;
@@ -23,11 +22,6 @@ public class SpriteBufferGraph implements IBufferGraph {
     @Override
     public float mapV(float v) {
         return parent.mapV(sprite.getV(v));
-    }
-
-    @Override
-    public RenderType getRenderType() {
-        return parent.getRenderType();
     }
 
     @Override

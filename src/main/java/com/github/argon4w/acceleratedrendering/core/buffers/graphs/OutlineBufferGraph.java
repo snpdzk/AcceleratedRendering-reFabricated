@@ -1,7 +1,5 @@
 package com.github.argon4w.acceleratedrendering.core.buffers.graphs;
 
-import net.minecraft.client.renderer.RenderType;
-
 import java.util.Objects;
 
 public class OutlineBufferGraph implements IBufferGraph {
@@ -22,11 +20,6 @@ public class OutlineBufferGraph implements IBufferGraph {
     @Override
     public float mapV(float v) {
         return v;
-    }
-
-    @Override
-    public RenderType getRenderType() {
-        return parent.getRenderType();
     }
 
     @Override

@@ -1,12 +1,15 @@
 package com.github.argon4w.acceleratedrendering.core.programs.culling;
 
-import com.github.argon4w.acceleratedrendering.core.programs.IPolygonProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.dispatchers.IPolygonProgramDispatcher;
+import com.github.argon4w.acceleratedrendering.core.programs.extras.FlagsExtraVertexData;
+import com.github.argon4w.acceleratedrendering.core.programs.extras.IExtraVertexData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
 
 public class PassThroughCullingProgramSelector implements ICullingProgramSelector {
 
     public static final ICullingProgramSelector INSTANCE = new PassThroughCullingProgramSelector();
+    public static final FlagsExtraVertexData EMPTY = new FlagsExtraVertexData();
 
     @Override
     public IPolygonProgramDispatcher select(RenderType renderType) {
@@ -24,7 +27,7 @@ public class PassThroughCullingProgramSelector implements ICullingProgramSelecto
     }
 
     @Override
-    public int getFlags(VertexFormat.Mode mode) {
-        return 0;
+    public IExtraVertexData getExtraVertex(VertexFormat.Mode mode) {
+        return EMPTY;
     }
 }

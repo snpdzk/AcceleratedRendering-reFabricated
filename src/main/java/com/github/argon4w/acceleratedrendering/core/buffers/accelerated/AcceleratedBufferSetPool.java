@@ -9,7 +9,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.El
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.MappedBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.VertexBufferPool;
 import com.github.argon4w.acceleratedrendering.core.buffers.environments.IBufferEnvironment;
-import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
+import com.github.argon4w.acceleratedrendering.core.programs.extras.IExtraVertexData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -137,12 +137,8 @@ public class AcceleratedBufferSetPool {
             return bufferEnvironment.getOffset(element);
         }
 
-        public int getVertexSize() {
+        public long getVertexSize() {
             return bufferEnvironment.getVertexSize();
-        }
-
-        public int getFlags(VertexFormat.Mode mode) {
-            return bufferEnvironment.getFlags(mode);
         }
 
         public int getSharing() {

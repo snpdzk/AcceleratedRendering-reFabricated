@@ -19,9 +19,6 @@ public class LoadComputeShaderEvent extends Event implements IModBusEvent {
             ResourceLocation location,
             BarrierFlags... barrierFlags
     ) {
-        shaderLocations.put(key, new ComputeShaderProgramLoader.ShaderDefinition(
-                location,
-                BarrierFlags.getFlags(barrierFlags))
-        );
+        shaderLocations.put(key, new ComputeShaderProgramLoader.ShaderDefinition(location, BarrierFlags.getFlags(barrierFlags)));
     }
 }

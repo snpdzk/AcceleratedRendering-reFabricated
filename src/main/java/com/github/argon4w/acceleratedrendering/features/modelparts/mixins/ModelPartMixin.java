@@ -86,7 +86,7 @@ public class ModelPartMixin implements IAcceleratedRenderer<Void> {
         IAcceleratedVertexConsumer extension = ((IAcceleratedVertexConsumer) vertexConsumer);
 
         IBufferGraph bufferGraph = extension.getBufferGraph();
-        RenderType renderType = bufferGraph.getRenderType();
+        RenderType renderType = extension.getRenderType();
 
         IMesh mesh = meshes.get(bufferGraph);
 

@@ -76,7 +76,7 @@ public abstract class SimpleBakedModelMixin implements IAcceleratedBakedModel, I
         IAcceleratedVertexConsumer extension = (IAcceleratedVertexConsumer) vertexConsumer;
 
         IBufferGraph bufferGraph = extension.getBufferGraph();
-        RenderType renderType = bufferGraph.getRenderType();
+        RenderType renderType = extension.getRenderType();
 
         Int2ObjectMap<IMesh> layers = meshes.get(bufferGraph);
 

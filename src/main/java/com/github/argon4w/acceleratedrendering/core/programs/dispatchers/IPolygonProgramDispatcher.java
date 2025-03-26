@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.programs;
+package com.github.argon4w.acceleratedrendering.core.programs.dispatchers;
 
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.builders.AcceleratedBufferBuilder;
 

@@ -5,6 +5,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.graphs.IBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.buffers.graphs.OutlineBufferGraph;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -22,7 +23,7 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
 
     @Override
     public VertexConsumer decorate(VertexConsumer buffer) {
-        return new AcceleratedEntityOutlineGenerator(buffer, color);
+        return new AcceleratedEntityOutlineGenerator(((IAcceleratedVertexConsumer) delegate).decorate(buffer), color);
     }
 
     @Override
@@ -43,6 +44,11 @@ public class AcceleratedEntityOutlineGenerator implements IAcceleratedVertexCons
     @Override
     public IBufferGraph getBufferGraph() {
         return new OutlineBufferGraph(((IAcceleratedVertexConsumer) delegate).getBufferGraph(), color);
+    }
+
+    @Override
+    public RenderType getRenderType() {
+        return ((IAcceleratedVertexConsumer) delegate).getRenderType();
     }
 
     @Override

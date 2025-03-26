@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.programs.processing;
+package com.github.argon4w.acceleratedrendering.core.programs.extras;
 
 public interface IExtraVertexData {
 

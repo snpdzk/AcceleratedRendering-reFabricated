@@ -36,9 +36,12 @@ public class LevelRendererMixin {
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V"))
     public void drawCoreBuffers(MultiBufferSource.BufferSource instance, Operation<Void> original) {
         CoreBuffers.ENTITY.drawBuffers();
+        CoreBuffers.BLOCK.drawBuffers();
         CoreBuffers.POS_TEX.drawBuffers();
         CoreBuffers.POS_COLOR_TEX_LIGHT.drawBuffers();
+
         CoreBuffers.ENTITY.clearBuffers();
+        CoreBuffers.BLOCK.clearBuffers();
         CoreBuffers.POS_TEX.clearBuffers();
         CoreBuffers.POS_COLOR_TEX_LIGHT.clearBuffers();
 

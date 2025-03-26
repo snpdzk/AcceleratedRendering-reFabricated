@@ -10,16 +10,20 @@ public class LoadCullingProgramSelectorEvent extends Event implements IModBusEve
 
     private final VertexFormat vertexFormat;
 
-    ICullingProgramSelector selector;
+    private ICullingProgramSelector selector;
 
     public LoadCullingProgramSelectorEvent(VertexFormat vertexFormat) {
         this.vertexFormat = vertexFormat;
-        selector = ICullingProgramSelector.passThrough();
+        this.selector = PassThroughCullingProgramSelector.INSTANCE;
     }
 
     public void loadFor(VertexFormat vertexFormat, UnaryOperator<ICullingProgramSelector> selector) {
         if (this.vertexFormat == vertexFormat) {
             this.selector = selector.apply(this.selector);
         }
+    }
+
+    public ICullingProgramSelector getSelector() {
+        return selector;
     }
 }

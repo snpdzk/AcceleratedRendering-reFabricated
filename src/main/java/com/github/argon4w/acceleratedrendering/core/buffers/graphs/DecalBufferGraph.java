@@ -27,11 +27,6 @@ public class DecalBufferGraph implements IBufferGraph {
     }
 
     @Override
-    public RenderType getRenderType() {
-        return parent.getRenderType();
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hash(parent, localTransform);
     }

@@ -9,11 +9,29 @@ struct Vertex {
     float v0;
     int uv2;
     uint normal;
-    uint iris_entity_0;
-    uint iris_entity_1;
+    uint iris_entity;
     float iris_midcoord_u;
     float iris_midcoord_v;
     uint iris_at_tangent;
+    uint iris_mid_block;
+};
+
+struct VaryingData {
+    int offset;
+    int sharing;
+    int mesh;
+    int decal;
+    int flags;
+};
+
+struct DecalData {
+    mat4 cameraInverse;
+    mat3 normalInverse;
+    float scale;
+    float u0;
+    float v0;
+    float u1;
+    float v1;
 };
 
 layout(local_size_x = 128) in;
@@ -47,21 +65,26 @@ void main() {
     vec3 pos2 = vec3(vertex2.x, vertex2.y, vertex2.z);
     vec3 pos3 = vec3(vertex3.x, vertex3.y, vertex3.z);
 
+    vec3 midBlock1 = (vec3(0.5) - pos1) * 64.0;
+    vec3 midBlock2 = (vec3(0.5) - pos2) * 64.0;
+    vec3 midBlock3 = (vec3(0.5) - pos3) * 64.0;
+
     vec2 uv1 = vec2(vertex1.u0, vertex1.v0);
     vec2 uv2 = vec2(vertex2.u0, vertex2.v0);
     vec2 uv3 = vec2(vertex3.u0, vertex3.v0);
-    vec2 midUV = (uv1 + uv2 + uv3) / 4;
+    vec2 midUV = (uv1 + uv2 + uv3) / 3;
 
-    vec3 normal = normalize(cross(pos2 - pos1, pos3 - pos1));
-    uint packedNormal = packSnorm4x8(vec4(normal, 0.0));
+    vec3 normal1 = unpackSnorm4x8(vertex1.normal).xyz;
+    vec3 normal2 = unpackSnorm4x8(vertex2.normal).xyz;
+    vec3 normal3 = unpackSnorm4x8(vertex3.normal).xyz;
 
-    vertices[index1].normal = packedNormal;
-    vertices[index2].normal = packedNormal;
-    vertices[index3].normal = packedNormal;
+    vertices[index1].iris_mid_block = packSnorm4x8(vec4(midBlock1, -1.0));
+    vertices[index2].iris_mid_block = packSnorm4x8(vec4(midBlock2, -1.0));
+    vertices[index3].iris_mid_block = packSnorm4x8(vec4(midBlock3, -1.0));
 
-    vertices[index1].iris_at_tangent = computeTangentSmooth(pos1, pos2, pos3, uv1, uv2, uv3, normal);
-    vertices[index2].iris_at_tangent = computeTangentSmooth(pos1, pos2, pos3, uv1, uv2, uv3, normal);
-    vertices[index3].iris_at_tangent = computeTangentSmooth(pos1, pos2, pos3, uv1, uv2, uv3, normal);
+    vertices[index1].iris_at_tangent = computeTangentSmooth(pos1, pos2, pos3, uv1, uv2, uv3, normal1);
+    vertices[index2].iris_at_tangent = computeTangentSmooth(pos1, pos2, pos3, uv1, uv2, uv3, normal2);
+    vertices[index3].iris_at_tangent = computeTangentSmooth(pos1, pos2, pos3, uv1, uv2, uv3, normal3);
 
     vertices[index1].iris_midcoord_u = midUV.x;
     vertices[index2].iris_midcoord_u = midUV.x;

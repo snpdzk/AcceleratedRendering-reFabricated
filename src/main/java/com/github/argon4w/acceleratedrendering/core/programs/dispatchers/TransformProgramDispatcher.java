@@ -1,4 +1,4 @@
-package com.github.argon4w.acceleratedrendering.core.programs.transform;
+package com.github.argon4w.acceleratedrendering.core.programs.dispatchers;
 
 import com.github.argon4w.acceleratedrendering.core.backends.buffers.MappedBuffer;
 import com.github.argon4w.acceleratedrendering.core.backends.programs.ComputeProgram;
@@ -19,14 +19,10 @@ public class TransformProgramDispatcher {
     private final Uniform vertexCountUniform;
     private final Uniform vertexOffsetUniform;
 
-    private TransformProgramDispatcher(ComputeProgram program) {
-        this.program = program;
+    public TransformProgramDispatcher(ResourceLocation key) {
+        this.program = ComputeShaderProgramLoader.getProgram(key);
         this.vertexCountUniform = program.getUniform("vertexCount");
         this.vertexOffsetUniform = program.getUniform("vertexOffset");
-    }
-
-    public TransformProgramDispatcher(ResourceLocation key) {
-        this(ComputeShaderProgramLoader.getProgram(key));
     }
 
     public void dispatch(Collection<AcceleratedBufferBuilder> builders) {

@@ -8,7 +8,7 @@ import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.pools.Ve
 import com.github.argon4w.acceleratedrendering.core.buffers.accelerated.renderers.IAcceleratedRenderer;
 import com.github.argon4w.acceleratedrendering.core.buffers.graphs.BlankBufferGraph;
 import com.github.argon4w.acceleratedrendering.core.buffers.graphs.IBufferGraph;
-import com.github.argon4w.acceleratedrendering.core.programs.processing.IExtraVertexData;
+import com.github.argon4w.acceleratedrendering.core.programs.extras.IExtraVertexData;
 import com.github.argon4w.acceleratedrendering.core.utils.MemUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -30,8 +30,9 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
     private final AcceleratedBufferSetPool.BufferSet bufferSet;
 
     private final IBufferGraph bufferGraph;
+    private final RenderType renderType;
     private final VertexFormat.Mode mode;
-    private final int vertexSize;
+    private final long vertexSize;
     private final int polygonSize;
     private final int polygonElementCount;
 
@@ -69,7 +70,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         this.bufferSet = bufferSet;
 
         this.bufferGraph = new BlankBufferGraph(renderType);
-        this.mode = renderType.mode;
+        this.renderType = renderType;
+        this.mode = this.renderType.mode;
         this.vertexSize = this.bufferSet.getVertexSize();
         this.polygonSize = this.mode.primitiveLength;
         this.polygonElementCount = this.mode.indexCount(this.polygonSize);
@@ -129,7 +131,6 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         MemoryUtil.memPutInt(varyingAddress + 0L * 4L, 0);
         MemoryUtil.memPutInt(varyingAddress + 1L * 4L, activeSharing);
         MemoryUtil.memPutInt(varyingAddress + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varyingAddress + 3L * 4L, bufferSet.getFlags(mode));
 
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
         data.addExtraVertex(vertexAddress);
@@ -296,7 +297,6 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         MemoryUtil.memPutInt(varyingAddress + 0L * 4L, 0);
         MemoryUtil.memPutInt(varyingAddress + 1L * 4L, activeSharing);
         MemoryUtil.memPutInt(varyingAddress + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varyingAddress + 3L * 4L, bufferSet.getFlags(mode));
 
         if (colorOffset != -1) {
             MemoryUtil.memPutInt(vertexAddress + colorOffset + 0L, FastColor.ABGR32.fromArgb32(pColor));
@@ -370,9 +370,9 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             int light,
             int overlay
     ) {
-        long vertexAddress = vertexBuffer.reserve(vertexSize * (long) size);
+        long bufferSize = vertexSize * size;
+        long vertexAddress = vertexBuffer.reserve(bufferSize);
         long varyingAddress = varyingBuffer.reserve(4L * 4L * size);
-        long bufferSize = (long) size * bufferSet.getVertexSize();
 
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
         data.addExtraVertex(vertexAddress);
@@ -398,7 +398,6 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
 
         MemoryUtil.memPutInt(varyingAddress + 1L * 4L, activeSharing);
         MemoryUtil.memPutInt(varyingAddress + 2L * 4L, -1);
-        MemoryUtil.memPutInt(varyingAddress + 3L * 4L, bufferSet.getFlags(mode));
 
         for (int i = 0; i < size; i++) {
             MemoryUtil.memPutInt(varyingAddress + i * 4L * 4L, i);
@@ -416,8 +415,8 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
             int light,
             int overlay
     ) {
-        int meshOffset = offset / vertexSize;
-        long vertexAddress = vertexBuffer.reserve(vertexSize * (long) size);
+        long meshOffset = offset / vertexSize;
+        long vertexAddress = vertexBuffer.reserve(vertexSize * size);
         long varyingAddress = varyingBuffer.reserve(4L * 4L * size);
 
         IExtraVertexData data = bufferSet.getExtraVertex(mode);
@@ -437,8 +436,7 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
         }
 
         MemoryUtil.memPutInt(varyingAddress + 1L * 4L, activeSharing);
-        MemoryUtil.memPutInt(varyingAddress + 2L * 4L, meshOffset);
-        MemoryUtil.memPutInt(varyingAddress + 3L * 4L, bufferSet.getFlags(mode));
+        MemoryUtil.memPutInt(varyingAddress + 2L * 4L, (int) meshOffset);
 
         for (int i = 0; i < size; i++) {
             MemoryUtil.memPutInt(varyingAddress + i * 4L * 4L, i);
@@ -482,6 +480,11 @@ public class AcceleratedBufferBuilder implements IAcceleratedVertexConsumer, Ver
     @Override
     public IBufferGraph getBufferGraph() {
         return bufferGraph;
+    }
+
+    @Override
+    public RenderType getRenderType() {
+        return renderType;
     }
 
     public boolean isEmpty() {
