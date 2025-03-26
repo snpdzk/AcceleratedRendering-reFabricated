@@ -136,6 +136,13 @@ public abstract class SimpleBakedModelMixin implements IAcceleratedBakedModel, I
                     float normalY = ((byte) ((packedNormal >> 8) & 0xFF)) / 127.0f;
                     float normalZ = ((byte) ((packedNormal >> 16) & 0xFF)) / 127.0f;
 
+                    //workaround
+                    if (normalX == 0 && normalY == 0 && normalZ == 0) {
+                        normalX = quad.getDirection().getNormal().getX();
+                        normalY = quad.getDirection().getNormal().getY();
+                        normalZ = quad.getDirection().getNormal().getZ();
+                    }
+
                     polygon[i] = new Vertex(
                             new Vector3f(posX, posY, posZ),
                             new Vector2f(u0, v0),
